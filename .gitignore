@@ -1,0 +1,7 @@
+bin
+obj
+packages
+*.suo
+*.user
+*.cache
+*.orig

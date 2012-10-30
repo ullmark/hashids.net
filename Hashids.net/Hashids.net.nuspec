@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<package>
+	<metadata>
+		<id>$id$</id>
+		<title>hashids.net</title>
+		<version>$version$</version>
+		<authors>$author$</authors>
+		<description>$description$</description>
+		<language>en-US</language>
+		<dependencies>
+		</dependencies>
+		<frameworkAssemblies>
+		</frameworkAssemblies>
+		<projectUrl>https://github.com/ullmark/hashids.net</projectUrl>
+		<tags>ids hash</tags>
+	</metadata>
+</package>
