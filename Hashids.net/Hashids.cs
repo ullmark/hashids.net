@@ -11,20 +11,20 @@ namespace Hashids.net
 	/// </summary>
 	public class Hashids
 	{
-		public const string VERSION = "0.0.1";
 		public const string DEFAULT_ALPHABET = "xcS4F6h89aUbideAI7tkynuopqrXCgTE5GBKHLMjfRsz";
 
-		private static IEnumerable<int> primes = new int[] { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43 };
-		private static IEnumerable<int> sepsIndices = new int[] { 0, 4, 8, 12 };
-		private IEnumerable<char> seps;
-		private IEnumerable<char> guards;
+		private static int[] primes = new int[] { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43 };
+		private static int[] sepsIndices = new int[] { 0, 4, 8, 12 };
+
+		private char[] seps;
+		private char[] guards;
 
 		/// <summary>
 		/// Initializes a new Hashids encrypt-/decrypt-er
 		/// </summary>
 		/// <param name="salt"></param>
 		/// <param name="alphabet"></param>
-		public Hashids(string salt = "katKSA", uint minHashLength = 0, string alphabet = DEFAULT_ALPHABET)
+		public Hashids(string salt = "", int minHashLength = 0, string alphabet = DEFAULT_ALPHABET)
 		{
 			if (string.IsNullOrWhiteSpace(alphabet))
 				throw new ArgumentNullException("alphabet");
@@ -36,17 +36,50 @@ namespace Hashids.net
 			if (alphabet.Length < 4)
 				throw new ArgumentException("alphabet must contain atleast 4 unique characters.", "alphabet");
 			
-			seps = DetermineSeps();
-			guards = DetermineGuards();
+			this.SetupAlphabet();
 		}
 
+		/// <summary>
+		/// Prepares the alphabet for encypting/decryping
+		/// </summary>
+		private void SetupAlphabet()
+		{
+			var seps = new List<char>();
+			var guards = new List<char>();
+
+			foreach (var prime in primes)
+			{
+				var c = Alphabet.ElementAtOrDefault(prime - 1);
+				if (c != default(char))
+				{
+					seps.Add(c);
+					Alphabet = Alphabet.Replace(c, ' ');
+				}
+			}
+
+			foreach (var index in sepsIndices)
+			{
+				var separator = seps.ElementAtOrDefault(index);
+				if (separator != default(char))
+				{
+					guards.Add(separator);
+					seps.RemoveAt(index);
+				}
+			}
+
+			Alphabet = Alphabet.Replace(" ", string.Empty);
+			Alphabet = ConsistentShuffle(Alphabet, Salt);
+			
+			this.seps = seps.ToArray();
+			this.guards = guards.ToArray();
+		}
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="number"></param>
 		/// <returns></returns>
-		public string Encrypt(params uint[] numbers)
+		public string Encrypt(params int[] numbers)
 		{
 			return Encode(numbers, Alphabet, Salt, MinHashLength);
 		}
@@ -56,47 +89,166 @@ namespace Hashids.net
 		/// </summary>
 		/// <param name="hash"></param>
 		/// <returns></returns>
-		public uint[] Decrypt(string hash)
+		public int[] Decrypt(string hash)
 		{
-			return null;
-		}
-
-		private string Encode(IEnumerable<uint> numbers, string alphabet, string salt, uint minHashLength)
-		{
-			var seps = ConsistentShuffle(alphabet, salt);
-			return string.Empty;
+			return Decode(hash);
 		}
 
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <param name="numbers"></param>
+		/// <param name="alphabet"></param>
+		/// <param name="salt"></param>
+		/// <param name="minHashLength"></param>
 		/// <returns></returns>
-		private IEnumerable<char> DetermineSeps()
+		private string Encode(int[] numbers, string alphabet, string salt, int minHashLength = 0)
 		{
-			foreach (var prime in primes)
-			{
-				var sep = Alphabet.ElementAtOrDefault(prime - 1);
-				if (sep == default(char)) break;
-				Alphabet = Alphabet.Replace(sep, ' ');
-				yield return sep;
-			}
-		}
+			var ret = new StringBuilder();
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns></returns>
-		private IEnumerable<char> DetermineGuards()
-		{
-			foreach (var indice in sepsIndices)
+			var seps = ConsistentShuffle(alphabet, salt).ToArray();
+			char lotteryChar = default(char);
+
+			for (var i = 0; i < numbers.Length; i++)
 			{
-				var separator = seps.ElementAtOrDefault(indice);
-				if (separator != default(char))
+				if (i == 0)
 				{
-					seps = seps.Where((sep, index) => index != indice);
-					yield return separator;
+					var lotterySalt = string.Join("-", numbers);
+					foreach (var number in numbers) { lotterySalt += string.Concat("-", (number + 1) * 2); }
+
+					var lottery = ConsistentShuffle(alphabet, lotterySalt);
+					lotteryChar = lottery[0];
+					ret.Append(lotteryChar);
+					
+					alphabet = string.Concat(lotteryChar, alphabet.Replace(lotteryChar.ToString(), string.Empty));
+				}
+
+				alphabet = ConsistentShuffle(alphabet, string.Concat((int)lotteryChar & 12345, salt));
+				ret.Append(Hash(numbers[i], alphabet));
+
+				if ((i + 1) < numbers.Length)
+				{
+					var sepsIndex = (numbers[i] + i) % seps.Length;
+					ret.Append(seps[sepsIndex]);
 				}
 			}
+
+			if (ret.Length < minHashLength)
+			{
+				var firstIndex = 0;
+				for (var i = 0; i < numbers.Length; i++)
+				{
+					firstIndex += (i + 1) * numbers[i];
+				}
+				
+				var guardIndex = firstIndex % guards.Length;
+				var guard = guards[guardIndex];
+				ret.Insert(0, guard);
+
+				if (ret.Length < minHashLength)
+				{
+					guardIndex = (guardIndex + ret.Length) % guards.Length;
+					guard = guards[guardIndex];
+
+					ret.Append(guard);
+				}
+			}
+
+			while (ret.Length < minHashLength)
+			{
+				var padArray = new [] {(int)alphabet[1], (int)alphabet[0]};
+				var padLeft = Encode(padArray, alphabet, salt);
+				var padRight = Encode(padArray, alphabet, string.Join(string.Empty, padArray));
+
+				ret.Insert(0, padLeft);
+				ret.Append(padRight);
+
+				var excess = ret.Length - minHashLength;
+				var r = ret.ToString();
+
+				if (excess > 0)
+				{
+					ret.Clear();
+					ret.Append(r.Substring(excess / 2, minHashLength));
+				}
+				
+				alphabet = ConsistentShuffle(alphabet, salt + ret.ToString());
+			}
+
+			return ret.ToString();
+		}
+
+		private string Hash(int number, string alphabet)
+		{
+			var hash = string.Empty;
+
+			while (number > 0)
+			{
+				hash = string.Concat(alphabet[number % alphabet.Length], hash);
+				number = number / alphabet.Length;
+			}
+
+			return hash;
+		}
+
+		private int Unhash(string hash, string alphabet)
+		{
+			var number = 0;
+			for (var i = 0; i < hash.Length; i++)
+			{
+				var pos = alphabet.IndexOf(hash[i]);
+				number += pos * (int)Math.Pow(alphabet.Length, hash.Length - i - 1);
+			}
+
+			return number;
+		}
+
+		/// <summary>
+		/// Decodes the provided hash
+		/// </summary>
+		/// <param name="hash"></param>
+		/// <returns></returns>
+		private int[] Decode(string hash)
+		{
+			var ret = new List<int>();
+			if (!string.IsNullOrEmpty(hash))
+			{
+				var originalHash = hash;
+				var alphabet = "";
+				var lotteryChar = default(char);
+				var i = 0;
+
+				for (i = 0; i < guards.Length; i++)
+					hash = hash.Replace(guards[i], ' ');
+
+				var hashSplit = hash.Split(' ');
+				i = 0;
+
+				if (hashSplit.Length == 3 || hashSplit.Length == 2)
+					i = 1;
+
+				hash = hashSplit[i];
+
+				for (i = 0; i < seps.Length; i++)
+					hash = hash.Replace(seps[i], ' ');
+
+				var hashArray = hash.Split(' ');
+
+				for (i = 0; i < hashArray.Length; i++)
+				{
+					var subHash = hashArray[i];
+					if (!string.IsNullOrEmpty(subHash))
+					{
+						if (i == 0)
+						{
+							lotteryChar = hash[0];
+							subHash = subHash.Substring(1);
+							alphabet = lotteryChar + Alphabet.Replace(lotteryChar, "");
+						}
+					}
+				}
+			}
+			return ret.ToArray();
 		}
 
 		/// <summary>
@@ -105,47 +257,65 @@ namespace Hashids.net
 		/// <param name="alphabet"></param>
 		/// <param name="salt"></param>
 		/// <returns></returns>
-		private IEnumerable ConsistentShuffle(string alphabet, string salt)
+		private string ConsistentShuffle(string alphabet, string salt)
 		{
 			var ret = new StringBuilder();
-			var alphabetList = alphabet.ToList();
-			var sorting = salt.Select(c => (int)c).ToArray();
 
-			for (var i = 0; i < sorting.Length; i++)
+			if (string.IsNullOrEmpty(salt))
+				salt = new string(new [] {(char)0});
+
+			var alphabetList = alphabet.ToList();
+			var sortingArray = salt.Select(c => (int)c).ToArray();
+
+			for (var i = 0; i < sortingArray.Length; i++)
 			{
 				var add = true;
 				var k = i;
 
-				while (k != (sorting.Length + i - 1))
+				while (k != (sortingArray.Length + i - 1))
 				{
-					var nextIndex = (k + 1) % sorting.Length;
+					var nextIndex = (k + 1) % sortingArray.Length;
 
-					if (add) sorting[i] += sorting[nextIndex] + (k * i);
-					else sorting[i] -= sorting[nextIndex];
+					if (add) sortingArray[i] += sortingArray[nextIndex] + (k * i);
+					else sortingArray[i] -= sortingArray[nextIndex];
 					
 					add = !add;
 					k += 1;
 				}
 
-				sorting[i] = Math.Abs(sorting[i]);
+				sortingArray[i] = Math.Abs(sortingArray[i]);
 			}
 
 			var j = 0;
 
 			while (alphabetList.Count > 0)
 			{
-				var pos = sorting[j];
-				if (pos >= alphabetList.Count) pos %= alphabetList.Count;
+				var pos = sortingArray[j];
+				if (pos >= alphabetList.Count)
+				{ 
+					pos %= alphabetList.Count;
+				}
 				ret.Append(alphabetList[pos]);
 				alphabetList.RemoveAt(pos);
-				j = (j + 1) % alphabetList.Count;
+				j = ++j % sortingArray.Length;
 			}
 
 			return ret.ToString();
 		}
 
-		public uint MinHashLength { get; private set; }
+		/// <summary>
+		/// Gets the minimum hash length
+		/// </summary>
+		public int MinHashLength { get; private set; }
+
+		/// <summary>
+		/// Gets the Salt
+		/// </summary>
 		public string Salt { get; private set; }
+
+		/// <summary>
+		/// Gets the Alphabet
+		/// </summary>
 		public string Alphabet { get; private set; }
 	} 
 }
