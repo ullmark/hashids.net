@@ -8,7 +8,7 @@
     <ProjectGuid>{CCEDE06C-E296-4B83-9900-07749E4ED07F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Hashids.net.test</RootNamespace>
+    <RootNamespace>HashidsNet.test</RootNamespace>
     <AssemblyName>Hashids.net.test</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

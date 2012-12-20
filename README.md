@@ -30,6 +30,12 @@ Install the package with [NuGet][]
 
 ## Usage
 
+### Import namespace
+
+```C#
+using HashidsNet;
+```
+
 ### Encrypting one number
 
 You can pass a unique salt value so your hashes differ from everyone else's. I use "**this is my salt**" as an example.
@@ -62,7 +68,7 @@ Decryption will not work if salt is changed:
 
 ```C#
 var hashids = new Hashids("this is my pepper");
-numbers = hashids.decrypt("ryBo");
+numbers = hashids.Decrypt("ryBo");
 ```
 
 `numbers` is now going to be:
@@ -121,7 +127,7 @@ Here we set the alphabet to consist of only four letters: "abcd"
 
 ```C#
 var hashids = new Hashids("this is my salt", 0, "abcd")
-var hash = hashids.encrypt(1, 2, 3, 4, 5)
+var hash = hashids.Encrypt(1, 2, 3, 4, 5)
 ```
 
 `hash` is now going to be:
@@ -166,3 +172,5 @@ hashids.Encrypt(3); // => o9
 hashids.Encrypt(4); // => 4n
 hashids.Encrypt(5); // => a5
 ```
+
+[Nuget]: http://nuget.org/

@@ -4,10 +4,10 @@ using System;
 using System.Linq;
 using System.Text;
 
-namespace Hashids.net
+namespace HashidsNet
 {
 	/// <summary>
-	/// Generates Hash ids.
+	/// Generate YouTube-like hashes from one or many numbers. Use hashids when you do not want to expose your database ids to the user.
 	/// </summary>
 	public class Hashids
 	{

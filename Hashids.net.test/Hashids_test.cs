@@ -5,7 +5,7 @@ using System.Text;
 using FluentAssertions;
 using Xunit;
 
-namespace Hashids.net.test
+namespace HashidsNet.test
 {
 	public class Hashids_test
 	{

@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("hashids.net")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Generate YouTube-like hashes from one or many numbers. Use hashids when you do not want to expose your database ids to the user.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Markus Ullmark")]
 [assembly: AssemblyProduct("Hashids.net")]
