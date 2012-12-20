@@ -33,7 +33,7 @@ namespace Hashids.net
 			this.Alphabet = string.Join(string.Empty, alphabet.Distinct());
 			this.MinHashLength = minHashLength;
 
-			if (alphabet.Length < 4)
+			if (this.Alphabet.Length < 4)
 				throw new ArgumentException("alphabet must contain atleast 4 unique characters.", "alphabet");
 			
 			this.SetupAlphabet();
@@ -75,20 +75,20 @@ namespace Hashids.net
 		}
 
 		/// <summary>
-		/// 
+		/// Encrypts the provided numbers into a hash.
 		/// </summary>
-		/// <param name="number"></param>
-		/// <returns></returns>
+		/// <param name="number">the numbers</param>
+		/// <returns>the hash</returns>
 		public string Encrypt(params int[] numbers)
 		{
 			return Encode(numbers, Alphabet, Salt, MinHashLength);
 		}
 
 		/// <summary>
-		/// 
+		/// Decrypts the provided numbers into a array of numbers
 		/// </summary>
-		/// <param name="hash"></param>
-		/// <returns></returns>
+		/// <param name="hash">hash</param>
+		/// <returns>array of numbers.</returns>
 		public int[] Decrypt(string hash)
 		{
 			return Decode(hash);
@@ -106,7 +106,7 @@ namespace Hashids.net
 		{
 			var ret = new StringBuilder();
 
-			var seps = ConsistentShuffle(alphabet, salt).ToArray();
+			var seps = ConsistentShuffle(string.Join(string.Empty, this.seps), string.Join("", numbers)).ToArray();
 			char lotteryChar = default(char);
 
 			for (var i = 0; i < numbers.Length; i++)
@@ -243,9 +243,17 @@ namespace Hashids.net
 						{
 							lotteryChar = hash[0];
 							subHash = subHash.Substring(1);
-							alphabet = lotteryChar + Alphabet.Replace(lotteryChar, "");
+							alphabet = lotteryChar + Alphabet.Replace(lotteryChar.ToString(), string.Empty);
+						}
+
+						if (alphabet.Length > 0)
+						{
+							alphabet = ConsistentShuffle(alphabet, string.Concat((int)lotteryChar & 12345, this.Salt));
+							ret.Add(Unhash(subHash, alphabet));
 						}
 					}
+
+					//
 				}
 			}
 			return ret.ToArray();

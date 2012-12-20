@@ -2,7 +2,7 @@
 <package>
 	<metadata>
 		<id>$id$</id>
-		<title>hashids.net</title>
+		<title>Hashids.net</title>
 		<version>$version$</version>
 		<authors>$author$</authors>
 		<description>$description$</description>
