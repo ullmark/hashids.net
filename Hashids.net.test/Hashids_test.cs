@@ -133,5 +133,12 @@ namespace Hashids.net.test
 			Action invocation = () => new Hashids(alphabet: "aadsss");
 			invocation.ShouldThrow<ArgumentException>();
 		}
+
+		[Fact]
+		void it_can_encrypt_with_a_swapped_custom()
+		{
+			var hashids = new Hashids("this is my salt", 0, "abcd");
+			hashids.Encrypt(1, 2, 3, 4, 5).Should().Be("adcdacddcdaacdad");
+		}
 	}
 }

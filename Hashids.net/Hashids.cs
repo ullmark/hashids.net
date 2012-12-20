@@ -211,9 +211,10 @@ namespace Hashids.net
 		private int[] Decode(string hash)
 		{
 			var ret = new List<int>();
+			var originalHash = hash;
+			
 			if (!string.IsNullOrEmpty(hash))
 			{
-				var originalHash = hash;
 				var alphabet = "";
 				var lotteryChar = default(char);
 				var i = 0;
@@ -256,6 +257,13 @@ namespace Hashids.net
 					//
 				}
 			}
+
+			var numbers = ret.ToArray();
+			if (Encrypt(numbers) != originalHash)
+			{
+				return new int[0];
+			}
+
 			return ret.ToArray();
 		}
 
