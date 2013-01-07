@@ -63,7 +63,8 @@ namespace HashidsNet.test
 		[Fact]
 		void it_can_encrypt_to_a_minimum_length()
 		{
-			hashids.Encrypt(1).Should().Equals("b9iLXiAa");
+			var h = new Hashids(salt, 8);
+			h.Encrypt(1).Should().Be("b9iLXiAa");
 		}
 
 		[Fact]
