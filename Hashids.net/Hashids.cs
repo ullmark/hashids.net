@@ -79,7 +79,7 @@ namespace HashidsNet
 		/// </summary>
 		/// <param name="number">the numbers</param>
 		/// <returns>the hash</returns>
-		public string Encrypt(params int[] numbers)
+		public string Encrypt(params long[] numbers)
 		{
 			return Encode(numbers, Alphabet, Salt, MinHashLength);
 		}
@@ -89,7 +89,7 @@ namespace HashidsNet
 		/// </summary>
 		/// <param name="hash">hash</param>
 		/// <returns>array of numbers.</returns>
-		public int[] Decrypt(string hash)
+		public long[] Decrypt(string hash)
 		{
 			return Decode(hash);
 		}
@@ -102,7 +102,7 @@ namespace HashidsNet
 		/// <param name="salt"></param>
 		/// <param name="minHashLength"></param>
 		/// <returns></returns>
-		private string Encode(int[] numbers, string alphabet, string salt, int minHashLength = 0)
+		private string Encode(long[] numbers, string alphabet, string salt, int minHashLength = 0)
 		{
 			var ret = new StringBuilder();
 
@@ -135,7 +135,7 @@ namespace HashidsNet
 
 			if (ret.Length < minHashLength)
 			{
-				var firstIndex = 0;
+				long firstIndex = 0;
 				for (var i = 0; i < numbers.Length; i++)
 				{
 					firstIndex += (i + 1) * numbers[i];
@@ -156,7 +156,7 @@ namespace HashidsNet
 
 			while (ret.Length < minHashLength)
 			{
-				var padArray = new [] {(int)alphabet[1], (int)alphabet[0]};
+				var padArray = new [] {(long)alphabet[1], (long)alphabet[0]};
 				var padLeft = Encode(padArray, alphabet, salt);
 				var padRight = Encode(padArray, alphabet, string.Join(string.Empty, padArray));
 
@@ -178,13 +178,13 @@ namespace HashidsNet
 			return ret.ToString();
 		}
 
-		private string Hash(int number, string alphabet)
+		private string Hash(long number, string alphabet)
 		{
 			var hash = string.Empty;
 
 			while (number > 0)
 			{
-				hash = string.Concat(alphabet[number % alphabet.Length], hash);
+				hash = string.Concat(alphabet[(int)(number % alphabet.Length)], hash);
 				number = number / alphabet.Length;
 			}
 
@@ -208,9 +208,9 @@ namespace HashidsNet
 		/// </summary>
 		/// <param name="hash"></param>
 		/// <returns></returns>
-		private int[] Decode(string hash)
+		private long[] Decode(string hash)
 		{
-			var ret = new List<int>();
+			var ret = new List<long>();
 			var originalHash = hash;
 			
 			if (!string.IsNullOrEmpty(hash))
@@ -261,7 +261,7 @@ namespace HashidsNet
 			var numbers = ret.ToArray();
 			if (Encrypt(numbers) != originalHash)
 			{
-				return new int[0];
+				return new long[0L];
 			}
 
 			return ret.ToArray();

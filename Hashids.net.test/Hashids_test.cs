@@ -92,25 +92,25 @@ namespace HashidsNet.test
 		[Fact]
 		void it_decrypts_an_ecrypted_number()
 		{
-			hashids.Decrypt("ryBo").Should().Equal(new []{ 12345 });
-			hashids.Decrypt("qkpA").Should().Equal(new [] { 1337 });
-			hashids.Decrypt("6aX").Should().Equal(new [] { 808 });
-			hashids.Decrypt("gz9").Should().Equal(new [] { 303 });
+			hashids.Decrypt("ryBo").Should().Equal(new long[]{ 12345 });
+			hashids.Decrypt("qkpA").Should().Equal(new long[] { 1337 });
+			hashids.Decrypt("6aX").Should().Equal(new long[] { 808 });
+			hashids.Decrypt("gz9").Should().Equal(new long[] { 303 });
 		}
 
 		[Fact]
 		void it_decrypts_a_list_of_encrypted_numbers()
 		{
-			hashids.Decrypt("zBphL54nuMyu5").Should().Equal(new[] { 683, 94108, 123, 5 });
-			hashids.Decrypt("kEFy").Should().Equal(new[]{ 1, 2 });
-			hashids.Decrypt("Aztn").Should().Equal(new[]{ 6, 5 });
+			hashids.Decrypt("zBphL54nuMyu5").Should().Equal(new long[] { 683, 94108, 123, 5 });
+			hashids.Decrypt("kEFy").Should().Equal(new long[]{ 1, 2 });
+			hashids.Decrypt("Aztn").Should().Equal(new long[]{ 6, 5 });
 		}
 
 		[Fact]
 		void it_does_not_decrypt_with_a_different_salt()
 		{
 			var peppers = new Hashids("this is my pepper");
-			hashids.Decrypt("ryBo").Should().Equal(new []{ 12345 });
+			hashids.Decrypt("ryBo").Should().Equal(new long[]{ 12345 });
 			peppers.Decrypt("ryBo").Should().Equal(new int [0]);
 		}
 
@@ -118,7 +118,7 @@ namespace HashidsNet.test
 		void it_can_decrypt_from_a_hash_with_a_minimum_length()
 		{
 			var h = new Hashids(salt, 8);
-			h.Decrypt("b9iLXiAa").Should().Equal(new [] {1});
+			h.Decrypt("b9iLXiAa").Should().Equal(new long[] {1});
 		}
 
 		[Fact]
