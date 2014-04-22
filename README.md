@@ -2,6 +2,8 @@
 A small .NET package to generate YouTube-like hashes from one or many numbers. 
 Use hashids when you do not want to expose your database ids to the user.
 
+[http://www.hashids.org/net/](http://www.hashids.org/net/)
+
 ## What is it?
 
 hashids (Hash ID's) creates short, unique, decryptable hashes from unsigned integers.
@@ -47,7 +49,7 @@ var hash = hashids.Encrypt(12345);
 
 `hash` is now going to be:
 
-    ryBo
+    NkK9
 
 ### Decrypting
 
@@ -55,7 +57,7 @@ Notice during decryption, same salt value is used:
 
 ```C#
 var hashids = new Hashids("this is my salt");
-numbers = hashids.Decrypt("ryBo");
+numbers = hashids.Decrypt("NkK9");
 ```
 
 `numbers` is now going to be:
@@ -68,7 +70,7 @@ Decryption will not work if salt is changed:
 
 ```C#
 var hashids = new Hashids("this is my pepper");
-numbers = hashids.Decrypt("ryBo");
+numbers = hashids.Decrypt("NkK9");
 ```
 
 `numbers` is now going to be:
@@ -84,13 +86,13 @@ var hash = hashids.Encrypt(683, 94108, 123, 5);
 
 `hash` is now going to be:
 
-    zBphL54nuMyu5
+    aBMswoO2UB3Sj
 
 ### Decrypting is done the same way
 
 ```C#
 var hashids = new Hashids("this is my salt");
-var numbers = hashids.Decrypt("zBphL54nuMyu5")
+var numbers = hashids.Decrypt("aBMswoO2UB3Sj")
 ```
 
 `numbers` is now going to be:
@@ -108,13 +110,13 @@ var hash = hashids.Encrypt(1);
 
 `hash` is now going to be:
 
-    b9iLXiAa
+    gB0NV05e
 
 ### Decrypting
 
 ```C#
 var hashids = new Hashids("this is my salt", 8);
-var numbers = hashids.Decrypt("b9iLXiAa");
+var numbers = hashids.Decrypt("gB0NV05e");
 ```
 
 `numbers` is now going to be:
@@ -123,16 +125,16 @@ var numbers = hashids.Decrypt("b9iLXiAa");
 
 ### Specifying custom hash alphabet
 
-Here we set the alphabet to consist of only four letters: "abcd"
+Here we set the alphabet to consist of: "abcdefghijkABCDEFGHIJK12345"
 
 ```C#
-var hashids = new Hashids("this is my salt", 0, "abcd")
+var hashids = new Hashids("this is my salt", 0, "abcdefghijkABCDEFGHIJK12345")
 var hash = hashids.Encrypt(1, 2, 3, 4, 5)
 ```
 
 `hash` is now going to be:
 
-    adcdacddcdaacdad
+    Ec4iEHeF3
 
 ## Randomness
 
@@ -148,7 +150,7 @@ var hash = hashids.Encrypt(5, 5, 5, 5);
 
 You don't see any repeating patterns that might show there's 4 identical numbers in the hash:
 
-    GLh5SMs9
+    1Wc8cwcE
 
 Same with incremented numbers:
 
@@ -159,18 +161,51 @@ var hash = hashids.Encrypt(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 
 `hash` will be :
 
-    zEUzfySGIpuyhpF6HaC7
+    kRHnurhptKcjIDTWC3sx
 
 ### Incrementing number hashes:
 
 ```C#
 var hashids = new Hashids("this is my salt");
 
-hashids.Encrypt(1); // => LX
-hashids.Encrypt(2); // => ed
-hashids.Encrypt(3); // => o9
-hashids.Encrypt(4); // => 4n
-hashids.Encrypt(5); // => a5
+hashids.Encrypt(1); // => NV
+hashids.Encrypt(2); // => 6m
+hashids.Encrypt(3); // => yD
+hashids.Encrypt(4); // => 2l
+hashids.Encrypt(5); // => rD
 ```
+
+### Encrypting using a HEX string
+
+```C#
+var hashids = new Hashids("this is my salt");
+var hash = hashids.EncryptHex("DEADBEEF");
+```
+
+`hash` is now going to be: 
+
+    kRNrpKlJ
+
+### Decrypting to a HEX string
+
+```C#
+var hashids = new Hashids("this is my salt");
+var hex = hashids.DecryptHex("kRNrpKlJ");
+```
+
+`hex` is now going to be:
+
+    DEADBEEF
+
+## Changelog
+
+**0.3.3**
+
+  - Rewrote the code to support the new hashing algorithm.
+  - Support for `EncryptHex` and `DecryptHex`
+
+**0.1.4**
+
+  - Initial version of the port.
 
 [Nuget]: http://nuget.org/

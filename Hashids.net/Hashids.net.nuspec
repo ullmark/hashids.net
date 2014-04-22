@@ -7,11 +7,14 @@
 		<authors>$author$</authors>
 		<description>$description$</description>
 		<language>en-US</language>
-		<dependencies>
-		</dependencies>
-		<frameworkAssemblies>
-		</frameworkAssemblies>
-		<projectUrl>https://github.com/ullmark/hashids.net</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectUrl>https://github.com/ullmark/hashids.net</projectUrl>
 		<tags>ids hash</tags>
 	</metadata>
+  <files>
+    <file src="bin\Release\NET40\Hashids.net.dll" target="lib\net40\Hashids.net.dll" />
+    <file src="bin\Release\NET40\Hashids.net.pdb" target="lib\net40\Hashids.net.pdb" />
+    <file src="bin\Release\NET45\Hashids.net.dll" target="lib\net45\Hashids.net.dll" />
+    <file src="bin\Release\NET45\Hashids.net.dll" target="lib\net45\Hashids.net.pdb" />
+  </files>
 </package>
