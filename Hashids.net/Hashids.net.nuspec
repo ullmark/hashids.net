@@ -15,6 +15,6 @@
     <file src="bin\Release\NET40\Hashids.net.dll" target="lib\net40\Hashids.net.dll" />
     <file src="bin\Release\NET40\Hashids.net.pdb" target="lib\net40\Hashids.net.pdb" />
     <file src="bin\Release\NET45\Hashids.net.dll" target="lib\net45\Hashids.net.dll" />
-    <file src="bin\Release\NET45\Hashids.net.dll" target="lib\net45\Hashids.net.pdb" />
+    <file src="bin\Release\NET45\Hashids.net.pdb" target="lib\net45\Hashids.net.pdb" />
   </files>
 </package>
