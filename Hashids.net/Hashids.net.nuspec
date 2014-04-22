@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <package>
 	<metadata>
-		<id>$id$</id>
+		<id>hashids.net</id>
 		<title>Hashids.net</title>
-		<version>$version$</version>
-		<authors>$author$</authors>
-		<description>$description$</description>
+		<version>0.3.3</version>
+		<authors>Markus Ullmark</authors>
+		<description>Generate YouTube-like hashes from one or many numbers. Use hashids when you do not want to expose your database ids to the user.</description>
 		<language>en-US</language>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <projectUrl>https://github.com/ullmark/hashids.net</projectUrl>
