@@ -202,5 +202,19 @@ namespace HashidsNet.test
 			Action invocation = () => new Hashids(alphabet: "aadsss");
 			invocation.ShouldThrow<ArgumentException>();
 		}
+
+        [Fact]
+        void it_encrypts_and_decrypts_numbers_starting_with_0()
+        {
+            var hash = hashids.Encrypt(0, 1, 2);
+            hashids.Decrypt(hash).Should().Equal(new[] { 0, 1, 2 });
+        }
+
+        [Fact]
+        void it_encrypts_and_decrypts_numbers_ending_with_0()
+        {
+            var hash = hashids.Encrypt(1, 2, 0);
+            hashids.Decrypt(hash).Should().Equal(new[] { 1, 2, 0 });
+        }
 	}
 }
