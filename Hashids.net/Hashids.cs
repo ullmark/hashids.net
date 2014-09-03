@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System;
 using System.Linq;
 using System.Text;
@@ -10,7 +9,7 @@ namespace HashidsNet
 	/// <summary>
 	/// Generate YouTube-like hashes from one or many numbers. Use hashids when you do not want to expose your database ids to the user.
 	/// </summary>
-	public class Hashids
+	public class Hashids : IHashids
 	{
         public const string DEFAULT_ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         public const string DEFAULT_SEPS = "cfhistuCFHISTU";
@@ -111,7 +110,7 @@ namespace HashidsNet
 		/// <summary>
 		/// Encrypts the provided numbers into a hash.
 		/// </summary>
-		/// <param name="number">the numbers</param>
+		/// <param name="numbers">the numbers</param>
 		/// <returns>the hash</returns>
 		public string Encrypt(params int[] numbers)
 		{
