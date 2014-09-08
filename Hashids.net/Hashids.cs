@@ -7,11 +7,11 @@ using System.Text.RegularExpressions;
 
 namespace HashidsNet
 {
-	/// <summary>
-	/// Generate YouTube-like hashes from one or many numbers. Use hashids when you do not want to expose your database ids to the user.
-	/// </summary>
-	public class Hashids
-	{
+    /// <summary>
+    /// Generate YouTube-like hashes from one or many numbers. Use hashids when you do not want to expose your database ids to the user.
+    /// </summary>
+    public class Hashids
+    {
         public const string DEFAULT_ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         public const string DEFAULT_SEPS = "cfhistuCFHISTU";
 
@@ -21,8 +21,8 @@ namespace HashidsNet
 
         private string alphabet;
         private string salt;
-		private string seps;
-		private string guards;
+        private string seps;
+        private string guards;
         private int minHashLength;
 
         private Regex guardsRegex;
@@ -36,22 +36,22 @@ namespace HashidsNet
         /// <param name="salt"></param>
         /// <param name="minHashLength"></param>
         /// <param name="alphabet"></param>
-		public Hashids(string salt = "", int minHashLength = 0, string alphabet = DEFAULT_ALPHABET, string seps = DEFAULT_SEPS)
-		{
-			if (string.IsNullOrWhiteSpace(alphabet))
-				throw new ArgumentNullException("alphabet");
+        public Hashids(string salt = "", int minHashLength = 0, string alphabet = DEFAULT_ALPHABET, string seps = DEFAULT_SEPS)
+        {
+            if (string.IsNullOrWhiteSpace(alphabet))
+                throw new ArgumentNullException("alphabet");
 
-			this.salt = salt;
-			this.alphabet = string.Join(string.Empty, alphabet.Distinct());
+            this.salt = salt;
+            this.alphabet = string.Join(string.Empty, alphabet.Distinct());
             this.seps = seps;
-			this.minHashLength = minHashLength;
+            this.minHashLength = minHashLength;
 
-			if (this.alphabet.Length < 16)
-				throw new ArgumentException("alphabet must contain atleast 4 unique characters.", "alphabet");
+            if (this.alphabet.Length < 16)
+                throw new ArgumentException("alphabet must contain atleast 4 unique characters.", "alphabet");
 
             SetupSeps();
             SetupGuards();
-		}
+        }
 
         /// <summary>
         /// 
@@ -108,18 +108,18 @@ namespace HashidsNet
             guardsRegex = new Regex(string.Concat("[", guards, "]"), RegexOptions.Compiled);
         }
 
-		/// <summary>
-		/// Encrypts the provided numbers into a hash.
-		/// </summary>
-		/// <param name="number">the numbers</param>
-		/// <returns>the hash</returns>
-		public string Encrypt(params int[] numbers)
-		{
+        /// <summary>
+        /// Encrypts the provided numbers into a hash.
+        /// </summary>
+        /// <param name="number">the numbers</param>
+        /// <returns>the hash</returns>
+        public string Encrypt(params int[] numbers)
+        {
             if (numbers == null || numbers.Length == 0)
                 return string.Empty;
 
-			return Encode(numbers);
-		}
+            return Encode(numbers);
+        }
 
         /// <summary>
         /// Encrypts the provided hex string to a hashids hash.
@@ -143,18 +143,18 @@ namespace HashidsNet
             return this.Encrypt(numbers.ToArray());
         }
 
-		/// <summary>
-		/// Decrypts the provided numbers into a array of numbers
-		/// </summary>
-		/// <param name="hash">hash</param>
-		/// <returns>array of numbers.</returns>
-		public int[] Decrypt(string hash)
-		{
+        /// <summary>
+        /// Decrypts the provided numbers into a array of numbers
+        /// </summary>
+        /// <param name="hash">hash</param>
+        /// <returns>array of numbers.</returns>
+        public int[] Decrypt(string hash)
+        {
             if (string.IsNullOrWhiteSpace(hash))
                 return new int[0];
 
-			return Decode(hash, alphabet);
-		}
+            return Decode(hash, alphabet);
+        }
 
         /// <summary>
         /// 
@@ -172,16 +172,16 @@ namespace HashidsNet
             return ret.ToString();
         }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="numbers"></param>
-		/// <param name="alphabet"></param>
-		/// <param name="salt"></param>
-		/// <param name="minHashLength"></param>
-		/// <returns></returns>
-		private string Encode(int[] numbers)
-		{
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="numbers"></param>
+        /// <param name="alphabet"></param>
+        /// <param name="salt"></param>
+        /// <param name="minHashLength"></param>
+        /// <returns></returns>
+        private string Encode(int[] numbers)
+        {
             string ret;
             var alphabet = this.alphabet;
 
@@ -239,10 +239,10 @@ namespace HashidsNet
             }
 
             return ret.ToString();
-		}
+        }
 
-		private string Hash(int input, string alphabet)
-		{
+        private string Hash(int input, string alphabet)
+        {
             var hash = string.Empty;
 
             do
@@ -252,10 +252,10 @@ namespace HashidsNet
             } while (input > 0);
 
             return hash;
-		}
+        }
 
-		private int Unhash(string input, string alphabet)
-		{
+        private int Unhash(string input, string alphabet)
+        {
             int number = 0;
 
             for (var i = 0; i < input.Length; i++)
@@ -265,15 +265,15 @@ namespace HashidsNet
             }
 
             return number;
-		}
+        }
 
-		/// <summary>
-		/// Decodes the provided hash
-		/// </summary>
-		/// <param name="hash"></param>
-		/// <returns></returns>
-		private int[] Decode(string hash, string alphabet)
-		{
+        /// <summary>
+        /// Decodes the provided hash
+        /// </summary>
+        /// <param name="hash"></param>
+        /// <returns></returns>
+        private int[] Decode(string hash, string alphabet)
+        {
             var ret = new List<int>();
             int i = 0;
 
@@ -306,16 +306,16 @@ namespace HashidsNet
             }
 
             return ret.ToArray();
-		}
+        }
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="alphabet"></param>
-		/// <param name="salt"></param>
-		/// <returns></returns>
-		private string ConsistentShuffle(string alphabet, string salt)
-		{
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="alphabet"></param>
+        /// <param name="salt"></param>
+        /// <returns></returns>
+        private string ConsistentShuffle(string alphabet, string salt)
+        {
             if (string.IsNullOrWhiteSpace(salt))
                 return alphabet;
 
@@ -334,6 +334,6 @@ namespace HashidsNet
             }
 
             return alphabet;
-		}
-	} 
+        }
+    } 
 }
