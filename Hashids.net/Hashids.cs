@@ -31,6 +31,12 @@ namespace HashidsNet
         private static Regex hexSplitter = new Regex(@"[\w\W]{1,12}", RegexOptions.Compiled);
 
         /// <summary>
+        /// Instantiates a new Hashids with the default setup.
+        /// </summary>
+        public Hashids() : this(string.Empty, 0, DEFAULT_ALPHABET, DEFAULT_SEPS)
+        {}
+
+        /// <summary>
         /// Instantiates a new Hashids en/de-crypter.
         /// </summary>
         /// <param name="salt"></param>

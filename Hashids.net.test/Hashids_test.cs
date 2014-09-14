@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using FluentAssertions;
+using Moq;
 using Xunit;
 
 namespace HashidsNet.test
@@ -215,6 +216,14 @@ namespace HashidsNet.test
         {
             var hash = hashids.Encrypt(1, 2, 0);
             hashids.Decrypt(hash).Should().Equal(new[] { 1, 2, 0 });
+        }
+
+        [Fact]
+        void our_public_methods_can_be_mocked()
+        {
+            var mock = new Mock<Hashids>();
+            mock.Setup(hashids => hashids.Encrypt(It.IsAny<int[]>())).Returns("It works");
+            mock.Object.Encrypt(new[] { 1 }).Should().Be("It works");
         }
     }
 }

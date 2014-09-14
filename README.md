@@ -199,6 +199,10 @@ var hex = hashids.DecryptHex("kRNrpKlJ");
 
 ## Changelog
 
+**0.3.4**
+
+  - The public functions are now virtual and therefor can be mocked with a mocking library.
+
 **0.3.3**
 
   - Rewrote the code to support the new hashing algorithm.
