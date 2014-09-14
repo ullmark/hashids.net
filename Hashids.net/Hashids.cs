@@ -113,7 +113,7 @@ namespace HashidsNet
 		/// </summary>
 		/// <param name="number">the numbers</param>
 		/// <returns>the hash</returns>
-		public string Encrypt(params int[] numbers)
+		public virtual string Encrypt(params int[] numbers)
 		{
             if (numbers == null || numbers.Length == 0)
                 return string.Empty;
@@ -126,7 +126,7 @@ namespace HashidsNet
         /// </summary>
         /// <param name="hex"></param>
         /// <returns></returns>
-        public string EncryptHex(string hex)
+        public virtual string EncryptHex(string hex)
         {
             if (!hexValidator.IsMatch(hex))
                 return string.Empty;
@@ -148,7 +148,7 @@ namespace HashidsNet
 		/// </summary>
 		/// <param name="hash">hash</param>
 		/// <returns>array of numbers.</returns>
-		public int[] Decrypt(string hash)
+        public virtual int[] Decrypt(string hash)
 		{
             if (string.IsNullOrWhiteSpace(hash))
                 return new int[0];
@@ -161,7 +161,7 @@ namespace HashidsNet
         /// </summary>
         /// <param name="hash"></param>
         /// <returns></returns>
-        public string DecryptHex(string hash)
+        public virtual string DecryptHex(string hash)
         {
             var ret = new StringBuilder();
             var numbers = this.Decrypt(hash);
