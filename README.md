@@ -199,6 +199,19 @@ var hex = hashids.DecryptHex("kRNrpKlJ");
 
 ## Changelog
 
+**1.0.0**
+
+- Several public functions are renamed to be more appropriate:
+	- Function `Encrypt()` changed to `Encode()`
+	- Function `Decrypt()` changed to `Decode()`
+	- Function `EncryptHex()` changed to `EncodeHex()`
+	- Function `DecryptHex()` changed to `DecodeHex()`
+	
+	Hashids was designed to encode integers, primary ids at most. We've had several requests to encrypt sensitive data with Hashids and this is the wrong algorithm for that. So to encourage more appropriate use, `encrypt/decrypt` is being "downgraded" to `encode/decode`.
+
+- Version tag added: `1.0`
+- `README.md` updated
+
 **0.3.4**
 
   - The public functions are now virtual and therefor can be mocked with a mocking library.

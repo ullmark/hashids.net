@@ -115,15 +115,13 @@ namespace HashidsNet
         }
 
         /// <summary>
-        /// Encrypts the provided numbers into a hash.
+        /// Encodes the provided numbers into a string.
         /// </summary>
         /// <param name="number">the numbers</param>
         /// <returns>the hash</returns>
+        [Obsolete("Use 'Encode' instead. The methor was renamed to better explain what it actually does.")]
         public virtual string Encrypt(params int[] numbers)
         {
-            if (numbers == null || numbers.Length == 0)
-                return string.Empty;
-
             return Encode(numbers);
         }
 
@@ -132,7 +130,18 @@ namespace HashidsNet
         /// </summary>
         /// <param name="hex"></param>
         /// <returns></returns>
+        [Obsolete("Use 'EncodeHex' instead. The method was renamed to better explain what it actually does.")]
         public virtual string EncryptHex(string hex)
+        {
+            return EncodeHex(hex);
+        }
+
+        /// <summary>
+        /// Encrypts the provided hex string to a hashids hash.
+        /// </summary>
+        /// <param name="hex"></param>
+        /// <returns></returns>
+        public virtual string EncodeHex(string hex)
         {
             if (!hexValidator.IsMatch(hex))
                 return string.Empty;
@@ -146,7 +155,7 @@ namespace HashidsNet
                 numbers.Add(number);
             }
 
-            return this.Encrypt(numbers.ToArray());
+            return this.Encode(numbers.ToArray());
         }
 
         /// <summary>
@@ -154,23 +163,32 @@ namespace HashidsNet
         /// </summary>
         /// <param name="hash">hash</param>
         /// <returns>array of numbers.</returns>
+        [Obsolete("Use 'Decode' instead. Method was renamed to better explain what it actually does.")]
         public virtual int[] Decrypt(string hash)
         {
-            if (string.IsNullOrWhiteSpace(hash))
-                return new int[0];
-
-            return Decode(hash, alphabet);
+            return Decode(hash);
         }
 
         /// <summary>
-        /// 
+        /// Decodes the provided hash to a hex-string
         /// </summary>
         /// <param name="hash"></param>
         /// <returns></returns>
+        [Obsolete("Use 'DecodeHex' instead. The method was renamed to better explain what it actually does.")]
         public virtual string DecryptHex(string hash)
         {
+            return DecodeHex(hash);
+        }
+
+        /// <summary>
+        /// Decodes the provided hash into a hex-string
+        /// </summary>
+        /// <param name="hash"></param>
+        /// <returns></returns>
+        public virtual string DecodeHex(string hash)
+        {
             var ret = new StringBuilder();
-            var numbers = this.Decrypt(hash);
+            var numbers = this.Decode(hash);
 
             foreach (var number in numbers)
                 ret.Append(string.Format("{0:X}", number).Substring(1));
@@ -179,15 +197,15 @@ namespace HashidsNet
         }
 
         /// <summary>
-        /// 
+        /// Encodes the provided numbers into a string
         /// </summary>
         /// <param name="numbers"></param>
-        /// <param name="alphabet"></param>
-        /// <param name="salt"></param>
-        /// <param name="minHashLength"></param>
         /// <returns></returns>
-        private string Encode(int[] numbers)
+        public virtual string Encode(params int[] numbers)
         {
+            if (numbers == null || numbers.Length == 0)
+                return string.Empty;
+
             string ret;
             var alphabet = this.alphabet;
 
@@ -278,8 +296,13 @@ namespace HashidsNet
         /// </summary>
         /// <param name="hash"></param>
         /// <returns></returns>
-        private int[] Decode(string hash, string alphabet)
+        public virtual int[] Decode(string hash)
         {
+
+            if (string.IsNullOrWhiteSpace(hash))
+                return new int[0];
+
+            var alphabet = string.Copy(this.alphabet);
             var ret = new List<int>();
             int i = 0;
 
