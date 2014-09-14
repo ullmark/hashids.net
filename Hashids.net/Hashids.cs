@@ -98,7 +98,7 @@ namespace HashidsNet
                 guards = seps.Substring(0, guardCount);
                 seps = seps.Substring(guardCount);
             }
-            
+
             else
             {
                 guards = alphabet.Substring(0, guardCount);
@@ -113,7 +113,7 @@ namespace HashidsNet
         /// </summary>
         /// <param name="number">the numbers</param>
         /// <returns>the hash</returns>
-        public string Encrypt(params int[] numbers)
+        public virtual string Encrypt(params int[] numbers)
         {
             if (numbers == null || numbers.Length == 0)
                 return string.Empty;
@@ -126,7 +126,7 @@ namespace HashidsNet
         /// </summary>
         /// <param name="hex"></param>
         /// <returns></returns>
-        public string EncryptHex(string hex)
+        public virtual string EncryptHex(string hex)
         {
             if (!hexValidator.IsMatch(hex))
                 return string.Empty;
@@ -134,7 +134,7 @@ namespace HashidsNet
             var numbers = new List<int>();
             var matches = hexSplitter.Matches(hex);
 
-            foreach(Match match in matches)
+            foreach (Match match in matches)
             {
                 var number = Convert.ToInt32(string.Concat("1", match.Value), 16);
                 numbers.Add(number);
@@ -148,7 +148,7 @@ namespace HashidsNet
         /// </summary>
         /// <param name="hash">hash</param>
         /// <returns>array of numbers.</returns>
-        public int[] Decrypt(string hash)
+        public virtual int[] Decrypt(string hash)
         {
             if (string.IsNullOrWhiteSpace(hash))
                 return new int[0];
@@ -161,7 +161,7 @@ namespace HashidsNet
         /// </summary>
         /// <param name="hash"></param>
         /// <returns></returns>
-        public string DecryptHex(string hash)
+        public virtual string DecryptHex(string hash)
         {
             var ret = new StringBuilder();
             var numbers = this.Decrypt(hash);
@@ -292,7 +292,7 @@ namespace HashidsNet
                 hashBreakdown = sepsRegex.Replace(hashBreakdown, " ");
                 hashArray = hashBreakdown.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
-                for(var j = 0; j < hashArray.Length; j++)
+                for (var j = 0; j < hashArray.Length; j++)
                 {
                     var subHash = hashArray[j];
                     var buffer = lottery + this.salt + alphabet;
@@ -335,5 +335,5 @@ namespace HashidsNet
 
             return alphabet;
         }
-    } 
+    }
 }
