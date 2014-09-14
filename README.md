@@ -201,7 +201,7 @@ var hex = hashids.DecryptHex("kRNrpKlJ");
 
 **1.0.0**
 
-- Several public functions are renamed to be more appropriate:
+- Several public functions marked obsolete and renamed versions added, to be more appropriate:
 	- Function `Encrypt()` changed to `Encode()`
 	- Function `Decrypt()` changed to `Decode()`
 	- Function `EncryptHex()` changed to `EncodeHex()`
