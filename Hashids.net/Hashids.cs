@@ -10,7 +10,7 @@ namespace HashidsNet
     /// <summary>
     /// Generate YouTube-like hashes from one or many numbers. Use hashids when you do not want to expose your database ids to the user.
     /// </summary>
-    public class Hashids
+    public class Hashids : IHashidsProvider
     {
         public const string DEFAULT_ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         public const string DEFAULT_SEPS = "cfhistuCFHISTU";
@@ -37,7 +37,7 @@ namespace HashidsNet
         {}
 
         /// <summary>
-        /// Instantiates a new Hashids en/de-crypter.
+        /// Instantiates a new Hashids en/de-coder.
         /// </summary>
         /// <param name="salt"></param>
         /// <param name="minHashLength"></param>
@@ -119,7 +119,7 @@ namespace HashidsNet
         /// </summary>
         /// <param name="number">the numbers</param>
         /// <returns>the hash</returns>
-        [Obsolete("Use 'Encode' instead. The methor was renamed to better explain what it actually does.")]
+        [Obsolete("Use 'Encode' instead. The method was renamed to better explain what it actually does.")]
         public virtual string Encrypt(params int[] numbers)
         {
             return Encode(numbers);
@@ -363,6 +363,16 @@ namespace HashidsNet
             }
 
             return alphabet;
+        }
+
+        public long[] DecodeLong(string hash)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string EncodeLong(params long[] numbers)
+        {
+            throw new NotImplementedException();
         }
     }
 }
