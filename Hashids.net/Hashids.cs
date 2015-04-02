@@ -348,21 +348,20 @@ namespace HashidsNet
             if (string.IsNullOrWhiteSpace(salt))
                 return alphabet;
 
-            int v, p, n, j;
-            v = p = n = j = 0;
-
-            for (var i = alphabet.Length - 1; i > 0; i--, v++)
+            int n;
+            var letters = alphabet.ToCharArray();
+            for (int i = letters.Length - 1, v = 0, p = 0; i > 0; i--, v++)
             {
                 v %= salt.Length;
-                p += n = (int)salt[v];
-                j = (n + v + p) % i;
-
-                var temp = alphabet[j];
-                alphabet = alphabet.Substring(0, j) + alphabet[i] + alphabet.Substring(j + 1);
-                alphabet = alphabet.Substring(0, i) + temp + alphabet.Substring(i + 1);
+                p += (n = salt[v]);
+                var j = (n + v + p) % i;
+                // swap characters at positions i and j
+                var temp = letters[j];
+                letters[j] = letters[i];
+                letters[i] = temp;
             }
 
-            return alphabet;
+            return new string(letters);
         }
     }
 }
