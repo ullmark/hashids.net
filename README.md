@@ -199,6 +199,10 @@ var hex = hashids.DecryptHex("kRNrpKlJ");
 
 ## Changelog
 
+**1.0.1**
+
+- The .NET 4.0 version of the package used .NET 4.5 as build target. This was fixed and a new version was pushed to nuget. 
+
 **1.0.0**
 
 - Several public functions marked obsolete and renamed versions added, to be more appropriate:
