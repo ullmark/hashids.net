@@ -74,6 +74,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Hashids_perf.cs" />
     <Compile Include="Hashids_test.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

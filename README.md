@@ -199,6 +199,15 @@ var hex = hashids.DecryptHex("kRNrpKlJ");
 
 ## Changelog
 
+**1.1.0**
+
+- Added support for `long` via *new* functions to not introduce breaking changes.
+    - `EncodeLong` for encodes.
+	- `DecodeLong` for decodes.
+- Added interface `IHashidsProvider` for people who want an interface to work with.
+- Version tag added: `1.1.0`
+- `README.md` updated
+
 **1.0.1**
 
 - The .NET 4.0 version of the package used .NET 4.5 as build target. This was fixed and a new version was pushed to nuget. 

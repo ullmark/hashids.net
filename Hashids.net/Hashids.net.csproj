@@ -61,7 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Hashids.cs" />
-    <Compile Include="IHashidsProvider.cs" />
+    <Compile Include="IHashids.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

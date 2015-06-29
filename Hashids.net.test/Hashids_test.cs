@@ -48,6 +48,12 @@ namespace HashidsNet.test
             hashids.Encode(123000).Should().Be("58LzD");
             hashids.Encode(456000000).Should().Be("5gn6mQP");
             hashids.Encode(987654321).Should().Be("oyjYvry");
+
+            hashids.EncodeLong(1L).Should().Be("NV");
+            hashids.EncodeLong(2147483648L).Should().Be("21OjjRK");
+            hashids.EncodeLong(666555444333222L).Should().Be("KOepkaYj");
+            hashids.EncodeLong(12345678901112L).Should().Be("4EWK4grr");
+            hashids.EncodeLong(Int64.MaxValue).Should().Be("jv");
         }
 
         [Fact]
@@ -127,7 +133,7 @@ namespace HashidsNet.test
             hashids.EncodeHex("17b8d").Should().Be("MRWNE");
 
             // TODO: Support long?
-            //hashids.EncryptHex("1d7f21dd38").Should().Be("4o6Z7KqxE");
+            // hashids.EncodeHex("1d7f21dd38").Should().Be("4o6Z7KqxE");
             //hashids.EncryptHex("20015111d").Should().Be("ooweQVNB");
         }
 
@@ -143,13 +149,11 @@ namespace HashidsNet.test
             hashids.Decode("NkK9").Should().Equal(new [] { 12345 });
             hashids.Decode("5O8yp5P").Should().Equal(new [] { 666555444 });
 
-            // TODO: support longs?
-            //hashids.Decrypt("KVO9yy1oO5j").Should().Equal(new[] { 666555444333222 });
-
             hashids.Decode("Wzo").Should().Equal(new [] { 1337 });
             hashids.Decode("DbE").Should().Equal(new [] { 808 });
             hashids.Decode("yj8").Should().Equal(new[] { 303 });
 
+            hashids.DecodeLong("KVO9yy1oO5j").Should().Equal(new[] { 666555444333222L });
         }
 
         [Fact]
