@@ -38,85 +38,105 @@ Install the package with [NuGet][]
 using HashidsNet;
 ```
 
-### Encrypting one number
+### Encoding one number
 
 You can pass a unique salt value so your hashes differ from everyone else's. I use "**this is my salt**" as an example.
 
 ```C#
 var hashids = new Hashids("this is my salt");
-var hash = hashids.Encrypt(12345);
+var hash = hashids.Encode(12345);
 ```
 
 `hash` is now going to be:
 
     NkK9
 
-### Decrypting
-
-Notice during decryption, same salt value is used:
+If your id is stored as a `Int64` you need to use "EncodeLong".
 
 ```C#
 var hashids = new Hashids("this is my salt");
-numbers = hashids.Decrypt("NkK9");
+var hash = hashids.EncodeLong(666555444333222L);
+```
+
+`hash` is now going to be:
+
+    KVO9yy1oO5j
+
+### Decoding
+
+Notice during decoding, same salt value is used:
+
+```C#
+var hashids = new Hashids("this is my salt");
+numbers = hashids.Decode("NkK9");
 ```
 
 `numbers` is now going to be:
 
     [ 12345 ]
 
-### Decrypting with different salt
+```C#
+var hashids = new Hashids("this is my salt");
+numbers = hashids.DecodeLong("KVO9yy1oO5j");
+```
 
-Decryption will not work if salt is changed:
+`numbers` is now going to be:
+
+    [ 666555444333222L ]
+
+### Decoding with different salt
+
+Decoding will not work if salt is changed:
 
 ```C#
 var hashids = new Hashids("this is my pepper");
-numbers = hashids.Decrypt("NkK9");
+numbers = hashids.Decode("NkK9");
 ```
 
 `numbers` is now going to be:
 
     []
 
-### Encrypting several numbers
+### Encoding several numbers
 
 ```C#
 var hashids = new Hashids("this is my salt");
-var hash = hashids.Encrypt(683, 94108, 123, 5);
+var hash = hashids.Encode(683, 94108, 123, 5);
 ```
 
 `hash` is now going to be:
 
     aBMswoO2UB3Sj
 
-### Decrypting is done the same way
+### Decoding is done the same way
 
 ```C#
 var hashids = new Hashids("this is my salt");
-var numbers = hashids.Decrypt("aBMswoO2UB3Sj")
+var numbers = hashids.Decode("aBMswoO2UB3Sj")
 ```
 
 `numbers` is now going to be:
 
     [ 683, 94108, 123, 5 ]
 
-### Encrypting and specifying minimum hash length
+### Encoding and specifying minimum hash length
 
-Here we encrypt integer 1, and set the minimum hash length to **8** (by default it's **0** -- meaning hashes will be the shortest possible length).
+Here we encode integer 1, and set the minimum hash length to **8** (by default it's **0** -- meaning hashes will be the shortest possible length).
 
 ```C#
 var hashids = new Hashids("this is my salt", 8);
-var hash = hashids.Encrypt(1);
+var hash = hashids.Encode(1);
 ```
 
 `hash` is now going to be:
 
     gB0NV05e
 
-### Decrypting
+### Decoding 
 
 ```C#
 var hashids = new Hashids("this is my salt", 8);
-var numbers = hashids.Decrypt("gB0NV05e");
+var numbers = hashids.Decode("gB0NV05e");
 ```
 
 `numbers` is now going to be:
@@ -129,7 +149,7 @@ Here we set the alphabet to consist of: "abcdefghijkABCDEFGHIJK12345"
 
 ```C#
 var hashids = new Hashids("this is my salt", 0, "abcdefghijkABCDEFGHIJK12345")
-var hash = hashids.Encrypt(1, 2, 3, 4, 5)
+var hash = hashids.Encode(1, 2, 3, 4, 5)
 ```
 
 `hash` is now going to be:
@@ -145,7 +165,7 @@ Having said that, this algorithm does try to make these hashes unguessable and u
 
 ```C#
 var hashids = new Hashids("this is my salt");
-var hash = hashids.Encrypt(5, 5, 5, 5);
+var hash = hashids.Encode(5, 5, 5, 5);
 ```
 
 You don't see any repeating patterns that might show there's 4 identical numbers in the hash:
@@ -156,7 +176,7 @@ Same with incremented numbers:
 
 ```C#
 var hashids = new Hashids("this is my salt");
-var hash = hashids.Encrypt(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+var hash = hashids.Encode(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 ```
 
 `hash` will be :
@@ -168,29 +188,29 @@ var hash = hashids.Encrypt(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 ```C#
 var hashids = new Hashids("this is my salt");
 
-hashids.Encrypt(1); // => NV
-hashids.Encrypt(2); // => 6m
-hashids.Encrypt(3); // => yD
-hashids.Encrypt(4); // => 2l
-hashids.Encrypt(5); // => rD
+hashids.Encode(1); // => NV
+hashids.Encode(2); // => 6m
+hashids.Encode(3); // => yD
+hashids.Encode(4); // => 2l
+hashids.Encode(5); // => rD
 ```
 
-### Encrypting using a HEX string
+### Encoding using a HEX string
 
 ```C#
 var hashids = new Hashids("this is my salt");
-var hash = hashids.EncryptHex("DEADBEEF");
+var hash = hashids.EncodeHex("DEADBEEF");
 ```
 
 `hash` is now going to be: 
 
     kRNrpKlJ
 
-### Decrypting to a HEX string
+### Decoding to a HEX string
 
 ```C#
 var hashids = new Hashids("this is my salt");
-var hex = hashids.DecryptHex("kRNrpKlJ");
+var hex = hashids.DecodeHex("kRNrpKlJ");
 ```
 
 `hex` is now going to be:
@@ -204,7 +224,7 @@ var hex = hashids.DecryptHex("kRNrpKlJ");
 - Added support for `long` via *new* functions to not introduce breaking changes.
     - `EncodeLong` for encodes.
 	- `DecodeLong` for decodes.
-- Added interface `IHashidsProvider` for people who want an interface to work with.
+- Added interface `IHashids` for people who want an interface to work with.
 - Version tag added: `1.1.0`
 - `README.md` updated
 

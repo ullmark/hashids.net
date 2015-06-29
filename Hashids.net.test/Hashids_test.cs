@@ -84,6 +84,12 @@ namespace HashidsNet.test
         }
 
         [Fact]
+        void it_encodes_a_list_of_longs()
+        {
+            hashids.EncodeLong(666555444333222L, 12345678901112L).Should().Be("mPVbjj7yVMzCJL215n69");
+        }
+
+        [Fact]
         void it_returns_an_empty_string_if_no_numbers()
         {
             hashids.Encode().Should().Be(string.Empty);
@@ -139,7 +145,7 @@ namespace HashidsNet.test
             hashids.EncodeHex("185b0").Should().Be("9OyNW");
             hashids.EncodeHex("17b8d").Should().Be("MRWNE");
             hashids.EncodeHex("1d7f21dd38").Should().Be("4o6Z7KqxE");
-            hashids.EncryptHex("20015111d").Should().Be("ooweQVNB");
+            hashids.EncodeHex("20015111d").Should().Be("ooweQVNB");
         }
 
         [Fact]
@@ -182,6 +188,12 @@ namespace HashidsNet.test
 
             hashids.Decode("EMhN").Should().Equal(new [] { 31, 41 });
             hashids.Decode("glSgV").Should().Equal(new[] { 13, 89 });
+        }
+
+        [Fact]
+        void it_decodes_a_list_of_longs()
+        {
+            hashids.DecodeLong("mPVbjj7yVMzCJL215n69").Should().Equal(new[] { 666555444333222L, 12345678901112L });
         }
 
         [Fact]
