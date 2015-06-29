@@ -100,16 +100,16 @@ namespace HashidsNet
             if (!hexValidator.IsMatch(hex))
                 return string.Empty;
 
-            var numbers = new List<int>();
+            var numbers = new List<long>();
             var matches = hexSplitter.Matches(hex);
 
             foreach (Match match in matches)
             {
-                var number = Convert.ToInt32(string.Concat("1", match.Value), 16);
+                var number = Convert.ToInt64(string.Concat("1", match.Value), 16);
                 numbers.Add(number);
             }
 
-            return this.Encode(numbers.ToArray());
+            return this.EncodeLong(numbers.ToArray());
         }
 
         /// <summary>
@@ -270,7 +270,7 @@ namespace HashidsNet
             var ret = new StringBuilder();
             var alphabet = this.alphabet;
 
-            int numbersHashInt = 0;
+            long numbersHashInt = 0;
             for (var i = 0; i < numbers.Length; i++)
                 numbersHashInt += (int)(numbers[i] % (i + 100));
 
@@ -337,7 +337,7 @@ namespace HashidsNet
             do
             {
                 hash.Insert(0, alphabet[(int)(input % alphabet.Length)]);
-                input = (int)(input / alphabet.Length);
+                input = (input / alphabet.Length);
             } while (input > 0);
 
             return hash.ToString();
