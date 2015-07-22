@@ -8,28 +8,14 @@ using Xunit;
 
 namespace HashidsNet.test
 {
-    public class Hashids_test
+    public class HashidsPcl_Tests
     {
         Hashids hashids;
         private string salt = "this is my salt";
-        private string defaultAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-        private string defaultSeps = "cfhistuCFHISTU";
 
-        public Hashids_test()
+        public HashidsPcl_Tests()
         {
             hashids = new Hashids(salt);
-        }
-
-        [Fact]
-        void it_has_correct_default_alphabet()
-        {
-            Hashids.DEFAULT_ALPHABET.Should().Be(defaultAlphabet);
-        }
-
-        [Fact]
-        void it_has_correct_default_separators()
-        {
-            Hashids.DEFAULT_SEPS.Should().Be(defaultSeps);
         }
 
         [Fact]
@@ -222,16 +208,9 @@ namespace HashidsNet.test
         }
 
         [Fact]
-        void it_raises_an_argument_null_exception_when_alphabet_is_null()
-        {
-            Action invocation = () => new Hashids(alphabet: null);
-            invocation.ShouldThrow<ArgumentNullException>();
-        }
-
-        [Fact]
         void it_raises_an_argument_null_exception_if_alphabet_contains_less_than_4_unique_characters()
         {
-            Action invocation = () => new Hashids(alphabet: "aadsss");
+            Action invocation = () => new Hashids(string.Empty, 0, "aadsss");
             invocation.ShouldThrow<ArgumentException>();
         }
 
