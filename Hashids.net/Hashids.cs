@@ -1,6 +1,5 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using System;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -27,14 +26,20 @@ namespace HashidsNet
 
         private Regex guardsRegex;
         private Regex sepsRegex;
+
+#if PCL
+        private static Regex hexValidator = new Regex("^[0-9a-fA-F]+$");
+        private static Regex hexSplitter = new Regex(@"[\w\W]{1,12}");
+#else
         private static Regex hexValidator = new Regex("^[0-9a-fA-F]+$", RegexOptions.Compiled);
         private static Regex hexSplitter = new Regex(@"[\w\W]{1,12}", RegexOptions.Compiled);
+#endif
 
         /// <summary>
         /// Instantiates a new Hashids with the default setup.
         /// </summary>
         public Hashids() : this(string.Empty, 0, DEFAULT_ALPHABET, DEFAULT_SEPS)
-        {}
+        { }
 
         /// <summary>
         /// Instantiates a new Hashids en/de-coder.
@@ -48,7 +53,12 @@ namespace HashidsNet
                 throw new ArgumentNullException("alphabet");
 
             this.salt = salt;
+
+#if PCL
+            this.alphabet = string.Join(string.Empty, alphabet.ToCharArray().Distinct());
+#else
             this.alphabet = string.Join(string.Empty, alphabet.Distinct());
+#endif
             this.seps = seps;
             this.minHashLength = minHashLength;
 
@@ -129,7 +139,7 @@ namespace HashidsNet
         }
 
         /// <summary>
-        /// Decodes the provided hashed string into an array of longs 
+        /// Decodes the provided hashed string into an array of longs
         /// </summary>
         /// <param name="hash">the hashed string</param>
         /// <returns>the numbers</returns>
@@ -203,16 +213,23 @@ namespace HashidsNet
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         private void SetupSeps()
         {
-            // seps should contain only characters present in alphabet; 
+            // seps should contain only characters present in alphabet;
+#if PCL
+            seps = new String(seps.ToCharArray().Intersect(alphabet.ToCharArray().ToArray()).ToArray());
+#else
             seps = new String(seps.Intersect(alphabet.ToArray()).ToArray());
+#endif
 
             // alphabet should not contain seps.
+#if PCL
+            alphabet = new String(alphabet.ToCharArray().Except(seps.ToCharArray().ToArray()).ToArray());
+#else
             alphabet = new String(alphabet.Except(seps.ToArray()).ToArray());
-
+#endif
             seps = ConsistentShuffle(seps, salt);
 
             if (seps.Length == 0 || (alphabet.Length / seps.Length) > SEP_DIV)
@@ -227,16 +244,20 @@ namespace HashidsNet
                     seps += alphabet.Substring(0, diff);
                     alphabet = alphabet.Substring(diff);
                 }
-
                 else seps = seps.Substring(0, sepsLength);
             }
 
+#if PCL
+            sepsRegex = new Regex(string.Concat("[", seps, "]"));
+#else
             sepsRegex = new Regex(string.Concat("[", seps, "]"), RegexOptions.Compiled);
+#endif
+
             alphabet = ConsistentShuffle(alphabet, salt);
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         private void SetupGuards()
         {
@@ -247,14 +268,16 @@ namespace HashidsNet
                 guards = seps.Substring(0, guardCount);
                 seps = seps.Substring(guardCount);
             }
-
             else
             {
                 guards = alphabet.Substring(0, guardCount);
                 alphabet = alphabet.Substring(guardCount);
             }
-
+#if PCL
+            guardsRegex = new Regex(string.Concat("[", guards, "]"));
+#else
             guardsRegex = new Regex(string.Concat("[", guards, "]"), RegexOptions.Compiled);
+#endif
         }
 
         /// <summary>
@@ -299,15 +322,22 @@ namespace HashidsNet
             if (ret.Length < this.minHashLength)
             {
                 var guardIndex = ((int)(numbersHashInt + (int)ret[0]) % this.guards.Length);
+#if PCL
+                var guard = this.guards[guardIndex].ToString();
+#else
                 var guard = this.guards[guardIndex];
+#endif
 
                 ret.Insert(0, guard);
 
                 if (ret.Length < this.minHashLength)
                 {
                     guardIndex = ((int)(numbersHashInt + (int)ret[2]) % this.guards.Length);
+#if PCL
+                    guard = this.guards[guardIndex].ToString();
+#else
                     guard = this.guards[guardIndex];
-
+#endif
                     ret.Append(guard);
                 }
             }
@@ -336,7 +366,11 @@ namespace HashidsNet
 
             do
             {
+#if PCL
+                hash.Insert(0, alphabet[(int)(input % alphabet.Length)].ToString());
+#else
                 hash.Insert(0, alphabet[(int)(input % alphabet.Length)]);
+#endif
                 input = (input / alphabet.Length);
             } while (input > 0);
 
@@ -361,7 +395,11 @@ namespace HashidsNet
             if (string.IsNullOrWhiteSpace(hash))
                 return new long[0];
 
+#if COREFX || PCL
+            var alphabet = new String(this.alphabet.ToCharArray()); // String.Copy isn't available
+#else
             var alphabet = string.Copy(this.alphabet);
+#endif
             var ret = new List<long>();
             int i = 0;
 
@@ -397,7 +435,7 @@ namespace HashidsNet
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="alphabet"></param>
         /// <param name="salt"></param>
@@ -423,6 +461,5 @@ namespace HashidsNet
 
             return alphabet;
         }
-
     }
 }
