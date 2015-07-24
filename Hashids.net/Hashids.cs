@@ -274,7 +274,7 @@ namespace HashidsNet
             for (var i = 0; i < numbers.Length; i++)
                 numbersHashInt += (int)(numbers[i] % (i + 100));
 
-            var lottery = alphabet[(int)numbersHashInt % alphabet.Length];
+            var lottery = alphabet[(int)(numbersHashInt % alphabet.Length)];
             ret.Append(lottery.ToString());
 
             for (var i = 0; i < numbers.Length; i++)
