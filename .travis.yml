@@ -1,8 +1,8 @@
 language: csharp
-solution: Hashids.net.sln
+solution: Hashids.net.travis.sln
 install:
-  - nuget restore Hashids.net.sln
+  - nuget restore Hashids.net.travis.sln
   - nuget install xunit.runners -Version 1.9.2 -OutputDirectory testrunner
 script:
-  - xbuild /p:Configuration=TravisCi Hashids.net.sln
-  - mono ./testrunner/xunit.runners.1.9.2/tools/xunit.console.clr4.exe ./Hashids.net.test/bin/Release/Hashids.net.test.dll
+  - xbuild /p:Configuration=Release Hashids.net.sln
+  - mono ./testrunner/xunit.ruznners.1.9.2/tools/xunit.console.clr4.exe ./Hashids.net.test/bin/Release/Hashids.net.test.dll
