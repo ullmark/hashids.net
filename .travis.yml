@@ -4,5 +4,5 @@ install:
   - nuget restore Hashids.net.travis.sln
   - nuget install xunit.runners -Version 1.9.2 -OutputDirectory testrunner
 script:
-  - xbuild /p:Configuration=Release Hashids.net.travis.sln
+  - xbuild /p:Configuration=Release Hashids.net.sln
   - mono ./testrunner/xunit.ruznners.1.9.2/tools/xunit.console.clr4.exe ./Hashids.net.test/bin/Release/Hashids.net.test.dll
