@@ -16,5 +16,11 @@
     <file src="bin\Release\NET40\Hashids.net.pdb" target="lib\net40\Hashids.net.pdb" />
     <file src="bin\Release\NET45\Hashids.net.dll" target="lib\net45\Hashids.net.dll" />
     <file src="bin\Release\NET45\Hashids.net.pdb" target="lib\net45\Hashids.net.pdb" />
+    <file src="..\Hashids.pcl\bin\Release\Hashids.net.dll" target="lib\portable-net4+sl5+netcore45+wpa81+wp8\Hashids.net.dll" />
+    <file src="..\Hashids.pcl\bin\Release\Hashids.net.pdb" target="lib\portable-net4+sl5+netcore45+wpa81+wp8\Hashids.net.pdb" />
+    <file src="..\Hashids.corefx\bin\Release\Hashids.net.dll" target="lib\portable-dnx46+dnxcore50+netcore50\Hashids.net.dll" />
+    <file src="..\Hashids.corefx\bin\Release\Hashids.net.pdb" target="lib\portable-dnx46+dnxcore50+netcore50\Hashids.net.pdb" />
+
+    
   </files>
 </package>
