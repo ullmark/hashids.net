@@ -21,8 +21,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{28CDD7
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hashids.net.perf", "Hashids.net.perf\Hashids.net.perf.csproj", "{AE3CBD44-D27B-432A-A0C6-DC874EC0C428}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,14 +45,6 @@ Global
 		{CCEDE06C-E296-4B83-9900-07749E4ED07F}.NET45|Any CPU.Build.0 = NET45|Any CPU
 		{CCEDE06C-E296-4B83-9900-07749E4ED07F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CCEDE06C-E296-4B83-9900-07749E4ED07F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AE3CBD44-D27B-432A-A0C6-DC874EC0C428}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AE3CBD44-D27B-432A-A0C6-DC874EC0C428}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AE3CBD44-D27B-432A-A0C6-DC874EC0C428}.NET40|Any CPU.ActiveCfg = Release|Any CPU
-		{AE3CBD44-D27B-432A-A0C6-DC874EC0C428}.NET40|Any CPU.Build.0 = Release|Any CPU
-		{AE3CBD44-D27B-432A-A0C6-DC874EC0C428}.NET45|Any CPU.ActiveCfg = Release|Any CPU
-		{AE3CBD44-D27B-432A-A0C6-DC874EC0C428}.NET45|Any CPU.Build.0 = Release|Any CPU
-		{AE3CBD44-D27B-432A-A0C6-DC874EC0C428}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AE3CBD44-D27B-432A-A0C6-DC874EC0C428}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
