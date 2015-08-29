@@ -17,19 +17,27 @@ namespace HashidsNet.test
             var numbers = hashids.Decode("NgAzADEANAA=");
         }
 
+        // This issue came from downcasting to int at the wrong place,
+        // seems to happen when you are encoding A LOT of longs at the same time.
+        // see if it is possible to make this a faster test (or remove it since it is unlikely that it will reapper).
         [Fact]
-        void issue_12_should_not_throw_out_of_range_exception_when_downcasting()
+        void issue_12_should_not_throw_out_of_range_exception()
         {
-            var hashids = new Hashids();
-            var random = new Random();
-            for (var i = 0; i < 1000000; i++)
+            var hash = new Hashids("zXZVFf2N38uV");
+            var longs = new List<long>();
+            var rand = new Random();
+            var valueBuffer = new byte[8];
+            var randLong = 0L;
+            for (var i = 0; i < 100000; i++)
             {
-                var l = (long)random.Next(1, Int32.MaxValue);
-                var lo = l * random.Next(1, Int32.MaxValue);
-                var hash = hashids.EncodeLong(lo);
-                var val = hashids.DecodeLong(hash);
-                val.First().Should().Be(lo);
+                rand.NextBytes(valueBuffer);
+                randLong = BitConverter.ToInt64(valueBuffer, 0);
+                longs.Add(Math.Abs(randLong));
             }
+
+            var encoded = hash.EncodeLong(longs);
+            var decoded = hash.DecodeLong(encoded);
+            decoded.Should().Equal(longs.ToArray());
         }
     }
 }
