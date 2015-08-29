@@ -3,7 +3,7 @@
 	<metadata>
 		<id>hashids.net</id>
 		<title>Hashids.net</title>
-		<version>1.1.0</version>
+		<version>1.1.1</version>
 		<authors>Markus Ullmark</authors>
 		<description>Generate YouTube-like hashes from one or many numbers. Use hashids when you do not want to expose your database ids to the user.</description>
 		<language>en-US</language>

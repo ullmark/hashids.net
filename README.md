@@ -219,6 +219,11 @@ var hex = hashids.DecodeHex("kRNrpKlJ");
 
 ## Changelog
 
+**1.1.1**
+- Accepted PR [#12](https://github.com/ullmark/hashids.net/pull/12) that fixed an issue when encoding very many longs at the same time
+- `README.md` updated
+- Version tag added: `1.1.1`
+
 **1.1.0**
 
 - Added support for `long` via *new* functions to not introduce breaking changes.
