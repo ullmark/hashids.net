@@ -219,6 +219,10 @@ var hex = hashids.DecodeHex("kRNrpKlJ");
 
 ## Changelog
 
+**1.1.2**
+- Fixed issue [#14](https://github.com/ullmark/hashids.net/issues/14) that caused HEX values to be encoded/decoded incorrectly.
+- Version tag added `1.1.2`
+
 **1.1.1**
 - Accepted PR [#12](https://github.com/ullmark/hashids.net/pull/12) that fixed an issue when encoding very many longs at the same time
 - `README.md` updated
