@@ -120,7 +120,7 @@ namespace HashidsNet
         public virtual string DecodeHex(string hash)
         {
             var ret = new StringBuilder();
-            var numbers = this.Decode(hash);
+            var numbers = this.DecodeLong(hash);
 
             foreach (var number in numbers)
                 ret.Append(string.Format("{0:X}", number).Substring(1));

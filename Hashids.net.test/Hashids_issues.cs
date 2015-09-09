@@ -39,5 +39,20 @@ namespace HashidsNet.test
             var decoded = hash.DecodeLong(encoded);
             decoded.Should().Equal(longs.ToArray());
         }
+
+        [Fact]
+        void issue_14_it_should_decode_encode_hex_correctly()
+        {
+            var hashids = new Hashids("this is my salt");
+            var encoded = hashids.EncodeHex("DEADBEEF");
+            encoded.Should().Be("kRNrpKlJ");
+
+            var decoded = hashids.DecodeHex(encoded);
+            decoded.Should().Be("DEADBEEF");
+
+            var encoded2 = hashids.EncodeHex("1234567890ABCDEF");
+            var decoded2 = hashids.DecodeHex(encoded2);
+            decoded2.Should().Be("1234567890ABCDEF");
+        }
     }
 }
