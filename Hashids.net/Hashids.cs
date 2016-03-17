@@ -27,8 +27,17 @@ namespace HashidsNet
 
         private Regex guardsRegex;
         private Regex sepsRegex;
-        private static Regex hexValidator = new Regex("^[0-9a-fA-F]+$", RegexOptions.Compiled);
-        private static Regex hexSplitter = new Regex(@"[\w\W]{1,12}", RegexOptions.Compiled);
+        private static Regex hexValidator = new Regex("^[0-9a-fA-F]+$"
+#if !PCL
+            , RegexOptions.Compiled
+#endif
+            );
+
+        private static Regex hexSplitter = new Regex(@"[\w\W]{1,12}"
+#if !PCL
+            , RegexOptions.Compiled
+#endif
+            );
 
         /// <summary>
         /// Instantiates a new Hashids with the default setup.
@@ -48,7 +57,8 @@ namespace HashidsNet
                 throw new ArgumentNullException("alphabet");
 
             this.salt = salt;
-            this.alphabet = string.Join(string.Empty, alphabet.Distinct());
+
+            this.alphabet = string.Join(string.Empty, alphabet.ToCharArray().Distinct());
             this.seps = seps;
             this.minHashLength = minHashLength;
 
@@ -208,10 +218,10 @@ namespace HashidsNet
         private void SetupSeps()
         {
             // seps should contain only characters present in alphabet; 
-            seps = new String(seps.Intersect(alphabet.ToArray()).ToArray());
+            seps = new String(seps.ToCharArray().Intersect(alphabet.ToCharArray()).ToArray());
 
             // alphabet should not contain seps.
-            alphabet = new String(alphabet.Except(seps.ToArray()).ToArray());
+            alphabet = new String(alphabet.ToCharArray().Except(seps.ToCharArray()).ToArray());
 
             seps = ConsistentShuffle(seps, salt);
 
@@ -231,7 +241,11 @@ namespace HashidsNet
                 else seps = seps.Substring(0, sepsLength);
             }
 
-            sepsRegex = new Regex(string.Concat("[", seps, "]"), RegexOptions.Compiled);
+            sepsRegex = new Regex(string.Concat("[", seps, "]")
+#if !PCL
+            , RegexOptions.Compiled
+#endif
+                );
             alphabet = ConsistentShuffle(alphabet, salt);
         }
 
@@ -254,7 +268,11 @@ namespace HashidsNet
                 alphabet = alphabet.Substring(guardCount);
             }
 
-            guardsRegex = new Regex(string.Concat("[", guards, "]"), RegexOptions.Compiled);
+            guardsRegex = new Regex(string.Concat("[", guards, "]")
+#if !PCL
+            , RegexOptions.Compiled
+#endif
+            );
         }
 
         /// <summary>
@@ -361,7 +379,7 @@ namespace HashidsNet
             if (string.IsNullOrWhiteSpace(hash))
                 return new long[0];
 
-            var alphabet = string.Copy(this.alphabet);
+            var alphabet = new string(this.alphabet.ToCharArray());
             var ret = new List<long>();
             int i = 0;
 
