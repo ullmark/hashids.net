@@ -1,10 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hashids.net", "Hashids.net\Hashids.net.csproj", "{77F06BF2-B75A-498E-BE61-C84754D9F789}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A6015393-39EA-44E3-BF0A-37D2BC5CC874}"
 	ProjectSection(SolutionItems) = preProject
 		.travis.yml = .travis.yml
@@ -21,6 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{28CDD7
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hashids.net", "Hashids.net\Hashids.net.csproj", "{737531BF-2C89-4A51-BDB5-3F2B65D5D972}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,14 +29,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{77F06BF2-B75A-498E-BE61-C84754D9F789}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{77F06BF2-B75A-498E-BE61-C84754D9F789}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{77F06BF2-B75A-498E-BE61-C84754D9F789}.NET40|Any CPU.ActiveCfg = NET40|Any CPU
-		{77F06BF2-B75A-498E-BE61-C84754D9F789}.NET40|Any CPU.Build.0 = NET40|Any CPU
-		{77F06BF2-B75A-498E-BE61-C84754D9F789}.NET45|Any CPU.ActiveCfg = NET45|Any CPU
-		{77F06BF2-B75A-498E-BE61-C84754D9F789}.NET45|Any CPU.Build.0 = NET45|Any CPU
-		{77F06BF2-B75A-498E-BE61-C84754D9F789}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{77F06BF2-B75A-498E-BE61-C84754D9F789}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CCEDE06C-E296-4B83-9900-07749E4ED07F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CCEDE06C-E296-4B83-9900-07749E4ED07F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CCEDE06C-E296-4B83-9900-07749E4ED07F}.NET40|Any CPU.ActiveCfg = NET40|Any CPU
@@ -45,6 +37,14 @@ Global
 		{CCEDE06C-E296-4B83-9900-07749E4ED07F}.NET45|Any CPU.Build.0 = NET45|Any CPU
 		{CCEDE06C-E296-4B83-9900-07749E4ED07F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CCEDE06C-E296-4B83-9900-07749E4ED07F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{737531BF-2C89-4A51-BDB5-3F2B65D5D972}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{737531BF-2C89-4A51-BDB5-3F2B65D5D972}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{737531BF-2C89-4A51-BDB5-3F2B65D5D972}.NET40|Any CPU.ActiveCfg = Release|Any CPU
+		{737531BF-2C89-4A51-BDB5-3F2B65D5D972}.NET40|Any CPU.Build.0 = Release|Any CPU
+		{737531BF-2C89-4A51-BDB5-3F2B65D5D972}.NET45|Any CPU.ActiveCfg = Release|Any CPU
+		{737531BF-2C89-4A51-BDB5-3F2B65D5D972}.NET45|Any CPU.Build.0 = Release|Any CPU
+		{737531BF-2C89-4A51-BDB5-3F2B65D5D972}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{737531BF-2C89-4A51-BDB5-3F2B65D5D972}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
