@@ -27,17 +27,9 @@ namespace HashidsNet
 
         private Regex guardsRegex;
         private Regex sepsRegex;
-        private static Regex hexValidator = new Regex("^[0-9a-fA-F]+$"
-#if !PCL
-            , RegexOptions.Compiled
-#endif
-            );
+        private static Regex hexValidator = new Regex("^[0-9a-fA-F]+$");
 
-        private static Regex hexSplitter = new Regex(@"[\w\W]{1,12}"
-#if !PCL
-            , RegexOptions.Compiled
-#endif
-            );
+        private static Regex hexSplitter = new Regex(@"[\w\W]{1,12}");
 
         /// <summary>
         /// Instantiates a new Hashids with the default setup.
@@ -241,11 +233,7 @@ namespace HashidsNet
                 else seps = seps.Substring(0, sepsLength);
             }
 
-            sepsRegex = new Regex(string.Concat("[", seps, "]")
-#if !PCL
-            , RegexOptions.Compiled
-#endif
-                );
+            sepsRegex = new Regex(string.Concat("[", seps, "]"));
             alphabet = ConsistentShuffle(alphabet, salt);
         }
 
@@ -268,11 +256,7 @@ namespace HashidsNet
                 alphabet = alphabet.Substring(guardCount);
             }
 
-            guardsRegex = new Regex(string.Concat("[", guards, "]")
-#if !PCL
-            , RegexOptions.Compiled
-#endif
-            );
+            guardsRegex = new Regex(string.Concat("[", guards, "]"));
         }
 
         /// <summary>
