@@ -9,7 +9,7 @@
     "dotnet-test-xunit": "2.2.0-*",
     "FluentAssertions": "4.13.0",
     "Moq": "4.6.36-alpha",
-    "hashids.net": {
+    "Hashids.net": {
       "target": "project"
     }
   },
