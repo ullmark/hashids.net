@@ -54,5 +54,29 @@ namespace HashidsNet.test
             var decoded2 = hashids.DecodeHex(encoded2);
             decoded2.Should().Be("1234567890ABCDEF");
         }
+
+        [Fact]
+        void issue_18_it_should_return_empty_string_if_negative_numbers()
+        {
+            var hashids = new Hashids("this is my salt");
+            hashids.Encode(1, 4, 5, -3).Should().Be(string.Empty);
+            hashids.EncodeLong(4, 5, 2, -4).Should().Be(string.Empty);
+        }
+
+        [Fact]
+        void issue_15_it_should_return_emtpy_array_when_decoding_characters_missing_in_alphabet()
+        {
+            var hashids = new Hashids(salt: "Salty stuff", alphabet: "qwerty1234!¤%&/()=", seps: "1234");
+            var numbers = hashids.Decode("abcd");
+            numbers.Length.Should().Be(0);
+
+            var hashids2 = new Hashids();
+            hashids.Decode("13-37").Length.Should().Be(0);
+            hashids.DecodeLong("32323kldffd!").Length.Should().Be(0);
+
+            var hashids3 = new Hashids(alphabet: "1234567890;:_!#¤%&/()=", seps: "!#¤%&/()=");
+            hashids.Decode("asdfb").Length.Should().Be(0);
+            hashids.DecodeLong("asdfgfdgdfgkj").Length.Should().Be(0);
+        }
     }
 }

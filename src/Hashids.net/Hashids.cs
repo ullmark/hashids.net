@@ -71,6 +71,7 @@ namespace HashidsNet
         /// <returns>the hashed string</returns>
         public virtual string Encode(params int[] numbers)
         {
+            if (numbers.Any(n => n < 0)) return string.Empty;
             return this.GenerateHashFrom(numbers.Select(n => (long)n).ToArray());
         }
 
@@ -150,6 +151,7 @@ namespace HashidsNet
         /// <returns>the hashed string</returns>
         public string EncodeLong(params long[] numbers)
         {
+            if (numbers.Any(n => n < 0)) return string.Empty;
             return this.GenerateHashFrom(numbers);
         }
 

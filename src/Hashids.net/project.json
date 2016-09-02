@@ -1,14 +1,18 @@
 ﻿{
   "name":  "Hashids.net",
   "title": "Hashids.net",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Generate YouTube-like hashes from one or many numbers. Use hashids when you do not want to expose your database ids to the user.",
   "language": "en-US",
   "packOptions": {
     "requireLicenseAcceptance": false,
     "iconUrl": "https://raw.githubusercontent.com/ullmark/hashids.net/master/hashids.png",
+    "projectUrl": "https://github.com/ullmark/hashids.net",
     "releaseNotes": "https://github.com/ullmark/hashids.net#changelog",
-    "tags": [ "ids", "hash" ]
+    "tags": [ "ids", "hash" ],
+    "repository": {
+      "url": "https://github.com/ullmark/hashids.net" 
+    }
   },
 
   "frameworks": {
