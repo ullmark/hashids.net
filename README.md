@@ -219,6 +219,12 @@ var hex = hashids.DecodeHex("kRNrpKlJ");
 
 ## Changelog
 
+**1.2.0**
+- .NET Core support. Sorry for the wait and thanks [haroldma](https://github.com/haroldma), 
+[mlafleur](https://github.com/mlafleur) and [lstyles](https://github.com/lstyles) for submitting pull requests.
+- Version tag added: `1.2.0`
+- `README.md` updated
+
 **1.1.2**
 - Fixed issue [#14](https://github.com/ullmark/hashids.net/issues/14) that caused HEX values to be encoded/decoded incorrectly.
 - Version tag added `1.1.2`
