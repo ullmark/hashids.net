@@ -1,4 +1,4 @@
-# Hashids [![Build Status](https://travis-ci.org/ullmark/hashids.net.svg?branch=master)](https://travis-ci.org/ullmark/hashids.net)
+# Hashids
 A small .NET package to generate YouTube-like hashes from one or many numbers. 
 Use hashids when you do not want to expose your database ids to the user.
 
