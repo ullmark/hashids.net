@@ -1,7 +1,7 @@
 ﻿{
   "name":  "Hashids.net",
   "title": "Hashids.net",
-  "version": "1.2.0-rc",
+  "version": "1.2.0",
   "description": "Generate YouTube-like hashes from one or many numbers. Use hashids when you do not want to expose your database ids to the user.",
   "language": "en-US",
   "packOptions": {
