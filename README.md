@@ -219,6 +219,13 @@ var hex = hashids.DecodeHex("kRNrpKlJ");
 
 ## Changelog
 
+**1.2.1**
+- Accepted PR [#11](https://github.com/ullmark/hashids.net/pull/11)
+- Fixed issue [#15](https://github.com/ullmark/hashids.net/issues/15) Decoding strings that contain characters not in the alphabet will now return empty array. (To conform to behaviour in the js-library).
+- Fixed issue [#18](https://github.com/ullmark/hashids.net/issues/18) Encoding with a negative number will now return empty string. (To conform to behaviour in the js-library).
+- Version tag added: `1.2.1`
+- `README.md` updated
+
 **1.2.0**
 - .NET Core support. Sorry for the wait and thanks [haroldma](https://github.com/haroldma), 
 [mlafleur](https://github.com/mlafleur) and [lstyles](https://github.com/lstyles) for submitting pull requests.
