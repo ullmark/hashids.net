@@ -27,12 +27,14 @@ namespace HashidsNet
 
         private Regex guardsRegex;
         private Regex sepsRegex;
+
+        //  Creates the Regex in the first usage, speed up first use of non hex methods
 #if CORE
-        private static Regex hexValidator = new Regex("^[0-9a-fA-F]+$");
-        private static Regex hexSplitter = new Regex(@"[\w\W]{1,12}");
+        private static Lazy<Regex> hexValidator = new Lazy<Regex>(() => new Regex("^[0-9a-fA-F]+$"));
+        private static Lazy<Regex> hexSplitter = new Lazy<Regex>(() => new Regex(@"[\w\W]{1,12}"));
 #else
-        private static Regex hexValidator = new Regex("^[0-9a-fA-F]+$", RegexOptions.Compiled);
-        private static Regex hexSplitter = new Regex(@"[\w\W]{1,12}", RegexOptions.Compiled);
+        private static Lazy<Regex> hexValidator = new Lazy<Regex>(() => new Regex("^[0-9a-fA-F]+$", RegexOptions.Compiled));
+        private static Lazy<Regex> hexSplitter = new Lazy<Regex>(() => new Regex(@"[\w\W]{1,12}", RegexOptions.Compiled));
 #endif
 
         /// <summary>
@@ -103,11 +105,11 @@ namespace HashidsNet
         /// <returns></returns>
         public virtual string EncodeHex(string hex)
         {
-            if (!hexValidator.IsMatch(hex))
+            if (!hexValidator.Value.IsMatch(hex))
                 return string.Empty;
 
             var numbers = new List<long>();
-            var matches = hexSplitter.Matches(hex);
+            var matches = hexSplitter.Value.Matches(hex);
 
             foreach (Match match in matches)
             {
