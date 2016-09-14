@@ -219,6 +219,11 @@ var hex = hashids.DecodeHex("kRNrpKlJ");
 
 ## Changelog
 
+**1.2.2**
+- Accepted PR [#19](https://github.com/ullmark/hashids.net/pull/19) - We now only instantiate the HEX-connected Regexes if we use any of the HEX functions. This will speed up creation of "Hashids"-instances. It 
+is likely that most users doesn't use the HEX-functions.
+- Version tag added: `1.2.2`
+
 **1.2.1**
 - Accepted PR [#11](https://github.com/ullmark/hashids.net/pull/11)
 - Fixed issue [#15](https://github.com/ullmark/hashids.net/issues/15) Decoding strings that contain characters not in the alphabet will now return empty array. (To conform to behaviour in the js-library).
