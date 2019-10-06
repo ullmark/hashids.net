@@ -225,14 +225,14 @@ namespace HashidsNet.test
         void it_raises_an_argument_null_exception_when_alphabet_is_null()
         {
             Action invocation = () => new Hashids(alphabet: null);
-            invocation.ShouldThrow<ArgumentNullException>();
+            invocation.Should().Throw<ArgumentNullException>();
         }
 
         [Fact]
         void it_raises_an_argument_null_exception_if_alphabet_contains_less_than_4_unique_characters()
         {
             Action invocation = () => new Hashids(alphabet: "aadsss");
-            invocation.ShouldThrow<ArgumentException>();
+            invocation.Should().Throw<ArgumentException>();
         }
 
         [Fact]

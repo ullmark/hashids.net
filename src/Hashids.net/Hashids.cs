@@ -29,7 +29,7 @@ namespace HashidsNet
         private Regex sepsRegex;
 
         //  Creates the Regex in the first usage, speed up first use of non hex methods
-#if CORE
+#if NETSTANDARD1_0
         private static Lazy<Regex> hexValidator = new Lazy<Regex>(() => new Regex("^[0-9a-fA-F]+$"));
         private static Lazy<Regex> hexSplitter = new Lazy<Regex>(() => new Regex(@"[\w\W]{1,12}"));
 #else
@@ -240,7 +240,7 @@ namespace HashidsNet
                 else seps = seps.Substring(0, sepsLength);
             }
 
-#if CORE
+#if NETSTANDARD1_0
             sepsRegex = new Regex(string.Concat("[", seps, "]"));
 #else
             sepsRegex = new Regex(string.Concat("[", seps, "]"), RegexOptions.Compiled);
@@ -267,7 +267,7 @@ namespace HashidsNet
                 alphabet = alphabet.Substring(guardCount);
             }
 
-#if CORE
+#if NETSTANDARD1_0
             guardsRegex = new Regex(string.Concat("[", guards, "]"));
 #else
             guardsRegex = new Regex(string.Concat("[", guards, "]"), RegexOptions.Compiled);

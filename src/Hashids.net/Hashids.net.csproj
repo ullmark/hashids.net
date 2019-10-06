@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Title>Hashids.net</Title>
+    <Authors>Markus Ullmark</Authors>
+    <Version>1.2.2</Version>
+    <Description>Generate YouTube-like hashes from one or many numbers. Use hashids when you do not want to expose your database ids to the user.</Description>
+    <PackageIconUrl>https://raw.githubusercontent.com/ullmark/hashids.net/master/hashids.png</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/ullmark/hashids.net</PackageProjectUrl>
+    <PackageReleaseNotes>https://github.com/ullmark/hashids.net#changelog</PackageReleaseNotes>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>ids;hash</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/ullmark/hashids.net</RepositoryUrl>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <TargetFrameworks>net40;net45;netstandard1.0</TargetFrameworks>
+  </PropertyGroup>
+
+</Project>
