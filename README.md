@@ -219,6 +219,10 @@ var hex = hashids.DecodeHex("kRNrpKlJ");
 
 ## Changelog
 
+**1.3.0**
+- Accepted PR [#26](https://github.com/ullmark/hashids.net/pull/26) - We now support .netstandard2.0. Thanks [@MatthewKing](https://github.com/MatthewKing)
+- Version tag added: `1.3.0`
+
 **1.2.2**
 - Accepted PR [#19](https://github.com/ullmark/hashids.net/pull/19) - We now only instantiate the HEX-connected Regexes if we use any of the HEX functions. This will speed up creation of "Hashids"-instances. It 
 is likely that most users doesn't use the HEX-functions.
