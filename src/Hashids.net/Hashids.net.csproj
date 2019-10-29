@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Title>Hashids.net</Title>
     <Authors>Markus Ullmark</Authors>
-    <Version>1.2.2</Version>
+    <Version>1.3.0</Version>
     <Description>Generate YouTube-like hashes from one or many numbers. Use hashids when you do not want to expose your database ids to the user.</Description>
     <PackageIconUrl>https://raw.githubusercontent.com/ullmark/hashids.net/master/hashids.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/ullmark/hashids.net</PackageProjectUrl>
