@@ -224,9 +224,9 @@ namespace HashidsNet
 
             seps = ConsistentShuffle(seps, salt);
 
-            if (seps.Length == 0 || (alphabet.Length / seps.Length) > SEP_DIV)
+            if (seps.Length == 0 || ((float)alphabet.Length / seps.Length) > SEP_DIV)
             {
-                var sepsLength = (int)Math.Ceiling(alphabet.Length / SEP_DIV);
+                var sepsLength = (int)Math.Ceiling((float)alphabet.Length / SEP_DIV);
                 if (sepsLength == 1)
                     sepsLength = 2;
 
