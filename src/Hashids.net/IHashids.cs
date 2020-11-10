@@ -36,13 +36,6 @@ namespace HashidsNet
         /// </summary>
         /// <param name="numbers">the numbers</param>
         /// <returns>the hashed string</returns>
-        string Encode(params int[] numbers);
-
-        /// <summary>
-        /// Encodes the provided numbers into a hashed string
-        /// </summary>
-        /// <param name="numbers">the numbers</param>
-        /// <returns>the hashed string</returns>
         string Encode(IEnumerable<int> numbers);
 
         /// <summary>
@@ -50,14 +43,14 @@ namespace HashidsNet
         /// </summary>
         /// <param name="numbers">the numbers</param>
         /// <returns>the hashed string</returns>
-        string EncodeLong(params long[] numbers);
+        string Encode(params long[] numbers);
 
         /// <summary>
         /// Encodes the provided numbers into a hashed string
         /// </summary>
         /// <param name="numbers">the numbers</param>
         /// <returns>the hashed string</returns>
-        string EncodeLong(IEnumerable<long> numbers);
+        string Encode(IEnumerable<long> numbers);
 
         /// <summary>
         /// Encodes the provided hex string

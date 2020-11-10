@@ -1,9 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Hashids.net;
 
 namespace HashidsNet
 {
@@ -71,32 +71,42 @@ namespace HashidsNet
         /// </summary>
         /// <param name="numbers">the numbers to encode</param>
         /// <returns>the hashed string</returns>
-        public virtual string Encode(params int[] numbers)
-        {
-            if (numbers.Any(n => n < 0)) return string.Empty;
-            return this.GenerateHashFrom(numbers.Select(n => (long)n).ToArray());
-        }
+        public virtual string Encode(Guid guid) => Encode(guid.ToByteArray().UnboxedCast());
 
         /// <summary>
         /// Encodes the provided numbers into a hashed string
         /// </summary>
         /// <param name="numbers">the numbers to encode</param>
         /// <returns>the hashed string</returns>
-        public virtual string Encode(IEnumerable<int> numbers)
-        {
-            return this.Encode(numbers.ToArray());
-        }
+        public virtual string Encode(IEnumerable<byte> numbers) => Encode(numbers.UnboxedCast());
 
         /// <summary>
-        /// Decodes the provided hash into
+        /// Encodes the provided numbers into a hashed string
         /// </summary>
-        /// <param name="hash">the hash</param>
-        /// <exception cref="T:System.OverflowException">if the decoded number overflows integer</exception>
-        /// <returns>the numbers</returns>
-        public virtual int[] Decode(string hash)
-        {
-            return this.GetNumbersFrom(hash).Select(n => (int)n).ToArray();
-        }
+        /// <param name="numbers">the numbers to encode</param>
+        /// <returns>the hashed string</returns>
+        public virtual string Encode(IEnumerable<short> numbers) => Encode(numbers.UnboxedCast());
+
+        /// <summary>
+        /// Encodes the provided numbers into a hashed string
+        /// </summary>
+        /// <param name="numbers">the numbers to encode</param>
+        /// <returns>the hashed string</returns>
+        public virtual string Encode(IEnumerable<int> numbers) => Encode(numbers.UnboxedCast());
+
+        /// <summary>
+        /// Encodes the provided longs to a hashed string
+        /// </summary>
+        /// <param name="numbers">the numbers</param>
+        /// <returns>the hashed string</returns>
+        public string Encode(IEnumerable<long> numbers) => Encode(numbers.ToArray());
+
+        /// <summary>
+        /// Encodes the provided longs to a hashed string
+        /// </summary>
+        /// <param name="numbers">the numbers</param>
+        /// <returns>the hashed string</returns>
+        public string Encode(params long[] numbers) => GenerateHashFrom(numbers);
 
         /// <summary>
         /// Encodes the provided hex string to a hashids hash.
@@ -117,7 +127,19 @@ namespace HashidsNet
                 numbers.Add(number);
             }
 
-            return this.EncodeLong(numbers.ToArray());
+            return this.Encode(numbers.ToArray());
+        }
+
+        #region DECODE
+        /// <summary>
+        /// Decodes the provided hash into
+        /// </summary>
+        /// <param name="hash">the hash</param>
+        /// <exception cref="T:System.OverflowException">if the decoded number overflows integer</exception>
+        /// <returns>the numbers</returns>
+        public virtual int[] Decode(string hash)
+        {
+            return this.GetNumbersFrom(hash).Select(n => (int)n).ToArray();
         }
 
         /// <summary>
@@ -145,28 +167,9 @@ namespace HashidsNet
         {
             return this.GetNumbersFrom(hash);
         }
+        #endregion
 
-        /// <summary>
-        /// Encodes the provided longs to a hashed string
-        /// </summary>
-        /// <param name="numbers">the numbers</param>
-        /// <returns>the hashed string</returns>
-        public string EncodeLong(params long[] numbers)
-        {
-            if (numbers.Any(n => n < 0)) return string.Empty;
-            return this.GenerateHashFrom(numbers);
-        }
-
-        /// <summary>
-        /// Encodes the provided longs to a hashed string
-        /// </summary>
-        /// <param name="numbers">the numbers</param>
-        /// <returns>the hashed string</returns>
-        public string EncodeLong(IEnumerable<long> numbers)
-        {
-            return this.EncodeLong(numbers.ToArray());
-        }
-
+        #region OBSOLETE
         /// <summary>
         /// Encodes the provided numbers into a string.
         /// </summary>
@@ -210,9 +213,10 @@ namespace HashidsNet
         {
             return DecodeHex(hash);
         }
+        #endregion
 
         /// <summary>
-        /// 
+        /// Setup necessary data for seps
         /// </summary>
         private void SetupSeps()
         {
@@ -249,7 +253,7 @@ namespace HashidsNet
         }
 
         /// <summary>
-        /// 
+        /// Setup guards
         /// </summary>
         private void SetupGuards()
         {
@@ -281,7 +285,7 @@ namespace HashidsNet
         /// <returns></returns>
         private string GenerateHashFrom(long[] numbers)
         {
-            if (numbers == null || numbers.Length == 0)
+            if (numbers == null || numbers.Length == 0 || numbers.Any(n => n < 0))
                 return string.Empty;
 
             var ret = new StringBuilder();
@@ -306,7 +310,7 @@ namespace HashidsNet
 
                 if (i + 1 < numbers.Length)
                 {
-                    number %= ((int)last[0] + i);
+                    number %= (last[0] + i);
                     var sepsIndex = ((int)number % this.seps.Length);
 
                     ret.Append(this.seps[sepsIndex]);
@@ -315,14 +319,14 @@ namespace HashidsNet
 
             if (ret.Length < this.minHashLength)
             {
-                var guardIndex = ((int)(numbersHashInt + (int)ret[0]) % this.guards.Length);
+                var guardIndex = ((int)(numbersHashInt + ret[0]) % this.guards.Length);
                 var guard = this.guards[guardIndex];
 
                 ret.Insert(0, guard);
 
                 if (ret.Length < this.minHashLength)
                 {
-                    guardIndex = ((int)(numbersHashInt + (int)ret[2]) % this.guards.Length);
+                    guardIndex = ((int)(numbersHashInt + ret[2]) % this.guards.Length);
                     guard = this.guards[guardIndex];
 
                     ret.Append(guard);
@@ -355,7 +359,8 @@ namespace HashidsNet
             {
                 hash.Insert(0, alphabet[(int)(input % alphabet.Length)]);
                 input = (input / alphabet.Length);
-            } while (input > 0);
+            }
+            while (input > 0);
 
             return hash.ToString();
         }
@@ -406,7 +411,7 @@ namespace HashidsNet
                     ret.Add(Unhash(subHash, alphabet));
                 }
 
-                if (EncodeLong(ret.ToArray()) != hash)
+                if (Encode(ret.ToArray()) != hash)
                     ret.Clear();
             }
 
@@ -439,6 +444,5 @@ namespace HashidsNet
 
             return new string(letters);
         }
-
     }
 }

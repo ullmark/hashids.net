@@ -54,13 +54,13 @@ namespace HashidsNet.test
         [Fact]
         void it_encodes_a_single_long()
         {
-            hashids.EncodeLong(1L).Should().Be("NV");
-            hashids.EncodeLong(2147483648L).Should().Be("21OjjRK");
-            hashids.EncodeLong(4294967296L).Should().Be("D54yen6");
+            hashids.Encode(1L).Should().Be("NV");
+            hashids.Encode(2147483648L).Should().Be("21OjjRK");
+            hashids.Encode(4294967296L).Should().Be("D54yen6");
 
-            hashids.EncodeLong(666555444333222L).Should().Be("KVO9yy1oO5j");
-            hashids.EncodeLong(12345678901112L).Should().Be("4bNP1L26r");
-            hashids.EncodeLong(Int64.MaxValue).Should().Be("jvNx4BjM5KYjv");
+            hashids.Encode(666555444333222L).Should().Be("KVO9yy1oO5j");
+            hashids.Encode(12345678901112L).Should().Be("4bNP1L26r");
+            hashids.Encode(Int64.MaxValue).Should().Be("jvNx4BjM5KYjv");
         }
 
         [Fact]
@@ -86,7 +86,7 @@ namespace HashidsNet.test
         [Fact]
         void it_encodes_a_list_of_longs()
         {
-            hashids.EncodeLong(666555444333222L, 12345678901112L).Should().Be("mPVbjj7yVMzCJL215n69");
+            hashids.Encode(666555444333222L, 12345678901112L).Should().Be("mPVbjj7yVMzCJL215n69");
         }
 
         [Fact]
@@ -255,6 +255,12 @@ namespace HashidsNet.test
             var mock = new Mock<Hashids>();
             mock.Setup(hashids => hashids.Encode(It.IsAny<int[]>())).Returns("It works");
             mock.Object.Encode(new[] { 1 }).Should().Be("It works");
+        }
+
+        [Fact]
+        void can_hash_guids()
+        {
+            hashids.Encode(Guid.NewGuid()).Should().NotBeNullOrEmpty();
         }
     }
 }

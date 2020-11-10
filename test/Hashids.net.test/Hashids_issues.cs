@@ -35,7 +35,7 @@ namespace HashidsNet.test
                 longs.Add(Math.Abs(randLong));
             }
 
-            var encoded = hash.EncodeLong(longs);
+            var encoded = hash.Encode(longs);
             var decoded = hash.DecodeLong(encoded);
             decoded.Should().Equal(longs.ToArray());
         }
@@ -60,7 +60,7 @@ namespace HashidsNet.test
         {
             var hashids = new Hashids("this is my salt");
             hashids.Encode(1, 4, 5, -3).Should().Be(string.Empty);
-            hashids.EncodeLong(4, 5, 2, -4).Should().Be(string.Empty);
+            hashids.Encode(4, 5, 2, (long)-4).Should().Be(string.Empty);
         }
 
         [Fact]
