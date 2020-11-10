@@ -14,8 +14,8 @@ namespace HashidsNet
     {
         public const string DEFAULT_ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         public const string DEFAULT_SEPS = "cfhistuCFHISTU";
+        public const int MIN_ALPHABET_LENGTH = 16;
 
-        private const int MIN_ALPHABET_LENGTH = 16;
         private const double SEP_DIV = 3.5;
         private const double GUARD_DIV = 12.0;
 
@@ -59,8 +59,8 @@ namespace HashidsNet
             this.seps = seps;
             this.minHashLength = minHashLength;
 
-            if (this.alphabet.Length < 16)
-                throw new ArgumentException("alphabet must contain atleast 4 unique characters.", "alphabet");
+            if (this.alphabet.Length < MIN_ALPHABET_LENGTH)
+                throw new ArgumentException($"alphabet must contain at least {MIN_ALPHABET_LENGTH} unique characters.", "alphabet");
 
             this.SetupSeps();
             this.SetupGuards();
