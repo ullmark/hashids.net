@@ -262,5 +262,23 @@ namespace HashidsNet.test
         {
             hashids.Encode(Guid.NewGuid()).Should().NotBeNullOrEmpty();
         }
-    }
+
+        [Fact]
+        void can_hash_bytes()
+        {
+          var binary = new byte[] { 1, 2, 3, 4, 255 };
+          var enc = hashids.Encode(binary);
+
+          enc.Should().Be("xJHguahbtKj");
+        }
+
+        [Fact]
+        void hash_long_bytes()
+        {
+          var binary = new byte[16 * 1204];
+          var enc = hashids.Encode(binary);
+
+          enc.Should().NotBeNullOrEmpty();
+        }
+  }
 }
