@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System;
 using System.Linq;
 using System.Text;
@@ -46,13 +45,10 @@ namespace HashidsNet
         /// <summary>
         /// Instantiates a new Hashids en/de-coder.
         /// </summary>
-        /// <param name="salt"></param>
-        /// <param name="minHashLength"></param>
-        /// <param name="alphabet"></param>
         public Hashids(string salt = "", int minHashLength = 0, string alphabet = DEFAULT_ALPHABET, string seps = DEFAULT_SEPS)
         {
             if (string.IsNullOrWhiteSpace(alphabet))
-                throw new ArgumentNullException("alphabet");
+                throw new ArgumentNullException(nameof(alphabet));
 
             this.salt = salt;
             this.alphabet = new string(alphabet.ToCharArray().Distinct().ToArray());
@@ -60,7 +56,7 @@ namespace HashidsNet
             this.minHashLength = minHashLength;
 
             if (this.alphabet.Length < 16)
-                throw new ArgumentException("alphabet must contain atleast 4 unique characters.", "alphabet");
+                throw new ArgumentException("alphabet must contain atleast 4 unique characters.", nameof(alphabet));
 
             this.SetupSeps();
             this.SetupGuards();
@@ -170,7 +166,7 @@ namespace HashidsNet
         /// <summary>
         /// Encodes the provided numbers into a string.
         /// </summary>
-        /// <param name="number">the numbers</param>
+        /// <param name="numbers">the numbers</param>
         /// <returns>the hash</returns>
         [Obsolete("Use 'Encode' instead. The method was renamed to better explain what it actually does.")]
         public virtual string Encrypt(params int[] numbers)
