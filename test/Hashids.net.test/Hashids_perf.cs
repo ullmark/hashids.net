@@ -10,10 +10,8 @@ namespace HashidsNet.test
 {
     public class Hashids_perf
     {
-        static Random random = new Random();
-
         [Fact]
-        void Encode_single()
+        public void EncodePerformance()
         {
             var hashids = new Hashids();
             var stopWatch = Stopwatch.StartNew();
@@ -23,6 +21,25 @@ namespace HashidsNet.test
             }
             stopWatch.Stop();
             Trace.WriteLine($"10 000 encodes: {stopWatch.ElapsedMilliseconds}");
+        }
+
+        [Fact]
+        public async Task ThreadSafe()
+        {
+            var hashids = new Hashids();
+            const int threadCount = 6;
+            const int numberCount = 1000001;
+
+            var tasks = Enumerable.Range(1, threadCount).Select(t => Task.Run(() =>
+            {
+                for (var n = 1; n < numberCount; n++)
+                {
+                    var s = hashids.Encode(n);
+                    hashids.Decode(s).Should().Equal(n);
+                }
+            })).ToArray();
+
+            await Task.WhenAll(tasks);
         }
     }
 }
