@@ -14,9 +14,10 @@ namespace HashidsNet
     {
         public const string DEFAULT_ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         public const string DEFAULT_SEPS = "cfhistuCFHISTU";
+        public const int MIN_ALPHABET_LENGTH = 16;
 
         private static readonly long[] EmptyArray = new long[0];
-
+        
         private const int MIN_ALPHABET_LENGTH = 16;
         private const double SEP_DIV = 3.5;
         private const double GUARD_DIV = 12.0;
@@ -243,9 +244,10 @@ namespace HashidsNet
 
             ConsistentShuffle(_seps, _seps.Length, _salt, _salt.Length);
 
-            if (_seps.Length == 0 || (_alphabet.Length / _seps.Length) > SEP_DIV)
+            if (seps.Length == 0 || ((float)alphabet.Length / seps.Length) > SEP_DIV)
             {
-                var sepsLength = (int)Math.Ceiling(_alphabet.Length / SEP_DIV);
+                var sepsLength = (int)Math.Ceiling((float)alphabet.Length / SEP_DIV);
+                
                 if (sepsLength == 1)
                 {
                     sepsLength = 2;

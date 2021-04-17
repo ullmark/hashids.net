@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 using FluentAssertions;
 
@@ -10,6 +8,31 @@ namespace HashidsNet.test
 {
     public class Hashids_issues
     {
+        private IEnumerable<char> GenerateAlphabet(int length)
+        {
+            for (int i = 0; i < length; i++)
+            {
+                yield return (char)('a' + i);
+            }
+        }
+
+        [Fact]
+        void alphabet_from_minimum_lenght_should_not_throw_exception()
+        {
+            var hashids = new Hashids("janottaa", 6, new string(GenerateAlphabet(Hashids.MIN_ALPHABET_LENGTH).ToArray()));
+
+            var hashids2 = new Hashids("janottaa", 6, new string(GenerateAlphabet(Hashids.MIN_ALPHABET_LENGTH + 1).ToArray()));
+        }
+
+        [Fact]
+        void alphabet_shorter_than_minimum_should_throw_exception()
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                var hashids = new Hashids("janottaa", 6, new string(GenerateAlphabet(Hashids.MIN_ALPHABET_LENGTH - 1).ToArray()));
+            });
+        }
+
         [Fact]
         void issue_8_should_not_throw_out_of_range_exception()
         {
