@@ -113,6 +113,13 @@ namespace HashidsNet.test
         }
 
         [Fact]
+        void it_can_encode_with_a_custom_alphabet_and_few_seps()
+        {
+            var h = new Hashids(salt, 0, "ABCDEFGHIJKMNOPQRSTUVWXYZ23456789");
+            h.Encode(1, 2, 3, 4, 5).Should().Be("44HYIRU3TO");
+        }
+
+        [Fact]
         void it_does_not_produce_repeating_patterns_for_identical_numbers()
         {
             hashids.Encode(5, 5, 5, 5).Should().Be("1Wc8cwcE");
