@@ -10,10 +10,11 @@ namespace HashidsNet.test
 {
     public class Hashids_test
     {
-        Hashids hashids;
-        private string salt = "this is my salt";
-        private string defaultAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-        private string defaultSeps = "cfhistuCFHISTU";
+        private const string salt = "this is my salt";
+        private const string defaultAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+        private const string defaultSeps = "cfhistuCFHISTU";
+
+        private readonly Hashids hashids;
 
         public Hashids_test()
         {
