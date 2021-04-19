@@ -17,8 +17,7 @@ namespace HashidsNet
         public const int MIN_ALPHABET_LENGTH = 16;
 
         private static readonly long[] EmptyArray = new long[0];
-        
-        private const int MIN_ALPHABET_LENGTH = 16;
+
         private const double SEP_DIV = 3.5;
         private const double GUARD_DIV = 12.0;
 
@@ -33,15 +32,19 @@ namespace HashidsNet
         private static Lazy<Regex> hexValidator = new Lazy<Regex>(() => new Regex("^[0-9a-fA-F]+$"));
         private static Lazy<Regex> hexSplitter = new Lazy<Regex>(() => new Regex(@"[\w\W]{1,12}"));
 #else
-        private static Lazy<Regex> hexValidator = new Lazy<Regex>(() => new Regex("^[0-9a-fA-F]+$", RegexOptions.Compiled));
-        private static Lazy<Regex> hexSplitter = new Lazy<Regex>(() => new Regex(@"[\w\W]{1,12}", RegexOptions.Compiled));
+        private static Lazy<Regex> hexValidator =
+            new Lazy<Regex>(() => new Regex("^[0-9a-fA-F]+$", RegexOptions.Compiled));
+
+        private static Lazy<Regex> hexSplitter =
+            new Lazy<Regex>(() => new Regex(@"[\w\W]{1,12}", RegexOptions.Compiled));
 #endif
 
         /// <summary>
         /// Instantiates a new Hashids with the default setup.
         /// </summary>
         public Hashids() : this(string.Empty, 0, DEFAULT_ALPHABET, DEFAULT_SEPS)
-        {}
+        {
+        }
 
         /// <summary>
         /// Instantiates a new Hashids en/de-coder.
@@ -49,7 +52,8 @@ namespace HashidsNet
         /// <param name="salt"></param>
         /// <param name="minHashLength"></param>
         /// <param name="alphabet"></param>
-        public Hashids(string salt = "", int minHashLength = 0, string alphabet = DEFAULT_ALPHABET, string seps = DEFAULT_SEPS)
+        public Hashids(string salt = "", int minHashLength = 0, string alphabet = DEFAULT_ALPHABET,
+            string seps = DEFAULT_SEPS)
         {
             if (salt == null)
                 throw new ArgumentNullException(nameof(salt));
@@ -66,7 +70,8 @@ namespace HashidsNet
             _minHashLength = minHashLength;
 
             if (_alphabet.Length < MIN_ALPHABET_LENGTH)
-                throw new ArgumentException($"Alphabet must contain atleast {MIN_ALPHABET_LENGTH} unique characters.", nameof(alphabet));
+                throw new ArgumentException($"Alphabet must contain atleast {MIN_ALPHABET_LENGTH} unique characters.",
+                    nameof(alphabet));
 
             SetupSeps();
             SetupGuards();
@@ -79,12 +84,12 @@ namespace HashidsNet
         /// <returns>The hashed string.</returns>
         public virtual string Encode(params int[] numbers)
         {
-            if (numbers.Any(n => n < 0)) 
+            if (numbers.Any(n => n < 0))
                 return string.Empty;
 #if NETSTANDARD1_0
             return this.GenerateHashFrom(numbers.Select(n => (long)n).ToArray());
 #else
-            return GenerateHashFrom(Array.ConvertAll(numbers, n => (long)n));
+            return GenerateHashFrom(Array.ConvertAll(numbers, n => (long) n));
 #endif
         }
 
@@ -110,7 +115,7 @@ namespace HashidsNet
 #if NETSTANDARD1_0
             return this.GetNumbersFrom(hash).Select(n => (int)n).ToArray();
 #else
-            return Array.ConvertAll(numbers, n => (int)n);
+            return Array.ConvertAll(numbers, n => (int) n);
 #endif
         }
 
@@ -123,7 +128,7 @@ namespace HashidsNet
         {
             if (!hexValidator.Value.IsMatch(hex))
                 return string.Empty;
-            
+
             var matches = hexSplitter.Value.Matches(hex);
             var numbers = new List<long>(matches.Count);
 
@@ -171,7 +176,7 @@ namespace HashidsNet
         /// <returns>The hashed string.</returns>
         public string EncodeLong(params long[] numbers)
         {
-            if (numbers.Any(n => n < 0)) 
+            if (numbers.Any(n => n < 0))
                 return string.Empty;
 
             return GenerateHashFrom(numbers);
@@ -244,10 +249,10 @@ namespace HashidsNet
 
             ConsistentShuffle(_seps, _seps.Length, _salt, _salt.Length);
 
-            if (seps.Length == 0 || ((float)alphabet.Length / seps.Length) > SEP_DIV)
+            if (_seps.Length == 0 || ((float) _alphabet.Length / _seps.Length) > SEP_DIV)
             {
-                var sepsLength = (int)Math.Ceiling((float)alphabet.Length / SEP_DIV);
-                
+                var sepsLength = (int) Math.Ceiling((float) _alphabet.Length / SEP_DIV);
+
                 if (sepsLength == 1)
                 {
                     sepsLength = 2;
@@ -273,7 +278,7 @@ namespace HashidsNet
         /// </summary>
         private void SetupGuards()
         {
-            var guardCount = (int)Math.Ceiling(_alphabet.Length / GUARD_DIV);
+            var guardCount = (int) Math.Ceiling(_alphabet.Length / GUARD_DIV);
 
             if (_alphabet.Length < 3)
             {
@@ -297,7 +302,7 @@ namespace HashidsNet
         {
             if (numbers == null || numbers.Length == 0)
                 return string.Empty;
-            
+
             long numbersHashInt = 0;
             for (var i = 0; i < numbers.Length; i++)
             {
@@ -313,7 +318,7 @@ namespace HashidsNet
                 var lottery = alphabet[numbersHashInt % _alphabet.Length];
                 builder.Append(lottery);
                 buffer = CreateBuffer(_alphabet.Length, lottery);
-            
+
                 var startIndex = 1 + _salt.Length;
                 var length = _alphabet.Length - startIndex;
 
@@ -409,8 +414,7 @@ namespace HashidsNet
             {
                 hash.Add(alphabet[input % alphabetLength]);
                 input /= alphabetLength;
-            }
-            while (input > 0);
+            } while (input > 0);
 
             hash.Reverse();
             return hash.ToArray();
@@ -423,7 +427,7 @@ namespace HashidsNet
             for (var i = 0; i < input.Length; i++)
             {
                 var pos = Array.IndexOf(alphabet, input[i]);
-                number += (long)(pos * Math.Pow(alphabetLength, input.Length - i - 1));
+                number += (long) (pos * Math.Pow(alphabetLength, input.Length - i - 1));
             }
 
             return number;
@@ -434,7 +438,7 @@ namespace HashidsNet
             if (string.IsNullOrWhiteSpace(hash))
                 return EmptyArray;
 
-            
+
             var result = new List<long>();
             int i = 0;
 
