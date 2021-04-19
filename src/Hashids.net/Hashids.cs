@@ -364,10 +364,23 @@ namespace HashidsNet
             for (var i = 0; i < input.Length; i++)
             {
                 var pos = Array.IndexOf(alphabet, input[i]);
-                number += (long) (pos * Math.Pow(alphabetLength, input.Length - i - 1));
+                number += pos * LongPow(alphabetLength, input.Length - i - 1);
             }
 
             return number;
+        }
+
+        private static long LongPow(int target, int power)
+        {
+            if (power == 0) return 1;
+            long result = target;
+            while (power > 1)
+            {
+                result *= target;
+                power--;
+            }
+
+            return result;
         }
 
         private long[] GetNumbersFrom(string hash)

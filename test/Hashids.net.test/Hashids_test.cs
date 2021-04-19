@@ -23,6 +23,17 @@ namespace HashidsNet.test
 
         [Fact]
         void it_has_correct_default_alphabet()
+
+        [Fact]
+        public void MaxInt64_Encodes()
+        {
+            var source = new[] { 35887507618889472L, 30720L, long.MaxValue };
+            var encoded = hashids.EncodeLong(source);
+            var result = hashids.DecodeLong(encoded);
+
+            source.Should().BeEquivalentTo(result);
+        }
+
         {
             Hashids.DEFAULT_ALPHABET.Should().Be(defaultAlphabet);
         }
