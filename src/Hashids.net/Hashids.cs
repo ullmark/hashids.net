@@ -15,8 +15,6 @@ namespace HashidsNet
         public const string DEFAULT_SEPS = "cfhistuCFHISTU";
         public const int MIN_ALPHABET_LENGTH = 16;
 
-        private static readonly long[] EmptyArray = new long[0];
-
         private const double SEP_DIV = 3.5;
         private const double GUARD_DIV = 12.0;
 
@@ -27,8 +25,8 @@ namespace HashidsNet
         private readonly int _minHashLength;
 
         //  Creates the Regex in the first usage, speed up first use of non hex methods
-        private static Lazy<Regex> hexValidator = new Lazy<Regex>(() => new Regex("^[0-9a-fA-F]+$", RegexOptions.Compiled));
-        private static Lazy<Regex> hexSplitter = new Lazy<Regex>(() => new Regex(@"[\w\W]{1,12}", RegexOptions.Compiled));
+        private static readonly Lazy<Regex> hexValidator = new Lazy<Regex>(() => new Regex("^[0-9a-fA-F]+$", RegexOptions.Compiled));
+        private static readonly Lazy<Regex> hexSplitter = new Lazy<Regex>(() => new Regex(@"[\w\W]{1,12}", RegexOptions.Compiled));
 
         /// <summary>
         /// Instantiates a new Hashids with the default setup.
@@ -255,8 +253,8 @@ namespace HashidsNet
 
             var builder = new StringBuilder();
 
-            char[] alphabet, buffer = null;
-            alphabet = _alphabet.CopyPooled();
+            char[] buffer = null;
+            var alphabet = _alphabet.CopyPooled();
             try
             {
                 var lottery = alphabet[numbersHashInt % _alphabet.Length];
@@ -324,12 +322,8 @@ namespace HashidsNet
             }
             finally
             {
-                System.Buffers.ArrayPool<char>.Shared.Return(alphabet);
-
-                if (buffer != null)
-                {
-                    System.Buffers.ArrayPool<char>.Shared.Return(buffer);
-                }
+                alphabet.ReturnPooled();
+                buffer.ReturnPooled();
             }
 
             return builder.ToString();
@@ -386,11 +380,11 @@ namespace HashidsNet
         private long[] GetNumbersFrom(string hash)
         {
             if (string.IsNullOrWhiteSpace(hash))
-                return EmptyArray;
+                return Array.Empty<long>();
 
             var hashArray = hash.Split(_guards, StringSplitOptions.RemoveEmptyEntries);
             if (hashArray.Length == 0)
-                return EmptyArray;
+                return Array.Empty<long>();
 
             var i = 0;
             if (hashArray.Length == 3 || hashArray.Length == 2)
@@ -407,8 +401,8 @@ namespace HashidsNet
 
                 hashArray = hashBreakdown.Split(_seps, StringSplitOptions.RemoveEmptyEntries);
 
-                char[] alphabet, buffer = null;
-                alphabet = _alphabet.CopyPooled();
+                char[] buffer = null;
+                var alphabet = _alphabet.CopyPooled();
                 try
                 {
                     buffer = CreateBuffer(_alphabet.Length, lottery);
@@ -431,11 +425,8 @@ namespace HashidsNet
                 }
                 finally
                 {
-                    System.Buffers.ArrayPool<char>.Shared.Return(alphabet);
-                    if (buffer != null)
-                    {
-                        System.Buffers.ArrayPool<char>.Shared.Return(buffer);
-                    }
+                    alphabet.ReturnPooled();
+                    buffer.ReturnPooled();
                 }
 
                 if (EncodeLong(result.ToArray()) != hash)
