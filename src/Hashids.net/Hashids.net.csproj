@@ -15,20 +15,14 @@
   </PropertyGroup>
   
   <PropertyGroup>
-    <TargetFrameworks>net40;net45;netstandard1.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net461;net5.0;netstandard2.0</TargetFrameworks>
     <OutputType>Library</OutputType>
   </PropertyGroup>
   
-  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+  <ItemGroup>
     <PackageReference Include="System.Buffers">
       <Version>4.5.1</Version>
     </PackageReference>
   </ItemGroup>
   
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="System.Buffers">
-      <Version>4.5.1</Version>
-    </PackageReference>
-  </ItemGroup>
-
 </Project>
