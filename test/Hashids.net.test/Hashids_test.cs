@@ -34,6 +34,18 @@ namespace HashidsNet.test
             source.Should().BeEquivalentTo(result);
         }
 
+
+        [Fact]
+        public void AlphabetWithDashes_Encodes()
+        {
+            var customHashids = new Hashids(alphabet: "abcdefghijklmnopqrstuvwxyz1234567890_-");
+            var source = new long[] { 1, 2, 3 };
+            var encoded = customHashids.EncodeLong(source);
+            var result = customHashids.DecodeLong(encoded);
+
+            source.Should().BeEquivalentTo(result);
+        }
+
         {
             Hashids.DEFAULT_ALPHABET.Should().Be(defaultAlphabet);
         }
