@@ -23,6 +23,40 @@ namespace HashidsNet.test
 
         [Fact]
         void it_has_correct_default_alphabet()
+
+        [Fact]
+        public void MaxInt64_Encodes()
+        {
+            var source = new[] { 35887507618889472L, 30720L, long.MaxValue };
+            var encoded = hashids.EncodeLong(source);
+            var result = hashids.DecodeLong(encoded);
+
+            source.Should().BeEquivalentTo(result);
+        }
+
+
+        [Fact]
+        public void AlphabetWithDashes_Encodes()
+        {
+            var customHashids = new Hashids(alphabet: "abcdefghijklmnopqrstuvwxyz1234567890_-");
+            var source = new long[] { 1, 2, 3 };
+            var encoded = customHashids.EncodeLong(source);
+            var result = customHashids.DecodeLong(encoded);
+
+            source.Should().BeEquivalentTo(result);
+        }
+
+        [Fact]
+        public void GuardCharacterOnly_DecodesToEmptyArray()
+        {
+            // no salt creates guard characters: "abde"
+            var customHashids = new Hashids("");
+            var decodedValue = customHashids.Decode("a");
+            decodedValue.Should().BeEquivalentTo(Array.Empty<int>());
+        }
+
+        [Fact]
+        private void it_has_correct_default_alphabet()
         {
             Hashids.DEFAULT_ALPHABET.Should().Be(defaultAlphabet);
         }
