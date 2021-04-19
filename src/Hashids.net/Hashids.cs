@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System;
 using System.Linq;
 using System.Text;
@@ -22,22 +21,14 @@ namespace HashidsNet
         private const double GUARD_DIV = 12.0;
 
         private char[] _alphabet;
-        private char[] _salt;
         private char[] _seps;
         private char[] _guards;
-        private int _minHashLength;
+        private char[] _salt;
+        private readonly int _minHashLength;
 
         //  Creates the Regex in the first usage, speed up first use of non hex methods
-#if NETSTANDARD1_0
-        private static Lazy<Regex> hexValidator = new Lazy<Regex>(() => new Regex("^[0-9a-fA-F]+$"));
-        private static Lazy<Regex> hexSplitter = new Lazy<Regex>(() => new Regex(@"[\w\W]{1,12}"));
-#else
-        private static Lazy<Regex> hexValidator =
-            new Lazy<Regex>(() => new Regex("^[0-9a-fA-F]+$", RegexOptions.Compiled));
-
-        private static Lazy<Regex> hexSplitter =
-            new Lazy<Regex>(() => new Regex(@"[\w\W]{1,12}", RegexOptions.Compiled));
-#endif
+        private static Lazy<Regex> hexValidator =  new Lazy<Regex>(() => new Regex("^[0-9a-fA-F]+$", RegexOptions.Compiled));
+        private static Lazy<Regex> hexSplitter = new Lazy<Regex>(() => new Regex(@"[\w\W]{1,12}", RegexOptions.Compiled));
 
         /// <summary>
         /// Instantiates a new Hashids with the default setup.
@@ -52,7 +43,10 @@ namespace HashidsNet
         /// <param name="salt"></param>
         /// <param name="minHashLength"></param>
         /// <param name="alphabet"></param>
-        public Hashids(string salt = "", int minHashLength = 0, string alphabet = DEFAULT_ALPHABET,
+        public Hashids(
+            string salt = "",
+            int minHashLength = 0,
+            string alphabet = DEFAULT_ALPHABET,
             string seps = DEFAULT_SEPS)
         {
             if (salt == null)
@@ -70,7 +64,7 @@ namespace HashidsNet
             _minHashLength = minHashLength;
 
             if (_alphabet.Length < MIN_ALPHABET_LENGTH)
-                throw new ArgumentException($"Alphabet must contain atleast {MIN_ALPHABET_LENGTH} unique characters.",
+                throw new ArgumentException($"Alphabet must contain at least {MIN_ALPHABET_LENGTH} unique characters.",
                     nameof(alphabet));
 
             SetupSeps();
@@ -86,11 +80,8 @@ namespace HashidsNet
         {
             if (numbers.Any(n => n < 0))
                 return string.Empty;
-#if NETSTANDARD1_0
-            return this.GenerateHashFrom(numbers.Select(n => (long)n).ToArray());
-#else
+            
             return GenerateHashFrom(Array.ConvertAll(numbers, n => (long) n));
-#endif
         }
 
         /// <summary>
@@ -112,11 +103,7 @@ namespace HashidsNet
         public virtual int[] Decode(string hash)
         {
             var numbers = GetNumbersFrom(hash);
-#if NETSTANDARD1_0
-            return this.GetNumbersFrom(hash).Select(n => (int)n).ToArray();
-#else
             return Array.ConvertAll(numbers, n => (int) n);
-#endif
         }
 
         /// <summary>
@@ -380,15 +367,12 @@ namespace HashidsNet
             }
             finally
             {
-#if NETSTANDARD1_0 || NET40
-#else
                 System.Buffers.ArrayPool<char>.Shared.Return(alphabet);
 
                 if (buffer != null)
                 {
                     System.Buffers.ArrayPool<char>.Shared.Return(buffer);
                 }
-#endif
             }
 
             return builder.ToString();
@@ -396,11 +380,7 @@ namespace HashidsNet
 
         private char[] CreateBuffer(int alphabetLength, char lottery)
         {
-#if NETSTANDARD1_0 || NET40
-            var buffer = new char[alphabetLength];
-#else
             var buffer = System.Buffers.ArrayPool<char>.Shared.Rent(alphabetLength);
-#endif
             buffer[0] = lottery;
             Array.Copy(_salt, 0, buffer, 1, Math.Min(_salt.Length, alphabetLength - 1));
             return buffer;
@@ -481,14 +461,11 @@ namespace HashidsNet
                 }
                 finally
                 {
-#if NETSTANDARD1_0 || NET40
-#else
                     System.Buffers.ArrayPool<char>.Shared.Return(alphabet);
                     if (buffer != null)
                     {
                         System.Buffers.ArrayPool<char>.Shared.Return(buffer);
                     }
-#endif
                 }
 
                 if (EncodeLong(result.ToArray()) != hash)
