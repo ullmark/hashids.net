@@ -388,17 +388,17 @@ namespace HashidsNet
             if (string.IsNullOrWhiteSpace(hash))
                 return EmptyArray;
 
-
-            var result = new List<long>();
-            int i = 0;
-
             var hashArray = hash.Split(_guards, StringSplitOptions.RemoveEmptyEntries);
+            if (hashArray.Length == 0)
+                return EmptyArray;
 
+            var i = 0;
             if (hashArray.Length == 3 || hashArray.Length == 2)
             {
                 i = 1;
             }
 
+            var result = new List<long>();
             var hashBreakdown = hashArray[i];
             if (hashBreakdown[0] != default(char))
             {

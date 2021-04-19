@@ -46,6 +46,17 @@ namespace HashidsNet.test
             source.Should().BeEquivalentTo(result);
         }
 
+        [Fact]
+        public void GuardCharacterOnly_DecodesToEmptyArray()
+        {
+            // no salt creates guard characters: "abde"
+            var customHashids = new Hashids("");
+            var decodedValue = customHashids.Decode("a");
+            decodedValue.Should().BeEquivalentTo(Array.Empty<int>());
+        }
+
+        [Fact]
+        private void it_has_correct_default_alphabet()
         {
             Hashids.DEFAULT_ALPHABET.Should().Be(defaultAlphabet);
         }
