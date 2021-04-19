@@ -18,11 +18,14 @@ namespace HashidsNet
         private const double SEP_DIV = 3.5;
         private const double GUARD_DIV = 12.0;
 
+        private const int NumberPowersCount = 12; // Length of encoded long.MaxValue.
+
         private char[] _alphabet;
         private char[] _seps;
         private char[] _guards;
         private char[] _salt;
         private readonly int _minHashLength;
+        private readonly long[] _numberPowers;
 
         //  Creates the Regex in the first usage, speed up first use of non hex methods
         private static readonly Lazy<Regex> hexValidator = new Lazy<Regex>(() => new Regex("^[0-9a-fA-F]+$", RegexOptions.Compiled));
@@ -65,9 +68,25 @@ namespace HashidsNet
             if (_alphabet.Length < MIN_ALPHABET_LENGTH)
                 throw new ArgumentException($"Alphabet must contain at least {MIN_ALPHABET_LENGTH} unique characters.",
                     nameof(alphabet));
-
+            
             SetupSeps();
             SetupGuards();
+
+            _numberPowers = PrecalculateNumberPowers(_alphabet.Length);
+        }
+
+        private long[] PrecalculateNumberPowers(int number)
+        {
+            var powers = new long[NumberPowersCount];
+
+            long n = 1;
+            for (var i = 0; i < NumberPowersCount; i++)
+            {
+                powers[i] = n;
+                n *= number;
+            }
+
+            return powers;
         }
 
         /// <summary>
@@ -259,7 +278,7 @@ namespace HashidsNet
             {
                 var lottery = alphabet[numbersHashInt % _alphabet.Length];
                 builder.Append(lottery);
-                buffer = CreateBuffer(_alphabet.Length, lottery);
+                buffer = CreatePooledBuffer(_alphabet.Length, lottery);
 
                 var startIndex = 1 + _salt.Length;
                 var length = _alphabet.Length - startIndex;
@@ -322,14 +341,14 @@ namespace HashidsNet
             }
             finally
             {
-                alphabet.ReturnPooled();
-                buffer.ReturnPooled();
+                alphabet.ReturnToPool();
+                buffer.ReturnToPool();
             }
 
             return builder.ToString();
         }
 
-        private char[] CreateBuffer(int alphabetLength, char lottery)
+        private char[] CreatePooledBuffer(int alphabetLength, char lottery)
         {
             var buffer = System.Buffers.ArrayPool<char>.Shared.Rent(alphabetLength);
             buffer[0] = lottery;
@@ -351,30 +370,17 @@ namespace HashidsNet
             return hash.ToArray();
         }
 
-        private long Unhash(string input, char[] alphabet, int alphabetLength)
+        private long Unhash(string input, char[] alphabet)
         {
             long number = 0;
 
             for (var i = 0; i < input.Length; i++)
             {
                 var pos = Array.IndexOf(alphabet, input[i]);
-                number += pos * LongPow(alphabetLength, input.Length - i - 1);
+                number += pos * _numberPowers[input.Length - i - 1];
             }
 
             return number;
-        }
-
-        private static long LongPow(int target, int power)
-        {
-            if (power == 0) return 1;
-            long result = target;
-            while (power > 1)
-            {
-                result *= target;
-                power--;
-            }
-
-            return result;
         }
 
         private long[] GetNumbersFrom(string hash)
@@ -405,7 +411,7 @@ namespace HashidsNet
                 var alphabet = _alphabet.CopyPooled();
                 try
                 {
-                    buffer = CreateBuffer(_alphabet.Length, lottery);
+                    buffer = CreatePooledBuffer(_alphabet.Length, lottery);
 
                     var startIndex = 1 + _salt.Length;
                     var length = _alphabet.Length - startIndex;
@@ -420,13 +426,13 @@ namespace HashidsNet
                         }
 
                         ConsistentShuffle(alphabet, _alphabet.Length, buffer, _alphabet.Length);
-                        result.Add(Unhash(subHash, alphabet, _alphabet.Length));
+                        result.Add(Unhash(subHash, alphabet));
                     }
                 }
                 finally
                 {
-                    alphabet.ReturnPooled();
-                    buffer.ReturnPooled();
+                    alphabet.ReturnToPool();
+                    buffer.ReturnToPool();
                 }
 
                 if (EncodeLong(result.ToArray()) != hash)
