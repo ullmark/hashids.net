@@ -39,11 +39,7 @@ namespace HashidsNet
 
         public static T[] SubArrayPooled<T>(this T[] array, int index, int length)
         {
-#if NETSTANDARD1_0 || NET40
-            var subarray = new T[length];
-#else
             var subarray = System.Buffers.ArrayPool<T>.Shared.Rent(length);
-#endif
             Array.Copy(array, index, subarray, 0, length);
             return subarray;
         }

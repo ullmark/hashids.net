@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System;
 using System.Linq;
 using System.Text;
@@ -10,38 +9,33 @@ namespace HashidsNet
     /// <summary>
     /// Generate YouTube-like hashes from one or many numbers. Use hashids when you do not want to expose your database ids to the user.
     /// </summary>
-    public class Hashids : IHashids
+    public partial class Hashids : IHashids
     {
         public const string DEFAULT_ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         public const string DEFAULT_SEPS = "cfhistuCFHISTU";
         public const int MIN_ALPHABET_LENGTH = 16;
 
         private static readonly long[] EmptyArray = new long[0];
-        
-        private const int MIN_ALPHABET_LENGTH = 16;
+
         private const double SEP_DIV = 3.5;
         private const double GUARD_DIV = 12.0;
 
         private char[] _alphabet;
-        private char[] _salt;
         private char[] _seps;
         private char[] _guards;
-        private int _minHashLength;
+        private char[] _salt;
+        private readonly int _minHashLength;
 
         //  Creates the Regex in the first usage, speed up first use of non hex methods
-#if NETSTANDARD1_0
-        private static Lazy<Regex> hexValidator = new Lazy<Regex>(() => new Regex("^[0-9a-fA-F]+$"));
-        private static Lazy<Regex> hexSplitter = new Lazy<Regex>(() => new Regex(@"[\w\W]{1,12}"));
-#else
         private static Lazy<Regex> hexValidator = new Lazy<Regex>(() => new Regex("^[0-9a-fA-F]+$", RegexOptions.Compiled));
         private static Lazy<Regex> hexSplitter = new Lazy<Regex>(() => new Regex(@"[\w\W]{1,12}", RegexOptions.Compiled));
-#endif
 
         /// <summary>
         /// Instantiates a new Hashids with the default setup.
         /// </summary>
         public Hashids() : this(string.Empty, 0, DEFAULT_ALPHABET, DEFAULT_SEPS)
-        {}
+        {
+        }
 
         /// <summary>
         /// Instantiates a new Hashids en/de-coder.
@@ -49,7 +43,12 @@ namespace HashidsNet
         /// <param name="salt"></param>
         /// <param name="minHashLength"></param>
         /// <param name="alphabet"></param>
-        public Hashids(string salt = "", int minHashLength = 0, string alphabet = DEFAULT_ALPHABET, string seps = DEFAULT_SEPS)
+        /// <param name="seps"></param>
+        public Hashids(
+            string salt = "",
+            int minHashLength = 0,
+            string alphabet = DEFAULT_ALPHABET,
+            string seps = DEFAULT_SEPS)
         {
             if (salt == null)
                 throw new ArgumentNullException(nameof(salt));
@@ -66,7 +65,8 @@ namespace HashidsNet
             _minHashLength = minHashLength;
 
             if (_alphabet.Length < MIN_ALPHABET_LENGTH)
-                throw new ArgumentException($"Alphabet must contain atleast {MIN_ALPHABET_LENGTH} unique characters.", nameof(alphabet));
+                throw new ArgumentException($"Alphabet must contain at least {MIN_ALPHABET_LENGTH} unique characters.",
+                    nameof(alphabet));
 
             SetupSeps();
             SetupGuards();
@@ -79,13 +79,10 @@ namespace HashidsNet
         /// <returns>The hashed string.</returns>
         public virtual string Encode(params int[] numbers)
         {
-            if (numbers.Any(n => n < 0)) 
+            if (numbers.Any(n => n < 0))
                 return string.Empty;
-#if NETSTANDARD1_0
-            return this.GenerateHashFrom(numbers.Select(n => (long)n).ToArray());
-#else
-            return GenerateHashFrom(Array.ConvertAll(numbers, n => (long)n));
-#endif
+
+            return GenerateHashFrom(Array.ConvertAll(numbers, n => (long) n));
         }
 
         /// <summary>
@@ -107,11 +104,7 @@ namespace HashidsNet
         public virtual int[] Decode(string hash)
         {
             var numbers = GetNumbersFrom(hash);
-#if NETSTANDARD1_0
-            return this.GetNumbersFrom(hash).Select(n => (int)n).ToArray();
-#else
-            return Array.ConvertAll(numbers, n => (int)n);
-#endif
+            return Array.ConvertAll(numbers, n => (int) n);
         }
 
         /// <summary>
@@ -123,7 +116,7 @@ namespace HashidsNet
         {
             if (!hexValidator.Value.IsMatch(hex))
                 return string.Empty;
-            
+
             var matches = hexSplitter.Value.Matches(hex);
             var numbers = new List<long>(matches.Count);
 
@@ -171,7 +164,7 @@ namespace HashidsNet
         /// <returns>The hashed string.</returns>
         public string EncodeLong(params long[] numbers)
         {
-            if (numbers.Any(n => n < 0)) 
+            if (numbers.Any(n => n < 0))
                 return string.Empty;
 
             return GenerateHashFrom(numbers);
@@ -188,50 +181,6 @@ namespace HashidsNet
         }
 
         /// <summary>
-        /// Encodes the provided numbers into a string.
-        /// </summary>
-        /// <param name="number">The numbers.</param>
-        /// <returns>The hash.</returns>
-        [Obsolete("Use 'Encode' instead. The method was renamed to better explain what it actually does.")]
-        public virtual string Encrypt(params int[] numbers)
-        {
-            return Encode(numbers);
-        }
-
-        /// <summary>
-        /// Encrypts the provided hex string to a hashids hash.
-        /// </summary>
-        /// <param name="hex"></param>
-        /// <returns></returns>
-        [Obsolete("Use 'EncodeHex' instead. The method was renamed to better explain what it actually does.")]
-        public virtual string EncryptHex(string hex)
-        {
-            return EncodeHex(hex);
-        }
-
-        /// <summary>
-        /// Decodes the provided numbers into a array of numbers.
-        /// </summary>
-        /// <param name="hash">Hash.</param>
-        /// <returns>Array of numbers.</returns>
-        [Obsolete("Use 'Decode' instead. Method was renamed to better explain what it actually does.")]
-        public virtual int[] Decrypt(string hash)
-        {
-            return Decode(hash);
-        }
-
-        /// <summary>
-        /// Decodes the provided hash to a hex-string.
-        /// </summary>
-        /// <param name="hash"></param>
-        /// <returns></returns>
-        [Obsolete("Use 'DecodeHex' instead. The method was renamed to better explain what it actually does.")]
-        public virtual string DecryptHex(string hash)
-        {
-            return DecodeHex(hash);
-        }
-
-        /// <summary>
         /// 
         /// </summary>
         private void SetupSeps()
@@ -244,10 +193,10 @@ namespace HashidsNet
 
             ConsistentShuffle(_seps, _seps.Length, _salt, _salt.Length);
 
-            if (seps.Length == 0 || ((float)alphabet.Length / seps.Length) > SEP_DIV)
+            if (_seps.Length == 0 || ((float) _alphabet.Length / _seps.Length) > SEP_DIV)
             {
-                var sepsLength = (int)Math.Ceiling((float)alphabet.Length / SEP_DIV);
-                
+                var sepsLength = (int) Math.Ceiling((float) _alphabet.Length / SEP_DIV);
+
                 if (sepsLength == 1)
                 {
                     sepsLength = 2;
@@ -273,7 +222,7 @@ namespace HashidsNet
         /// </summary>
         private void SetupGuards()
         {
-            var guardCount = (int)Math.Ceiling(_alphabet.Length / GUARD_DIV);
+            var guardCount = (int) Math.Ceiling(_alphabet.Length / GUARD_DIV);
 
             if (_alphabet.Length < 3)
             {
@@ -297,7 +246,7 @@ namespace HashidsNet
         {
             if (numbers == null || numbers.Length == 0)
                 return string.Empty;
-            
+
             long numbersHashInt = 0;
             for (var i = 0; i < numbers.Length; i++)
             {
@@ -313,7 +262,7 @@ namespace HashidsNet
                 var lottery = alphabet[numbersHashInt % _alphabet.Length];
                 builder.Append(lottery);
                 buffer = CreateBuffer(_alphabet.Length, lottery);
-            
+
                 var startIndex = 1 + _salt.Length;
                 var length = _alphabet.Length - startIndex;
 
@@ -375,15 +324,12 @@ namespace HashidsNet
             }
             finally
             {
-#if NETSTANDARD1_0 || NET40
-#else
                 System.Buffers.ArrayPool<char>.Shared.Return(alphabet);
 
                 if (buffer != null)
                 {
                     System.Buffers.ArrayPool<char>.Shared.Return(buffer);
                 }
-#endif
             }
 
             return builder.ToString();
@@ -391,11 +337,7 @@ namespace HashidsNet
 
         private char[] CreateBuffer(int alphabetLength, char lottery)
         {
-#if NETSTANDARD1_0 || NET40
-            var buffer = new char[alphabetLength];
-#else
             var buffer = System.Buffers.ArrayPool<char>.Shared.Rent(alphabetLength);
-#endif
             buffer[0] = lottery;
             Array.Copy(_salt, 0, buffer, 1, Math.Min(_salt.Length, alphabetLength - 1));
             return buffer;
@@ -409,8 +351,7 @@ namespace HashidsNet
             {
                 hash.Add(alphabet[input % alphabetLength]);
                 input /= alphabetLength;
-            }
-            while (input > 0);
+            } while (input > 0);
 
             hash.Reverse();
             return hash.ToArray();
@@ -423,7 +364,7 @@ namespace HashidsNet
             for (var i = 0; i < input.Length; i++)
             {
                 var pos = Array.IndexOf(alphabet, input[i]);
-                number += (long)(pos * Math.Pow(alphabetLength, input.Length - i - 1));
+                number += (long) (pos * Math.Pow(alphabetLength, input.Length - i - 1));
             }
 
             return number;
@@ -434,7 +375,7 @@ namespace HashidsNet
             if (string.IsNullOrWhiteSpace(hash))
                 return EmptyArray;
 
-            
+
             var result = new List<long>();
             int i = 0;
 
@@ -477,14 +418,11 @@ namespace HashidsNet
                 }
                 finally
                 {
-#if NETSTANDARD1_0 || NET40
-#else
                     System.Buffers.ArrayPool<char>.Shared.Return(alphabet);
                     if (buffer != null)
                     {
                         System.Buffers.ArrayPool<char>.Shared.Return(buffer);
                     }
-#endif
                 }
 
                 if (EncodeLong(result.ToArray()) != hash)
