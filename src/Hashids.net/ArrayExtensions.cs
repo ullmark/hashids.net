@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Buffers;
 
 namespace HashidsNet
 {
@@ -39,9 +40,17 @@ namespace HashidsNet
 
         public static T[] SubArrayPooled<T>(this T[] array, int index, int length)
         {
-            var subarray = System.Buffers.ArrayPool<T>.Shared.Rent(length);
+            var subarray = ArrayPool<T>.Shared.Rent(length);
             Array.Copy(array, index, subarray, 0, length);
             return subarray;
+        }
+
+        public static void ReturnPooled<T>(this T[] array)
+        {
+            if (array == null)
+                return;
+
+            ArrayPool<T>.Shared.Return(array);
         }
     }
 }
