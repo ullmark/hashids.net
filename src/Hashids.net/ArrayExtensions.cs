@@ -45,7 +45,7 @@ namespace HashidsNet
             return subarray;
         }
 
-        public static void ReturnPooled<T>(this T[] array)
+        public static void ReturnToPool<T>(this T[] array)
         {
             if (array == null)
                 return;
