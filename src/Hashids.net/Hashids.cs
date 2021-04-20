@@ -78,12 +78,10 @@ namespace HashidsNet
         private long[] PrecalculateNumberPowers(int number)
         {
             var powers = new long[NumberPowersCount];
-
-            long n = 1;
-            for (var i = 0; i < NumberPowersCount; i++)
+            powers[0] = 1;
+            for (var i = 1; i < NumberPowersCount; i++)
             {
-                powers[i] = n;
-                n *= number;
+                powers[i] = powers[i - 1] * number;
             }
 
             return powers;
