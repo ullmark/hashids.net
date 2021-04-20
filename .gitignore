@@ -32,3 +32,5 @@ project.fragment.lock.json
 artifacts/
 packages/
 
+# BenchmarkDotNet.Artifacts
+BenchmarkDotNet.Artifacts/
