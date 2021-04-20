@@ -197,9 +197,6 @@ namespace HashidsNet
             return EncodeLong(numbers.ToArray());
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private void SetupSeps()
         {
             // seps should contain only characters present in alphabet; 
@@ -234,9 +231,6 @@ namespace HashidsNet
             ConsistentShuffle(_alphabet, _alphabet.Length, _salt, _salt.Length);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         private void SetupGuards()
         {
             var guardCount = (int) Math.Ceiling(_alphabet.Length / GUARD_DIV);
@@ -444,12 +438,6 @@ namespace HashidsNet
             return result.ToArray();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="alphabet"></param>
-        /// <param name="salt"></param>
-        /// <returns></returns>
         private void ConsistentShuffle(char[] alphabet, int alphabetLength, char[] salt, int saltLength)
         {
             if (salt.Length == 0)
