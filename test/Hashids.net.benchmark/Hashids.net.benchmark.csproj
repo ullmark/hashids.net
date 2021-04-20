@@ -4,15 +4,16 @@
         <OutputType>Exe</OutputType>
         <TargetFramework>net5.0</TargetFramework>
         <IsPackable>false</IsPackable>
-        <LangVersion>default</LangVersion>
+        <LangVersion>9.0</LangVersion>
+        <StartupObject>Hashids.net.benchmark.Program</StartupObject>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BenchmarkDotNet" Version="0.12.1"/>
+        <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Hashids.net\Hashids.net.csproj"/>
+        <ProjectReference Include="..\..\src\Hashids.net\Hashids.net.csproj" />
     </ItemGroup>
 
 </Project>
