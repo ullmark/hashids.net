@@ -141,9 +141,8 @@ namespace HashidsNet
             var numbers = DecodeLong(hash);
 
             foreach (var number in numbers)
-            {
-                builder.Append(string.Format("{0:X}", number).Substring(1));
-            }
+            foreach (var ch in number.ToString("X").AsSpan().Slice(1))
+                builder.Append(ch);
 
             var result = builder.ToString();
             _sbPool.Return(builder);
