@@ -350,7 +350,7 @@ namespace HashidsNet
             for (var i = 0; i < input.Length; i++)
             {
                 var pos = Array.IndexOf(alphabet, input[i]);
-                number += pos * LongPow(alphabetLength, input.Length - i - 1);
+                number = number * alphabetLength + pos;
             }
 
             return number;
@@ -441,19 +441,6 @@ namespace HashidsNet
                 alphabet[j] = alphabet[i];
                 alphabet[i] = temp;
             }
-        }
-
-        private static long LongPow(int target, int power)
-        {
-            if (power == 0) return 1;
-            long result = target;
-            while (power > 1)
-            {
-                result *= target;
-                power--;
-            }
-
-            return result;
         }
     }
 }
