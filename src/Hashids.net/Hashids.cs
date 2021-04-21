@@ -131,13 +131,7 @@ namespace HashidsNet
         /// </summary>
         /// <param name="numbers">List of integers.</param>
         /// <returns>Encoded hash string.</returns>
-        public virtual string Encode(params int[] numbers)
-        {
-            if (numbers.Any(n => n < 0))
-                return string.Empty;
-
-            return GenerateHashFrom(Array.ConvertAll(numbers, n => (long) n));
-        }
+        public virtual string Encode(params int[] numbers) => GenerateHashFrom(Array.ConvertAll(numbers, n => (long) n));
 
         /// <summary>
         /// Encodes the provided numbers into a hash string.
@@ -151,13 +145,7 @@ namespace HashidsNet
         /// </summary>
         /// <param name="numbers">List of 64-bit integers.</param>
         /// <returns>Encoded hash string.</returns>
-        public string EncodeLong(params long[] numbers)
-        {
-            if (numbers.Any(n => n < 0))
-                return string.Empty;
-
-            return GenerateHashFrom(numbers);
-        }
+        public string EncodeLong(params long[] numbers) => GenerateHashFrom(numbers);
 
         /// <summary>
         /// Encodes the provided numbers into a hash string.
@@ -172,21 +160,14 @@ namespace HashidsNet
         /// <param name="hash">Hash string to decode.</param>
         /// <returns>Array of integers.</returns>
         /// <exception cref="T:System.OverflowException">If the decoded number overflows integer.</exception>
-        public virtual int[] Decode(string hash)
-        {
-            var numbers = GetNumbersFrom(hash);
-            return Array.ConvertAll(numbers, n => (int) n);
-        }
+        public virtual int[] Decode(string hash) => Array.ConvertAll(GetNumbersFrom(hash), n => (int) n);
 
         /// <summary>
         /// Decodes the provided hash into numbers.
         /// </summary>
         /// <param name="hash">Hash string to decode.</param>
         /// <returns>Array of 64-bit integers.</returns>
-        public long[] DecodeLong(string hash)
-        {
-            return GetNumbersFrom(hash);
-        }
+        public long[] DecodeLong(string hash) => GetNumbersFrom(hash);
 
         /// <summary>
         /// Encodes the provided hex-string into a hash string.
@@ -231,7 +212,7 @@ namespace HashidsNet
 
         private string GenerateHashFrom(long[] numbers)
         {
-            if (numbers == null || numbers.Length == 0)
+            if (numbers == null || numbers.Length == 0 || numbers.Any(n => n < 0))
                 return string.Empty;
 
             long numbersHashInt = 0;

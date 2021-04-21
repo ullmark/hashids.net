@@ -3,7 +3,7 @@ using System.Buffers;
 
 namespace HashidsNet
 {
-    public static class ArrayExtensions
+    internal static class ArrayExtensions
     {
         public static T[] SubArray<T>(this T[] array, int index)
         {
