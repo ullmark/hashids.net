@@ -1,38 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Xunit;
 using FluentAssertions;
 
 namespace HashidsNet.test
 {
-    public class Hashids_issues
+    public class IssueSpecificTests
     {
-        private IEnumerable<char> GenerateAlphabet(int length)
-        {
-            for (int i = 0; i < length; i++)
-            {
-                yield return (char)('a' + i);
-            }
-        }
-
-        [Fact]
-        void alphabet_from_minimum_lenght_should_not_throw_exception()
-        {
-            var hashids = new Hashids("janottaa", 6, new string(GenerateAlphabet(Hashids.MIN_ALPHABET_LENGTH).ToArray()));
-
-            var hashids2 = new Hashids("janottaa", 6, new string(GenerateAlphabet(Hashids.MIN_ALPHABET_LENGTH + 1).ToArray()));
-        }
-
-        [Fact]
-        void alphabet_shorter_than_minimum_should_throw_exception()
-        {
-            Assert.Throws<ArgumentException>(() =>
-            {
-                var hashids = new Hashids("janottaa", 6, new string(GenerateAlphabet(Hashids.MIN_ALPHABET_LENGTH - 1).ToArray()));
-            });
-        }
-
         [Fact]
         void issue_8_should_not_throw_out_of_range_exception()
         {
@@ -61,29 +35,6 @@ namespace HashidsNet.test
             var encoded = hash.EncodeLong(longs);
             var decoded = hash.DecodeLong(encoded);
             decoded.Should().Equal(longs.ToArray());
-        }
-
-        [Fact]
-        void issue_14_it_should_decode_encode_hex_correctly()
-        {
-            var hashids = new Hashids("this is my salt");
-            var encoded = hashids.EncodeHex("DEADBEEF");
-            encoded.Should().Be("kRNrpKlJ");
-
-            var decoded = hashids.DecodeHex(encoded);
-            decoded.Should().Be("DEADBEEF");
-
-            var encoded2 = hashids.EncodeHex("1234567890ABCDEF");
-            var decoded2 = hashids.DecodeHex(encoded2);
-            decoded2.Should().Be("1234567890ABCDEF");
-        }
-
-        [Fact]
-        void issue_18_it_should_return_empty_string_if_negative_numbers()
-        {
-            var hashids = new Hashids("this is my salt");
-            hashids.Encode(1, 4, 5, -3).Should().Be(string.Empty);
-            hashids.EncodeLong(4, 5, 2, -4).Should().Be(string.Empty);
         }
 
         [Fact]
