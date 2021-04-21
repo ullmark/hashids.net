@@ -70,7 +70,7 @@ namespace HashidsNet
             if (_alphabet.Length < MIN_ALPHABET_LENGTH)
                 throw new ArgumentException($"Alphabet must contain at least {MIN_ALPHABET_LENGTH} unique characters.",
                     nameof(alphabet));
-            
+
             SetupSeps();
             SetupGuards();
         }
@@ -85,9 +85,9 @@ namespace HashidsNet
 
             ConsistentShuffle(_seps, _seps.Length, _salt, _salt.Length);
 
-            if (_seps.Length == 0 || ((float) _alphabet.Length / _seps.Length) > SEP_DIV)
+            if (_seps.Length == 0 || ((float)_alphabet.Length / _seps.Length) > SEP_DIV)
             {
-                var sepsLength = (int) Math.Ceiling((float) _alphabet.Length / SEP_DIV);
+                var sepsLength = (int)Math.Ceiling((float)_alphabet.Length / SEP_DIV);
 
                 if (sepsLength == 1)
                 {
@@ -111,7 +111,7 @@ namespace HashidsNet
 
         private void SetupGuards()
         {
-            var guardCount = (int) Math.Ceiling(_alphabet.Length / GUARD_DIV);
+            var guardCount = (int)Math.Ceiling(_alphabet.Length / GUARD_DIV);
 
             if (_alphabet.Length < 3)
             {
@@ -131,7 +131,7 @@ namespace HashidsNet
         /// </summary>
         /// <param name="numbers">List of integers.</param>
         /// <returns>Encoded hash string.</returns>
-        public virtual string Encode(params int[] numbers) => GenerateHashFrom(Array.ConvertAll(numbers, n => (long) n));
+        public virtual string Encode(params int[] numbers) => GenerateHashFrom(Array.ConvertAll(numbers, n => (long)n));
 
         /// <summary>
         /// Encodes the provided numbers into a hash string.
@@ -160,7 +160,7 @@ namespace HashidsNet
         /// <param name="hash">Hash string to decode.</param>
         /// <returns>Array of integers.</returns>
         /// <exception cref="T:System.OverflowException">If the decoded number overflows integer.</exception>
-        public virtual int[] Decode(string hash) => Array.ConvertAll(GetNumbersFrom(hash), n => (int) n);
+        public virtual int[] Decode(string hash) => Array.ConvertAll(GetNumbersFrom(hash), n => (int)n);
 
         /// <summary>
         /// Decodes the provided hash into numbers.
@@ -202,8 +202,8 @@ namespace HashidsNet
             var numbers = DecodeLong(hash);
 
             foreach (var number in numbers)
-            foreach (var ch in number.ToString("X").AsSpan().Slice(1))
-                builder.Append(ch);
+                foreach (var ch in number.ToString("X").AsSpan().Slice(1))
+                    builder.Append(ch);
 
             var result = builder.ToString();
             _sbPool.Return(builder);
@@ -296,15 +296,9 @@ namespace HashidsNet
                 buffer.ReturnToPool();
             }
 
-            return builder.ToString();
-        }
-
-        private char[] CreateBuffer(int alphabetLength, char lottery)
-        {
-            var buffer = System.Buffers.ArrayPool<char>.Shared.Rent(alphabetLength);
-            buffer[0] = lottery;
-            Array.Copy(_salt, 0, buffer, 1, Math.Min(_salt.Length, alphabetLength - 1));
-            return buffer;
+            var result = builder.ToString();
+            _sbPool.Return(builder);
+            return result;
         }
 
         private char[] Hash(long input, char[] alphabet, int alphabetLength)
