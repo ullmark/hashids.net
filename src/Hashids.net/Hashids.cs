@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.ObjectPool;
+using System.Buffers;
 
 namespace HashidsNet
 {
@@ -19,7 +20,10 @@ namespace HashidsNet
         private const double SEP_DIV = 3.5;
         private const double GUARD_DIV = 12.0;
 
+        private const int MaxNumberHashLength = 12; // Length of long.MaxValue;
+
         private char[] _alphabet;
+        private long _alphabetLength;
         private char[] _seps;
         private char[] _guards;
         private char[] _salt;
@@ -73,6 +77,8 @@ namespace HashidsNet
 
             SetupSeps();
             SetupGuards();
+
+            _alphabetLength = _alphabet.Length;
         }
 
         private void SetupSeps()
@@ -203,9 +209,11 @@ namespace HashidsNet
 
             foreach (var number in numbers)
             {
-                foreach (var ch in number.ToString("X").AsSpan().Slice(1))
+                var s = number.ToString("X");
+
+                for (var i = 1; i < s.Length; i++)
                 {
-                    builder.Append(ch);
+                    builder.Append(s[i]);
                 }
             }
 
@@ -227,13 +235,14 @@ namespace HashidsNet
 
             var builder = _sbPool.Get();
 
-            char[] buffer = null;
+            char[] shuffleBuffer = null;
             var alphabet = _alphabet.CopyPooled();
+            var hashBuffer = ArrayPool<char>.Shared.Rent(MaxNumberHashLength);
             try
             {
-                var lottery = alphabet[numbersHashInt % _alphabet.Length];
+                var lottery = alphabet[numbersHashInt % _alphabetLength];
                 builder.Append(lottery);
-                buffer = CreatePooledBuffer(_alphabet.Length, lottery);
+                shuffleBuffer = CreatePooledBuffer(_alphabet.Length, lottery);
 
                 var startIndex = 1 + _salt.Length;
                 var length = _alphabet.Length - startIndex;
@@ -244,17 +253,20 @@ namespace HashidsNet
 
                     if (length > 0)
                     {
-                        Array.Copy(alphabet, 0, buffer, startIndex, length);
+                        Array.Copy(alphabet, 0, shuffleBuffer, startIndex, length);
                     }
+                    
+                    ConsistentShuffle(alphabet, _alphabet.Length, shuffleBuffer, _alphabet.Length);
+                    var hashLength = BuildReversedHash(number, alphabet, hashBuffer);
 
-                    ConsistentShuffle(alphabet, _alphabet.Length, buffer, _alphabet.Length);
-                    var last = Hash(number, alphabet, _alphabet.Length);
-
-                    builder.Append(last);
+                    for (var j = hashLength - 1; j > -1; j--)
+                    {
+                        builder.Append(hashBuffer[j]);
+                    }
 
                     if (i + 1 < numbers.Length)
                     {
-                        number %= last[0] + i;
+                        number %= hashBuffer[hashLength - 1] + i;
                         var sepsIndex = number % _seps.Length;
 
                         builder.Append(_seps[sepsIndex]);
@@ -281,8 +293,8 @@ namespace HashidsNet
 
                 while (builder.Length < _minHashLength)
                 {
-                    Array.Copy(alphabet, buffer, _alphabet.Length);
-                    ConsistentShuffle(alphabet, _alphabet.Length, buffer, _alphabet.Length);
+                    Array.Copy(alphabet, shuffleBuffer, _alphabet.Length);
+                    ConsistentShuffle(alphabet, _alphabet.Length, shuffleBuffer, _alphabet.Length);
                     builder.Insert(0, alphabet, halfLength, _alphabet.Length - halfLength);
                     builder.Append(alphabet, 0, halfLength);
 
@@ -297,7 +309,8 @@ namespace HashidsNet
             finally
             {
                 alphabet.ReturnToPool();
-                buffer.ReturnToPool();
+                shuffleBuffer.ReturnToPool();
+                hashBuffer.ReturnToPool();
             }
 
             var result = builder.ToString();
@@ -305,28 +318,26 @@ namespace HashidsNet
             return result;
         }
 
-        private char[] Hash(long input, char[] alphabet, int alphabetLength)
+        private int BuildReversedHash(long input, char[] alphabet, char[] hashBuffer)
         {
-            var hash = new List<char>(4);
-
+            var length = 0;
             do
             {
-                hash.Add(alphabet[input % alphabetLength]);
-                input /= alphabetLength;
+                hashBuffer[length++] = alphabet[input % _alphabetLength];
+                input /= _alphabetLength;
             } while (input > 0);
 
-            hash.Reverse();
-            return hash.ToArray();
+            return length;
         }
 
-        private long Unhash(string input, char[] alphabet, int alphabetLength)
+        private long Unhash(string input, char[] alphabet)
         {
             long number = 0;
 
             for (var i = 0; i < input.Length; i++)
             {
                 var pos = Array.IndexOf(alphabet, input[i]);
-                number = number * alphabetLength + pos;
+                number = number * _alphabetLength + pos;
             }
 
             return number;
@@ -357,7 +368,7 @@ namespace HashidsNet
 
             hashArray = hashBreakdown.Split(_seps, StringSplitOptions.RemoveEmptyEntries);
 
-            var result = new List<long>();
+            var result = new long[hashArray.Length];
             char[] buffer = null;
             var alphabet = _alphabet.CopyPooled();
             try
@@ -377,7 +388,7 @@ namespace HashidsNet
                     }
 
                     ConsistentShuffle(alphabet, _alphabet.Length, buffer, _alphabet.Length);
-                    result.Add(Unhash(subHash, alphabet, _alphabet.Length));
+                    result[j] = Unhash(subHash, alphabet);
                 }
             }
             finally
@@ -386,9 +397,9 @@ namespace HashidsNet
                 buffer.ReturnToPool();
             }
 
-            if (EncodeLong(result.ToArray()) == hash)
+            if (EncodeLong(result) == hash)
             {
-                return result.ToArray();
+                return result;
             }
 
             return Array.Empty<long>();
@@ -396,7 +407,7 @@ namespace HashidsNet
 
         private char[] CreatePooledBuffer(int alphabetLength, char lottery)
         {
-            var buffer = System.Buffers.ArrayPool<char>.Shared.Rent(alphabetLength);
+            var buffer = ArrayPool<char>.Shared.Rent(alphabetLength);
             buffer[0] = lottery;
             Array.Copy(_salt, 0, buffer, 1, Math.Min(_salt.Length, alphabetLength - 1));
             return buffer;
