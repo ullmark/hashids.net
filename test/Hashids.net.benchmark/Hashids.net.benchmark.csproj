@@ -4,8 +4,7 @@
         <OutputType>Exe</OutputType>
         <TargetFramework>net5.0</TargetFramework>
         <IsPackable>false</IsPackable>
-        <LangVersion>9.0</LangVersion>
-        <StartupObject>Hashids.net.benchmark.Program</StartupObject>
+        <LangVersion>9</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>

@@ -8,10 +8,8 @@ namespace HashidsNet
     public partial class Hashids : IHashids
     {
         /// <summary>
-        /// Encodes the provided numbers into a string.
+        /// Encodes the provided numbers into a hash.
         /// </summary>
-        /// <param name="number">The numbers.</param>
-        /// <returns>The hash.</returns>
         [Obsolete("Use 'Encode' instead. The method was renamed to better explain what it actually does.")]
         public virtual string Encrypt(params int[] numbers)
         {
@@ -19,10 +17,8 @@ namespace HashidsNet
         }
 
         /// <summary>
-        /// Encrypts the provided hex string to a hashids hash.
+        /// Encrypts the provided hex-string to a hash.
         /// </summary>
-        /// <param name="hex"></param>
-        /// <returns></returns>
         [Obsolete("Use 'EncodeHex' instead. The method was renamed to better explain what it actually does.")]
         public virtual string EncryptHex(string hex)
         {
@@ -30,10 +26,8 @@ namespace HashidsNet
         }
 
         /// <summary>
-        /// Decodes the provided numbers into a array of numbers.
+        /// Decodes the provided hash into an array of numbers.
         /// </summary>
-        /// <param name="hash">Hash.</param>
-        /// <returns>Array of numbers.</returns>
         [Obsolete("Use 'Decode' instead. Method was renamed to better explain what it actually does.")]
         public virtual int[] Decrypt(string hash)
         {
@@ -43,8 +37,6 @@ namespace HashidsNet
         /// <summary>
         /// Decodes the provided hash to a hex-string.
         /// </summary>
-        /// <param name="hash"></param>
-        /// <returns></returns>
         [Obsolete("Use 'DecodeHex' instead. The method was renamed to better explain what it actually does.")]
         public virtual string DecryptHex(string hash)
         {

@@ -1,18 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Buffers;
 
 namespace HashidsNet
 {
-    public static class ArrayExtensions
+    internal static class ArrayExtensions
     {
-        public static T[] Copy<T>(this T[] array)
-        {
-            return SubArray(array, 0, array.Length);
-        }
-
         public static T[] SubArray<T>(this T[] array, int index)
         {
             return SubArray(array, index, array.Length - index);
