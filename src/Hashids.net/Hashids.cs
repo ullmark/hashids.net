@@ -32,14 +32,16 @@ namespace HashidsNet
         private static readonly Lazy<Regex> hexSplitter = new(() => new Regex(@"[\w\W]{1,12}", RegexOptions.Compiled));
 
         /// <summary>
-        /// Instantiates a new Hashids with the default setup.
+        /// Instantiates a new Hashids encoder/decoder with defaults.
         /// </summary>
         public Hashids() : this(string.Empty, 0, DEFAULT_ALPHABET, DEFAULT_SEPS)
         {
+            // empty constructor with defaults needed to allow mocking of public methods
         }
 
         /// <summary>
-        /// Instantiates a new Hashids en/de-coder.
+        /// Instantiates a new Hashids encoder/decoder.
+        /// All parameters are optional and will use defaults unless otherwise specified.
         /// </summary>
         /// <param name="salt"></param>
         /// <param name="minHashLength"></param>
@@ -125,10 +127,10 @@ namespace HashidsNet
         }
 
         /// <summary>
-        /// Encodes the provided numbers into a hashed string.
+        /// Encodes the provided numbers into a hash string.
         /// </summary>
-        /// <param name="numbers">The numbers to encode.</param>
-        /// <returns>The hashed string.</returns>
+        /// <param name="numbers">List of integers.</param>
+        /// <returns>Encoded hash string.</returns>
         public virtual string Encode(params int[] numbers)
         {
             if (numbers.Any(n => n < 0))
@@ -138,42 +140,17 @@ namespace HashidsNet
         }
 
         /// <summary>
-        /// Encodes the provided numbers into a hashed string.
+        /// Encodes the provided numbers into a hash string.
         /// </summary>
-        /// <param name="numbers">The numbers to encode.</param>
-        /// <returns>The hashed string.</returns>
-        public virtual string Encode(IEnumerable<int> numbers)
-        {
-            return Encode(numbers.ToArray());
-        }
+        /// <param name="numbers">Enumerable list of integers.</param>
+        /// <returns>Encoded hash string.</returns>
+        public virtual string Encode(IEnumerable<int> numbers) => Encode(numbers.ToArray());
 
         /// <summary>
-        /// Decodes the provided hash into.
+        /// Encodes the provided numbers into a hash string.
         /// </summary>
-        /// <param name="hash">The hash.</param>
-        /// <exception cref="T:System.OverflowException">If the decoded number overflows integer.</exception>
-        /// <returns>The numbers.</returns>
-        public virtual int[] Decode(string hash)
-        {
-            var numbers = GetNumbersFrom(hash);
-            return Array.ConvertAll(numbers, n => (int) n);
-        }
-
-        /// <summary>
-        /// Decodes the provided hashed string into an array of longs.
-        /// </summary>
-        /// <param name="hash">The hashed string.</param>
-        /// <returns>The numbers.</returns>
-        public long[] DecodeLong(string hash)
-        {
-            return GetNumbersFrom(hash);
-        }
-
-        /// <summary>
-        /// Encodes the provided longs to a hashed string.
-        /// </summary>
-        /// <param name="numbers">The numbers.</param>
-        /// <returns>The hashed string.</returns>
+        /// <param name="numbers">List of 64-bit integers.</param>
+        /// <returns>Encoded hash string.</returns>
         public string EncodeLong(params long[] numbers)
         {
             if (numbers.Any(n => n < 0))
@@ -183,20 +160,39 @@ namespace HashidsNet
         }
 
         /// <summary>
-        /// Encodes the provided longs to a hashed string.
+        /// Encodes the provided numbers into a hash string.
         /// </summary>
-        /// <param name="numbers">The numbers.</param>
-        /// <returns>The hashed string.</returns>
-        public string EncodeLong(IEnumerable<long> numbers)
+        /// <param name="numbers">Enumerable list of 64-bit integers.</param>
+        /// <returns>Encoded hash string.</returns>
+        public string EncodeLong(IEnumerable<long> numbers) => EncodeLong(numbers.ToArray());
+
+        /// <summary>
+        /// Decodes the provided hash into numbers.
+        /// </summary>
+        /// <param name="hash">Hash string to decode.</param>
+        /// <returns>Array of integers.</returns>
+        /// <exception cref="T:System.OverflowException">If the decoded number overflows integer.</exception>
+        public virtual int[] Decode(string hash)
         {
-            return EncodeLong(numbers.ToArray());
+            var numbers = GetNumbersFrom(hash);
+            return Array.ConvertAll(numbers, n => (int) n);
         }
 
         /// <summary>
-        /// Encodes the provided hex string to a hashids hash.
+        /// Decodes the provided hash into numbers.
         /// </summary>
-        /// <param name="hex"></param>
-        /// <returns></returns>
+        /// <param name="hash">Hash string to decode.</param>
+        /// <returns>Array of 64-bit integers.</returns>
+        public long[] DecodeLong(string hash)
+        {
+            return GetNumbersFrom(hash);
+        }
+
+        /// <summary>
+        /// Encodes the provided hex-string into a hash string.
+        /// </summary>
+        /// <param name="hex">Hex string to encode.</param>
+        /// <returns>Encoded hash string.</returns>
         public virtual string EncodeHex(string hex)
         {
             if (!hexValidator.Value.IsMatch(hex))
@@ -217,8 +213,8 @@ namespace HashidsNet
         /// <summary>
         /// Decodes the provided hash into a hex-string.
         /// </summary>
-        /// <param name="hash"></param>
-        /// <returns></returns>
+        /// <param name="hash">Hash string to decode.</param>
+        /// <returns>Decoded hex string.</returns>
         public virtual string DecodeHex(string hash)
         {
             var builder = _sbPool.Get();
@@ -233,11 +229,6 @@ namespace HashidsNet
             return result;
         }
 
-        /// <summary>
-        /// Internal function that does the work of creating the hash.
-        /// </summary>
-        /// <param name="numbers"></param>
-        /// <returns></returns>
         private string GenerateHashFrom(long[] numbers)
         {
             if (numbers == null || numbers.Length == 0)
@@ -257,7 +248,7 @@ namespace HashidsNet
             {
                 var lottery = alphabet[numbersHashInt % _alphabet.Length];
                 builder.Append(lottery);
-                buffer = CreateBuffer(_alphabet.Length, lottery);
+                buffer = CreatePooledBuffer(_alphabet.Length, lottery);
 
                 var startIndex = 1 + _salt.Length;
                 var length = _alphabet.Length - startIndex;
@@ -384,7 +375,7 @@ namespace HashidsNet
                 var alphabet = _alphabet.CopyPooled();
                 try
                 {
-                    buffer = CreateBuffer(_alphabet.Length, lottery);
+                    buffer = CreatePooledBuffer(_alphabet.Length, lottery);
 
                     var startIndex = 1 + _salt.Length;
                     var length = _alphabet.Length - startIndex;
@@ -417,7 +408,7 @@ namespace HashidsNet
             return result.ToArray();
         }
 
-        private char[] CreateBuffer(int alphabetLength, char lottery)
+        private char[] CreatePooledBuffer(int alphabetLength, char lottery)
         {
             var buffer = System.Buffers.ArrayPool<char>.Shared.Rent(alphabetLength);
             buffer[0] = lottery;
@@ -425,7 +416,7 @@ namespace HashidsNet
             return buffer;
         }
 
-        private void ConsistentShuffle(char[] alphabet, int alphabetLength, char[] salt, int saltLength)
+        private static void ConsistentShuffle(char[] alphabet, int alphabetLength, char[] salt, int saltLength)
         {
             if (salt.Length == 0)
                 return;
