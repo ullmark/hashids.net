@@ -19,14 +19,11 @@ namespace HashidsNet
         private const double SEP_DIV = 3.5;
         private const double GUARD_DIV = 12.0;
 
-        private const int NumberPowersCount = 12; // Length of encoded long.MaxValue.
-
         private char[] _alphabet;
         private char[] _seps;
         private char[] _guards;
         private char[] _salt;
         private readonly int _minHashLength;
-        private readonly long[] _numberPowers;
 
         private readonly ObjectPool<StringBuilder> _sbPool = new DefaultObjectPool<StringBuilder>(new StringBuilderPooledObjectPolicy());
 
@@ -76,8 +73,6 @@ namespace HashidsNet
             
             SetupSeps();
             SetupGuards();
-
-            _numberPowers = PrecalculateNumberPowers(_alphabet.Length);
         }
 
         private void SetupSeps()
@@ -326,7 +321,7 @@ namespace HashidsNet
             return hash.ToArray();
         }
 
-        private long Unhash(string input, char[] alphabet)
+        private long Unhash(string input, char[] alphabet, int alphabetLength)
         {
             long number = 0;
 
@@ -382,7 +377,7 @@ namespace HashidsNet
                         }
 
                         ConsistentShuffle(alphabet, _alphabet.Length, buffer, _alphabet.Length);
-                        result.Add(Unhash(subHash, alphabet));
+                        result.Add(Unhash(subHash, alphabet, _alphabet.Length));
                     }
                 }
                 finally
