@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.ObjectPool;
 
 namespace HashidsNet
 {
@@ -24,9 +25,11 @@ namespace HashidsNet
         private char[] _salt;
         private readonly int _minHashLength;
 
-        //  Creates the Regex in the first usage, speed up first use of non hex methods
-        private static readonly Lazy<Regex> hexValidator = new Lazy<Regex>(() => new Regex("^[0-9a-fA-F]+$", RegexOptions.Compiled));
-        private static readonly Lazy<Regex> hexSplitter = new Lazy<Regex>(() => new Regex(@"[\w\W]{1,12}", RegexOptions.Compiled));
+        private readonly ObjectPool<StringBuilder> _sbPool = new DefaultObjectPool<StringBuilder>(new StringBuilderPooledObjectPolicy());
+
+        // Creates the Regex in the first usage, speed up first use of non-hex methods
+        private static readonly Lazy<Regex> hexValidator = new(() => new Regex("^[0-9a-fA-F]+$", RegexOptions.Compiled));
+        private static readonly Lazy<Regex> hexSplitter = new(() => new Regex(@"[\w\W]{1,12}", RegexOptions.Compiled));
 
         /// <summary>
         /// Instantiates a new Hashids with the default setup.
@@ -134,7 +137,7 @@ namespace HashidsNet
         /// <returns></returns>
         public virtual string DecodeHex(string hash)
         {
-            var builder = new StringBuilder();
+            var builder = _sbPool.Get();
             var numbers = DecodeLong(hash);
 
             foreach (var number in numbers)
@@ -142,7 +145,9 @@ namespace HashidsNet
                 builder.Append(string.Format("{0:X}", number).Substring(1));
             }
 
-            return builder.ToString();
+            var result = builder.ToString();
+            _sbPool.Return(builder);
+            return result;
         }
 
         /// <summary>
@@ -245,7 +250,7 @@ namespace HashidsNet
                 numbersHashInt += numbers[i] % (i + 100);
             }
 
-            var builder = new StringBuilder();
+            var builder = _sbPool.Get();
 
             char[] buffer = null;
             var alphabet = _alphabet.CopyPooled();
@@ -320,7 +325,9 @@ namespace HashidsNet
                 buffer.ReturnToPool();
             }
 
-            return builder.ToString();
+            var result = builder.ToString();
+            _sbPool.Return(builder);
+            return result;
         }
 
         private char[] CreateBuffer(int alphabetLength, char lottery)
