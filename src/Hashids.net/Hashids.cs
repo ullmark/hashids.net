@@ -202,8 +202,12 @@ namespace HashidsNet
             var numbers = DecodeLong(hash);
 
             foreach (var number in numbers)
+            {
                 foreach (var ch in number.ToString("X").AsSpan().Slice(1))
+                {
                     builder.Append(ch);
+                }
+            }
 
             var result = builder.ToString();
             _sbPool.Return(builder);
@@ -343,50 +347,51 @@ namespace HashidsNet
                 i = 1;
             }
 
-            var result = new List<long>();
             var hashBreakdown = hashArray[i];
-            if (hashBreakdown[0] != default(char))
+            var lottery = hashBreakdown[0];
+
+            if (lottery == default(char))
+                return Array.Empty<long>();
+                
+            hashBreakdown = hashBreakdown.Substring(1);
+
+            hashArray = hashBreakdown.Split(_seps, StringSplitOptions.RemoveEmptyEntries);
+
+            var result = new List<long>();
+            char[] buffer = null;
+            var alphabet = _alphabet.CopyPooled();
+            try
             {
-                var lottery = hashBreakdown[0];
-                hashBreakdown = hashBreakdown.Substring(1);
+                buffer = CreatePooledBuffer(_alphabet.Length, lottery);
 
-                hashArray = hashBreakdown.Split(_seps, StringSplitOptions.RemoveEmptyEntries);
+                var startIndex = 1 + _salt.Length;
+                var length = _alphabet.Length - startIndex;
 
-                char[] buffer = null;
-                var alphabet = _alphabet.CopyPooled();
-                try
+                for (var j = 0; j < hashArray.Length; j++)
                 {
-                    buffer = CreatePooledBuffer(_alphabet.Length, lottery);
+                    var subHash = hashArray[j];
 
-                    var startIndex = 1 + _salt.Length;
-                    var length = _alphabet.Length - startIndex;
-
-                    for (var j = 0; j < hashArray.Length; j++)
+                    if (length > 0)
                     {
-                        var subHash = hashArray[j];
-
-                        if (length > 0)
-                        {
-                            Array.Copy(alphabet, 0, buffer, startIndex, length);
-                        }
-
-                        ConsistentShuffle(alphabet, _alphabet.Length, buffer, _alphabet.Length);
-                        result.Add(Unhash(subHash, alphabet, _alphabet.Length));
+                        Array.Copy(alphabet, 0, buffer, startIndex, length);
                     }
-                }
-                finally
-                {
-                    alphabet.ReturnToPool();
-                    buffer.ReturnToPool();
-                }
 
-                if (EncodeLong(result.ToArray()) != hash)
-                {
-                    result.Clear();
+                    ConsistentShuffle(alphabet, _alphabet.Length, buffer, _alphabet.Length);
+                    result.Add(Unhash(subHash, alphabet, _alphabet.Length));
                 }
             }
+            finally
+            {
+                alphabet.ReturnToPool();
+                buffer.ReturnToPool();
+            }
 
-            return result.ToArray();
+            if (EncodeLong(result.ToArray()) == hash)
+            {
+                return result.ToArray();
+            }
+
+            return Array.Empty<long>();
         }
 
         private char[] CreatePooledBuffer(int alphabetLength, char lottery)
