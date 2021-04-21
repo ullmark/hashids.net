@@ -73,115 +73,6 @@ namespace HashidsNet
             SetupGuards();
         }
 
-        /// <summary>
-        /// Encodes the provided numbers into a hashed string.
-        /// </summary>
-        /// <param name="numbers">The numbers to encode.</param>
-        /// <returns>The hashed string.</returns>
-        public virtual string Encode(params int[] numbers)
-        {
-            if (numbers.Any(n => n < 0))
-                return string.Empty;
-
-            return GenerateHashFrom(Array.ConvertAll(numbers, n => (long) n));
-        }
-
-        /// <summary>
-        /// Encodes the provided numbers into a hashed string.
-        /// </summary>
-        /// <param name="numbers">The numbers to encode.</param>
-        /// <returns>The hashed string.</returns>
-        public virtual string Encode(IEnumerable<int> numbers)
-        {
-            return Encode(numbers.ToArray());
-        }
-
-        /// <summary>
-        /// Decodes the provided hash into.
-        /// </summary>
-        /// <param name="hash">The hash.</param>
-        /// <exception cref="T:System.OverflowException">If the decoded number overflows integer.</exception>
-        /// <returns>The numbers.</returns>
-        public virtual int[] Decode(string hash)
-        {
-            var numbers = GetNumbersFrom(hash);
-            return Array.ConvertAll(numbers, n => (int) n);
-        }
-
-        /// <summary>
-        /// Encodes the provided hex string to a hashids hash.
-        /// </summary>
-        /// <param name="hex"></param>
-        /// <returns></returns>
-        public virtual string EncodeHex(string hex)
-        {
-            if (!hexValidator.Value.IsMatch(hex))
-                return string.Empty;
-
-            var matches = hexSplitter.Value.Matches(hex);
-            var numbers = new List<long>(matches.Count);
-
-            foreach (Match match in matches)
-            {
-                var number = Convert.ToInt64(string.Concat("1", match.Value), 16);
-                numbers.Add(number);
-            }
-
-            return EncodeLong(numbers.ToArray());
-        }
-
-        /// <summary>
-        /// Decodes the provided hash into a hex-string.
-        /// </summary>
-        /// <param name="hash"></param>
-        /// <returns></returns>
-        public virtual string DecodeHex(string hash)
-        {
-            var builder = _sbPool.Get();
-            var numbers = DecodeLong(hash);
-
-            foreach (var number in numbers)
-            foreach (var ch in number.ToString("X").AsSpan().Slice(1))
-                builder.Append(ch);
-
-            var result = builder.ToString();
-            _sbPool.Return(builder);
-            return result;
-        }
-
-        /// <summary>
-        /// Decodes the provided hashed string into an array of longs.
-        /// </summary>
-        /// <param name="hash">The hashed string.</param>
-        /// <returns>The numbers.</returns>
-        public long[] DecodeLong(string hash)
-        {
-            return GetNumbersFrom(hash);
-        }
-
-        /// <summary>
-        /// Encodes the provided longs to a hashed string.
-        /// </summary>
-        /// <param name="numbers">The numbers.</param>
-        /// <returns>The hashed string.</returns>
-        public string EncodeLong(params long[] numbers)
-        {
-            if (numbers.Any(n => n < 0))
-                return string.Empty;
-
-            return GenerateHashFrom(numbers);
-        }
-
-        /// <summary>
-        /// Encodes the provided longs to a hashed string.
-        /// </summary>
-        /// <param name="numbers">The numbers.</param>
-        /// <returns>The hashed string.</returns>
-        public string EncodeLong(IEnumerable<long> numbers)
-        {
-            return EncodeLong(numbers.ToArray());
-        }
-
         private void SetupSeps()
         {
             // seps should contain only characters present in alphabet; 
@@ -231,6 +122,115 @@ namespace HashidsNet
                 _guards = _alphabet.SubArray(0, guardCount);
                 _alphabet = _alphabet.SubArray(guardCount);
             }
+        }
+
+        /// <summary>
+        /// Encodes the provided numbers into a hashed string.
+        /// </summary>
+        /// <param name="numbers">The numbers to encode.</param>
+        /// <returns>The hashed string.</returns>
+        public virtual string Encode(params int[] numbers)
+        {
+            if (numbers.Any(n => n < 0))
+                return string.Empty;
+
+            return GenerateHashFrom(Array.ConvertAll(numbers, n => (long) n));
+        }
+
+        /// <summary>
+        /// Encodes the provided numbers into a hashed string.
+        /// </summary>
+        /// <param name="numbers">The numbers to encode.</param>
+        /// <returns>The hashed string.</returns>
+        public virtual string Encode(IEnumerable<int> numbers)
+        {
+            return Encode(numbers.ToArray());
+        }
+
+        /// <summary>
+        /// Decodes the provided hash into.
+        /// </summary>
+        /// <param name="hash">The hash.</param>
+        /// <exception cref="T:System.OverflowException">If the decoded number overflows integer.</exception>
+        /// <returns>The numbers.</returns>
+        public virtual int[] Decode(string hash)
+        {
+            var numbers = GetNumbersFrom(hash);
+            return Array.ConvertAll(numbers, n => (int) n);
+        }
+
+        /// <summary>
+        /// Decodes the provided hashed string into an array of longs.
+        /// </summary>
+        /// <param name="hash">The hashed string.</param>
+        /// <returns>The numbers.</returns>
+        public long[] DecodeLong(string hash)
+        {
+            return GetNumbersFrom(hash);
+        }
+
+        /// <summary>
+        /// Encodes the provided longs to a hashed string.
+        /// </summary>
+        /// <param name="numbers">The numbers.</param>
+        /// <returns>The hashed string.</returns>
+        public string EncodeLong(params long[] numbers)
+        {
+            if (numbers.Any(n => n < 0))
+                return string.Empty;
+
+            return GenerateHashFrom(numbers);
+        }
+
+        /// <summary>
+        /// Encodes the provided longs to a hashed string.
+        /// </summary>
+        /// <param name="numbers">The numbers.</param>
+        /// <returns>The hashed string.</returns>
+        public string EncodeLong(IEnumerable<long> numbers)
+        {
+            return EncodeLong(numbers.ToArray());
+        }
+
+        /// <summary>
+        /// Encodes the provided hex string to a hashids hash.
+        /// </summary>
+        /// <param name="hex"></param>
+        /// <returns></returns>
+        public virtual string EncodeHex(string hex)
+        {
+            if (!hexValidator.Value.IsMatch(hex))
+                return string.Empty;
+
+            var matches = hexSplitter.Value.Matches(hex);
+            var numbers = new List<long>(matches.Count);
+
+            foreach (Match match in matches)
+            {
+                var number = Convert.ToInt64(string.Concat("1", match.Value), 16);
+                numbers.Add(number);
+            }
+
+            return EncodeLong(numbers.ToArray());
+        }
+
+        /// <summary>
+        /// Decodes the provided hash into a hex-string.
+        /// </summary>
+        /// <param name="hash"></param>
+        /// <returns></returns>
+        public virtual string DecodeHex(string hash)
+        {
+            var builder = _sbPool.Get();
+            var numbers = DecodeLong(hash);
+
+            foreach (var number in numbers)
+            foreach (var ch in number.ToString("X").AsSpan().Slice(1))
+                builder.Append(ch);
+
+            var result = builder.ToString();
+            _sbPool.Return(builder);
+            return result;
         }
 
         /// <summary>
@@ -329,14 +329,6 @@ namespace HashidsNet
             return result;
         }
 
-        private char[] CreateBuffer(int alphabetLength, char lottery)
-        {
-            var buffer = System.Buffers.ArrayPool<char>.Shared.Rent(alphabetLength);
-            buffer[0] = lottery;
-            Array.Copy(_salt, 0, buffer, 1, Math.Min(_salt.Length, alphabetLength - 1));
-            return buffer;
-        }
-
         private char[] Hash(long input, char[] alphabet, int alphabetLength)
         {
             var hash = new List<char>(4);
@@ -362,19 +354,6 @@ namespace HashidsNet
             }
 
             return number;
-        }
-
-        private static long LongPow(int target, int power)
-        {
-            if (power == 0) return 1;
-            long result = target;
-            while (power > 1)
-            {
-                result *= target;
-                power--;
-            }
-
-            return result;
         }
 
         private long[] GetNumbersFrom(string hash)
@@ -438,6 +417,14 @@ namespace HashidsNet
             return result.ToArray();
         }
 
+        private char[] CreateBuffer(int alphabetLength, char lottery)
+        {
+            var buffer = System.Buffers.ArrayPool<char>.Shared.Rent(alphabetLength);
+            buffer[0] = lottery;
+            Array.Copy(_salt, 0, buffer, 1, Math.Min(_salt.Length, alphabetLength - 1));
+            return buffer;
+        }
+
         private void ConsistentShuffle(char[] alphabet, int alphabetLength, char[] salt, int saltLength)
         {
             if (salt.Length == 0)
@@ -454,6 +441,19 @@ namespace HashidsNet
                 alphabet[j] = alphabet[i];
                 alphabet[i] = temp;
             }
+        }
+
+        private static long LongPow(int target, int power)
+        {
+            if (power == 0) return 1;
+            long result = target;
+            while (power > 1)
+            {
+                result *= target;
+                power--;
+            }
+
+            return result;
         }
     }
 }
