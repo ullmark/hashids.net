@@ -219,16 +219,17 @@ var hex = hashids.DecodeHex("kRNrpKlJ");
 
 ## Changelog
 
-**2.0.0**
+**1.4.0**
 - Modernized project with updated build targets now set to `netnet461`, `net5.0`, `netstandard2.0`
 - Accepted PR  [#30](https://github.com/ullmark/hashids.net/pull/30) Fix floating-point math to handle large ratio of alphabet to separators.
 - Accepted PR [#37](https://github.com/ullmark/hashids.net/pull/37) Performance and memory optimizations.
 - Accepted PR [#42](https://github.com/ullmark/hashids.net/pull/42) Performance updates and added BenchmarkDotnet for profiling.
+- Accepted PR [#43](https://github.com/ullmark/hashids.net/pull/43) Improved performance and reduced allocations.  
 - Fixed issues [#23](https://github.com/ullmark/hashids.net/issues/23), [#32](https://github.com/ullmark/hashids.net/issues/32), [#35](https://github.com/ullmark/hashids.net/issues/35) Fix floating-point math, now replaced by Horner's method. 
-- Fixed issue [#27](https://github.com/ullmark/hashids.net/issues/27) Remove issue with dashes in alphabet (dashes caused issues with Regex which is not used anymore).
+- Fixed issue [#27](https://github.com/ullmark/hashids.net/issues/27) Allow dashes in alphabet (dashes caused issues with Regex which is not used anymore).
 - Fixed issue [#21](https://github.com/ullmark/hashids.net/issues/21) Fix encoding exception when decoding a character used as guard. 
 - Fixed issue [#29](https://github.com/ullmark/hashids.net/issues/29) Added tests to confirm thread-safety.
-- Version tag added: `2.0.0`
+- Version tag added: `1.4.0`
 
 **1.3.0**
 - Accepted PR [#26](https://github.com/ullmark/hashids.net/pull/26) - We now support .netstandard2.0. Thanks [@MatthewKing](https://github.com/MatthewKing)
