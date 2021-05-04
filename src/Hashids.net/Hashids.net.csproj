@@ -16,6 +16,8 @@
         <TargetFrameworks>net461;net5.0;netstandard2.0</TargetFrameworks>
         <OutputType>Library</OutputType>
         <LangVersion>9</LangVersion>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <!-- CS1591: Missing XML comment for publicly visible type or member -->
         <NoWarn>$(NoWarn);CS1591</NoWarn>
