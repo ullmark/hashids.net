@@ -1,29 +1,20 @@
 # Hashids
-A small .NET package to generate YouTube-like hashes from one or many numbers. 
-Use hashids when you do not want to expose your database ids to the user.
+A small .NET package to generate YouTube-like IDs from numbers.
+
+It converts numbers like `347` into strings like `yr8`, or array of numbers like `[27, 986]` into `3kTMd`. You can also decode those ids back. This is useful in bundling several parameters into one, hiding actual IDs, or simply using them as short string IDs.
 
 [http://www.hashids.org/net/](http://www.hashids.org/net/)
 
-## What is it?
+## Features
 
-hashids (Hash ID's) creates short, unique, decryptable hashes from unsigned integers.
+- Creates short unique ids from integers. *(only positive numbers & zero)*
+- Generates non-sequential IDs for incremental input to stay unguessable.
+- Supports single number or array of numbers. *(supports `int` and `long`)*
+- Allows custom alphabet as well as salt — so ids are unique only to you. *(salt must be smaller than alphabet)*
+- Allows specifying minimum hash length.
+- Tries to avoid basic English curse words.
 
-_(NOTE: This is **NOT** a true cryptographic hash, since it is reversible)_
-
-It was designed for websites to use in URL shortening, tracking stuff, or 
-making pages private (or at least unguessable).
-
-This algorithm tries to satisfy the following requirements:
-
-1. Hashes must be unique and decryptable.
-2. They should be able to contain more than one integer (so you can use them in complex or clustered systems).
-3. You should be able to specify minimum hash length.
-4. Hashes should not contain basic English curse words (since they are meant to appear in public places - like the URL).
-
-Instead of showing items as `1`, `2`, or `3`, you could show them as `U6dc`, `u87U`, and `HMou`.
-You don't have to store these hashes in the database, but can encrypt + decrypt on the fly.
-
-All integers need to be greater than or equal to zero.
+*NOTE: This is **NOT** a true cryptographic hash, since it is reversible*
 
 ## Installation
 Install the package with [NuGet][]
@@ -229,38 +220,28 @@ var hex = hashids.DecodeHex("kRNrpKlJ");
 - Fixed issue [#27](https://github.com/ullmark/hashids.net/issues/27) Allow dashes in alphabet (dashes caused issues with Regex which is not used anymore).
 - Fixed issue [#21](https://github.com/ullmark/hashids.net/issues/21) Fix encoding exception when decoding a character used as guard. 
 - Fixed issue [#29](https://github.com/ullmark/hashids.net/issues/29) Added tests to confirm thread-safety.
-- Version tag added: `1.4.0`
 
 **1.3.0**
 - Accepted PR [#26](https://github.com/ullmark/hashids.net/pull/26) - We now support .netstandard2.0. Thanks [@MatthewKing](https://github.com/MatthewKing)
-- Version tag added: `1.3.0`
 
 **1.2.2**
 - Accepted PR [#19](https://github.com/ullmark/hashids.net/pull/19) - We now only instantiate the HEX-connected Regexes if we use any of the HEX functions. This will speed up creation of "Hashids"-instances. It 
 is likely that most users doesn't use the HEX-functions.
-- Version tag added: `1.2.2`
 
 **1.2.1**
 - Accepted PR [#11](https://github.com/ullmark/hashids.net/pull/11)
 - Fixed issue [#15](https://github.com/ullmark/hashids.net/issues/15) Decoding strings that contain characters not in the alphabet will now return empty array. (To conform to behaviour in the js-library).
 - Fixed issue [#18](https://github.com/ullmark/hashids.net/issues/18) Encoding with a negative number will now return empty string. (To conform to behaviour in the js-library).
-- Version tag added: `1.2.1`
-- `README.md` updated
 
 **1.2.0**
 - .NET Core support. Sorry for the wait and thanks [haroldma](https://github.com/haroldma), 
 [mlafleur](https://github.com/mlafleur) and [lstyles](https://github.com/lstyles) for submitting pull requests.
-- Version tag added: `1.2.0`
-- `README.md` updated
 
 **1.1.2**
 - Fixed issue [#14](https://github.com/ullmark/hashids.net/issues/14) that caused HEX values to be encoded/decoded incorrectly.
-- Version tag added `1.1.2`
 
 **1.1.1**
 - Accepted PR [#12](https://github.com/ullmark/hashids.net/pull/12) that fixed an issue when encoding very many longs at the same time
-- `README.md` updated
-- Version tag added: `1.1.1`
 
 **1.1.0**
 
@@ -268,8 +249,6 @@ is likely that most users doesn't use the HEX-functions.
     - `EncodeLong` for encodes.
 	- `DecodeLong` for decodes.
 - Added interface `IHashids` for people who want an interface to work with.
-- Version tag added: `1.1.0`
-- `README.md` updated
 
 **1.0.1**
 
@@ -284,9 +263,6 @@ is likely that most users doesn't use the HEX-functions.
 	- Function `DecryptHex()` changed to `DecodeHex()`
 	
 	Hashids was designed to encode integers, primary ids at most. We've had several requests to encrypt sensitive data with Hashids and this is the wrong algorithm for that. So to encourage more appropriate use, `encrypt/decrypt` is being "downgraded" to `encode/decode`.
-
-- Version tag added: `1.0`
-- `README.md` updated
 
 **0.3.4**
 
