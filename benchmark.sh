@@ -1,0 +1,1 @@
+dotnet run --project .\test\Hashids.net.benchmark\Hashids.net.benchmark.csproj -c Release
