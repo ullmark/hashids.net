@@ -210,19 +210,22 @@ var hex = hashids.DecodeHex("kRNrpKlJ");
 
 ## Changelog
 
+**1.4.1**
+- Accepted PR [#45](https://github.com/ullmark/hashids.net/pull/45) - Cleanup unused nuget references and replace `Microsoft.Extensions.ObjectPool` with internal implementation.
+
 **1.4.0**
 - Modernized project with updated build targets now set to `netnet461`, `net5.0`, `netstandard2.0`
-- Accepted PR  [#30](https://github.com/ullmark/hashids.net/pull/30) Fix floating-point math to handle large ratio of alphabet to separators.
-- Accepted PR [#37](https://github.com/ullmark/hashids.net/pull/37) Performance and memory optimizations.
-- Accepted PR [#42](https://github.com/ullmark/hashids.net/pull/42) Performance updates and added BenchmarkDotnet for profiling.
-- Accepted PR [#43](https://github.com/ullmark/hashids.net/pull/43) Improved performance and reduced allocations.  
-- Fixed issues [#23](https://github.com/ullmark/hashids.net/issues/23), [#32](https://github.com/ullmark/hashids.net/issues/32), [#35](https://github.com/ullmark/hashids.net/issues/35) Fix floating-point math, now replaced by Horner's method. 
-- Fixed issue [#27](https://github.com/ullmark/hashids.net/issues/27) Allow dashes in alphabet (dashes caused issues with Regex which is not used anymore).
-- Fixed issue [#21](https://github.com/ullmark/hashids.net/issues/21) Fix encoding exception when decoding a character used as guard. 
-- Fixed issue [#29](https://github.com/ullmark/hashids.net/issues/29) Added tests to confirm thread-safety.
+- Accepted PR [#30](https://github.com/ullmark/hashids.net/pull/30) - Fix floating-point math to handle large ratio of alphabet to separators.
+- Accepted PR [#37](https://github.com/ullmark/hashids.net/pull/37) - Performance and memory optimizations.
+- Accepted PR [#42](https://github.com/ullmark/hashids.net/pull/42) - Performance updates and added BenchmarkDotnet for profiling.
+- Accepted PR [#43](https://github.com/ullmark/hashids.net/pull/43) - Improved performance and reduced allocations.  
+- Fixed issues [#23](https://github.com/ullmark/hashids.net/issues/23), [#32](https://github.com/ullmark/hashids.net/issues/32), [#35](https://github.com/ullmark/hashids.net/issues/35) - Fix floating-point math, now replaced by Horner's method. 
+- Fixed issue [#27](https://github.com/ullmark/hashids.net/issues/27) - Allow dashes in alphabet (dashes caused issues with Regex which is not used anymore).
+- Fixed issue [#21](https://github.com/ullmark/hashids.net/issues/21) - Fix encoding exception when decoding a character used as guard. 
+- Fixed issue [#29](https://github.com/ullmark/hashids.net/issues/29) - Added tests to confirm thread-safety.
 
 **1.3.0**
-- Accepted PR [#26](https://github.com/ullmark/hashids.net/pull/26) - We now support .netstandard2.0. Thanks [@MatthewKing](https://github.com/MatthewKing)
+- Accepted PR [#26](https://github.com/ullmark/hashids.net/pull/26) - We now support .netstandard2.0.
 
 **1.2.2**
 - Accepted PR [#19](https://github.com/ullmark/hashids.net/pull/19) - We now only instantiate the HEX-connected Regexes if we use any of the HEX functions. This will speed up creation of "Hashids"-instances. It 
@@ -234,8 +237,7 @@ is likely that most users doesn't use the HEX-functions.
 - Fixed issue [#18](https://github.com/ullmark/hashids.net/issues/18) Encoding with a negative number will now return empty string. (To conform to behaviour in the js-library).
 
 **1.2.0**
-- .NET Core support. Sorry for the wait and thanks [haroldma](https://github.com/haroldma), 
-[mlafleur](https://github.com/mlafleur) and [lstyles](https://github.com/lstyles) for submitting pull requests.
+- .NET Core support.
 
 **1.1.2**
 - Fixed issue [#14](https://github.com/ullmark/hashids.net/issues/14) that caused HEX values to be encoded/decoded incorrectly.
