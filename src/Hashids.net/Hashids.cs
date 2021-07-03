@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
 using System;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using Microsoft.Extensions.ObjectPool;
 using System.Buffers;
 
 namespace HashidsNet
@@ -29,7 +27,7 @@ namespace HashidsNet
         private char[] _salt;
         private readonly int _minHashLength;
 
-        private readonly ObjectPool<StringBuilder> _sbPool = new DefaultObjectPool<StringBuilder>(new StringBuilderPooledObjectPolicy());
+        private readonly StringBuilderPool _sbPool = new();
 
         // Creates the Regex in the first usage, speed up first use of non-hex methods
         private static readonly Lazy<Regex> hexValidator = new(() => new Regex("^[0-9a-fA-F]+$", RegexOptions.Compiled));
