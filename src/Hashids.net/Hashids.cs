@@ -201,7 +201,7 @@ namespace HashidsNet
             if (matches.Count == 0) return string.Empty;
 
             var numbers = new List<long>(capacity: matches.Count);
-            foreach (Match match in matches)
+            foreach (Match match in matches.GetMatches())
             {
                 var number = Convert.ToInt64(string.Concat("1", match.Value), fromBase: 16);
                 numbers.Add(number);

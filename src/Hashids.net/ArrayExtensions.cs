@@ -1,5 +1,7 @@
-using System;
+﻿using System;
 using System.Buffers;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace HashidsNet
 {
@@ -51,6 +53,18 @@ namespace HashidsNet
                 return;
 
             ArrayPool<T>.Shared.Return(array);
+        }
+
+        public static IEnumerable<Match> GetMatches(this MatchCollection matches) // Needed because prior to .NET 5, MatchCollection only implements IEnumerable, not IEnumerable<T>, so `foreach` gets #nullable warnings.
+        {
+#if NETCOREAPP3_1_OR_GREATER
+            return matches;
+#else
+            for (int i = 0; i < matches.Count; i++)
+            {
+                yield return matches[i];
+            }
+#endif
         }
     }
 }
