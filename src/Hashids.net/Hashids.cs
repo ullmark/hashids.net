@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -425,18 +425,22 @@ namespace HashidsNet
             return buffer;
         }
 
+        /// <summary>NOTE: This method mutates the <paramref name="alphabet"/> argument in-place.</summary>
         private static void ConsistentShuffle(char[] alphabet, int alphabetLength, ReadOnlySpan<char> salt, int saltLength)
         {
             if (salt.Length == 0)
                 return;
 
+            // TODO: Document or rename these cryptically-named variables: i, v, p, n.
             int n;
             for (int i = alphabetLength - 1, v = 0, p = 0; i > 0; i--, v++)
             {
                 v %= saltLength;
-                p += (n = salt[v]);
+                n = salt[v];
+                p += n;
                 var j = (n + v + p) % i;
-                // swap characters at positions i and j
+
+                // swap characters at positions i and j:
                 var temp = alphabet[j];
                 alphabet[j] = alphabet[i];
                 alphabet[i] = temp;
