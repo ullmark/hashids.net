@@ -1,7 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net5.0</TargetFramework>
+		<!--
+		The main project targets net461, net5.0, and netstandard2.0.
+		As test projects cannot target netstandard the net48 target is used as a stand-in for that.
+		-->
+        <TargetFrameworks>net461;net48;net5.0</TargetFrameworks>
         <IsPackable>false</IsPackable>
         <LangVersion>9</LangVersion>
     </PropertyGroup>
