@@ -20,11 +20,11 @@ namespace HashidsNet
 
         private const int MaxNumberHashLength = 12; // Length of long.MaxValue;
 
-        private char[] _alphabet;
-        private long _alphabetLength;
-        private char[] _seps;
-        private char[] _guards;
-        private char[] _salt;
+        private readonly char[] _alphabet;
+        private readonly long _alphabetLength;
+        private readonly char[] _seps;
+        private readonly char[] _guards;
+        private readonly char[] _salt;
         private readonly int _minHashLength;
 
         private readonly StringBuilderPool _sbPool = new();
@@ -36,7 +36,7 @@ namespace HashidsNet
         /// <summary>
         /// Instantiates a new Hashids encoder/decoder with defaults.
         /// </summary>
-        public Hashids() : this(string.Empty, 0, DEFAULT_ALPHABET, DEFAULT_SEPS)
+        public Hashids() : this(salt: string.Empty, minHashLength: 0, alphabet: DEFAULT_ALPHABET, seps: DEFAULT_SEPS)
         {
             // empty constructor with defaults needed to allow mocking of public methods
         }
@@ -65,68 +65,82 @@ namespace HashidsNet
                 throw new ArgumentNullException(nameof(seps));
 
             _salt = salt.Trim().ToCharArray();
-            _alphabet = alphabet.ToCharArray().Distinct().ToArray();
-            _seps = seps.ToCharArray();
             _minHashLength = minHashLength;
 
-            if (_alphabet.Length < MIN_ALPHABET_LENGTH)
-                throw new ArgumentException($"Alphabet must contain at least {MIN_ALPHABET_LENGTH} unique characters.",
-                    nameof(alphabet));
-
-            SetupSeps();
-            SetupGuards();
+            InitCharArrays(alphabet: alphabet, seps: seps, salt: _salt, alphabetChars: out _alphabet, sepChars: out _seps, guardChars: out _guards);
 
             _alphabetLength = _alphabet.Length;
         }
 
-        private void SetupSeps()
+        /// <remarks>This method uses <c>out</c> params instead of returning a ValueTuple so it works with .NET 4.6.1.</remarks>
+        private static void InitCharArrays(string alphabet, string seps, char[] salt, out char[] alphabetChars, out char[] sepChars, out char[] guardChars)
         {
-            // seps should contain only characters present in alphabet; 
-            _seps = _seps.Intersect(_alphabet).ToArray();
+            alphabetChars = alphabet.ToCharArray().Distinct().ToArray();
+            sepChars      = seps.ToCharArray();
 
-            // alphabet should not contain seps.
-            _alphabet = _alphabet.Except(_seps).ToArray();
-
-            ConsistentShuffle(_seps, _seps.Length, _salt, _salt.Length);
-
-            if (_seps.Length == 0 || ((float)_alphabet.Length / _seps.Length) > SEP_DIV)
+            if (alphabetChars.Length < MIN_ALPHABET_LENGTH)
             {
-                var sepsLength = (int)Math.Ceiling((float)_alphabet.Length / SEP_DIV);
+                throw new ArgumentException($"Alphabet must contain at least {MIN_ALPHABET_LENGTH:N0} unique characters.", paramName: nameof(alphabet));
+            }
+
+            // SetupGuards():
+
+            // seps should contain only characters present in alphabet:
+            if (sepChars.Length > 0)
+            {
+                sepChars = sepChars.Intersect(alphabetChars).ToArray();
+            }
+            
+            // alphabet should not contain seps // TODO: This comment contradicts the above, it needs rephrasing.
+            if (sepChars.Length > 0 )
+            {
+                alphabetChars = alphabetChars.Except(sepChars).ToArray();
+            }
+
+            if (alphabetChars.Length < (MIN_ALPHABET_LENGTH - 6)) // TODO: What should the minimum length be after removing chars in `sep`?
+            {
+                throw new ArgumentException($"Alphabet must contain at least {MIN_ALPHABET_LENGTH:N0} unique characters that are also not present in .", paramName: nameof(alphabet));
+            }
+
+            ConsistentShuffle(alphabet: sepChars, alphabetLength: sepChars.Length, salt: salt, saltLength: salt.Length);
+
+            if (sepChars.Length == 0 || ((float)alphabetChars.Length / sepChars.Length) > SEP_DIV)
+            {
+                var sepsLength = (int)Math.Ceiling((float)alphabetChars.Length / SEP_DIV);
 
                 if (sepsLength == 1)
                 {
                     sepsLength = 2;
                 }
 
-                if (sepsLength > _seps.Length)
+                if (sepsLength > sepChars.Length)
                 {
-                    var diff = sepsLength - _seps.Length;
-                    _seps = _seps.Append(_alphabet, 0, diff);
-                    _alphabet = _alphabet.SubArray(diff);
+                    var diff = sepsLength - sepChars.Length;
+                    sepChars = sepChars.Append(alphabetChars, 0, diff);
+                    alphabetChars = alphabetChars.SubArray(diff);
                 }
                 else
                 {
-                    _seps = _seps.SubArray(0, sepsLength);
+                    sepChars = sepChars.SubArray(0, sepsLength);
                 }
             }
 
-            ConsistentShuffle(_alphabet, _alphabet.Length, _salt, _salt.Length);
-        }
+            ConsistentShuffle(alphabet: alphabetChars, alphabetChars.Length, salt: salt, salt.Length);
+            
+            // SetupGuards():
+           
+            var guardCount = (int)Math.Ceiling(alphabetChars.Length / GUARD_DIV);
 
-        private void SetupGuards()
-        {
-            var guardCount = (int)Math.Ceiling(_alphabet.Length / GUARD_DIV);
-
-            if (_alphabet.Length < 3)
+            if (alphabetChars.Length < 3)
             {
-                _guards = _seps.SubArray(0, guardCount);
-                _seps = _seps.SubArray(guardCount);
+                guardChars = sepChars.SubArray(index: 0, length: guardCount);
+                sepChars   = sepChars.SubArray(index: guardCount);
             }
 
             else
             {
-                _guards = _alphabet.SubArray(0, guardCount);
-                _alphabet = _alphabet.SubArray(guardCount);
+                guardChars    = alphabetChars.SubArray(index: 0, length: guardCount);
+                alphabetChars = alphabetChars.SubArray(index: guardCount);
             }
         }
 
