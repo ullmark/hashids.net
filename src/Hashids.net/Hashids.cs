@@ -194,15 +194,16 @@ namespace HashidsNet
         /// <returns>Encoded hash string.</returns>
         public virtual string EncodeHex(string hex)
         {
-            if (!hexValidator.Value.IsMatch(hex))
+            if (string.IsNullOrWhiteSpace(hex) || !hexValidator.Value.IsMatch(hex))
                 return string.Empty;
 
             var matches = hexSplitter.Value.Matches(hex);
-            var numbers = new List<long>(matches.Count);
+            if (matches.Count == 0) return string.Empty;
 
+            var numbers = new List<long>(capacity: matches.Count);
             foreach (Match match in matches)
             {
-                var number = Convert.ToInt64(string.Concat("1", match.Value), 16);
+                var number = Convert.ToInt64(string.Concat("1", match.Value), fromBase: 16);
                 numbers.Add(number);
             }
 
@@ -376,7 +377,7 @@ namespace HashidsNet
             var hashBreakdown = hashArray[i];
             var lottery = hashBreakdown[0];
 
-            if (lottery == default(char))
+            if (lottery == '\0') /* default(char) == '\0' */
                 return Array.Empty<long>();
                 
             hashBreakdown = hashBreakdown.Substring(1);
