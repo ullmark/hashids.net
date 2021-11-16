@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -7,7 +7,7 @@ using System.Buffers;
 namespace HashidsNet
 {
     /// <summary>
-    /// Generate YouTube-like hashes from one or many numbers. Use hashids when you do not want to expose your database ids to the user.
+    /// Generates YouTube-like hashes from one or many numbers. Use hashids when you do not want to expose your database ids to the user.
     /// </summary>
     public partial class Hashids : IHashids
     {
@@ -321,9 +321,12 @@ namespace HashidsNet
             var length = 0;
             do
             {
-                hashBuffer[length++] = alphabet[input % _alphabetLength];
+                int idx = (int)(input % _alphabetLength);
+                hashBuffer[length] = alphabet[idx];
+                length += 1;
                 input /= _alphabetLength;
-            } while (input > 0);
+            }
+            while (input > 0);
 
             return length;
         }
@@ -335,7 +338,7 @@ namespace HashidsNet
             for (var i = 0; i < input.Length; i++)
             {
                 var pos = Array.IndexOf(alphabet, input[i]);
-                number = number * _alphabetLength + pos;
+                number = (number * _alphabetLength) + pos;
             }
 
             return number;

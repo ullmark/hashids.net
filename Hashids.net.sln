@@ -5,15 +5,16 @@ VisualStudioVersion = 16.0.29324.140
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A6015393-39EA-44E3-BF0A-37D2BC5CC874}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		LICENSE.txt = LICENSE.txt
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hashids.net", "src\Hashids.net\Hashids.net.csproj", "{4802CAD5-1B10-4C3F-9333-B80664A9A4FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hashids.net", "src\Hashids.net\Hashids.net.csproj", "{4802CAD5-1B10-4C3F-9333-B80664A9A4FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hashids.net.test", "test\Hashids.net.test\Hashids.net.test.csproj", "{3BB2139F-2788-4B8C-9A2E-9F35BFCD3EBB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hashids.net.test", "test\Hashids.net.test\Hashids.net.test.csproj", "{3BB2139F-2788-4B8C-9A2E-9F35BFCD3EBB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hashids.net.benchmark", "test\Hashids.net.benchmark\Hashids.net.benchmark.csproj", "{5A9F0EB0-FFE0-41BF-8A8D-11CD23B283B7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hashids.net.benchmark", "test\Hashids.net.benchmark\Hashids.net.benchmark.csproj", "{5A9F0EB0-FFE0-41BF-8A8D-11CD23B283B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
