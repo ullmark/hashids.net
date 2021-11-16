@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -66,5 +66,18 @@ namespace HashidsNet
             }
 #endif
         }
+
+#if NETCOREAPP3_1_OR_GREATER
+        /// <remarks>This method exists because <see cref="ReadOnlySpan{T}"/> does not implement <see cref="IEnumerable{T}"/>.</remarks>
+        public static bool Any<T>(this ReadOnlySpan<T> span, Func<T,bool> predicate)
+        {
+            for(int i = 0; i < span.Length; i++)
+            {
+                if(predicate(span[i])) return true;
+            }
+
+            return false;
+        }
+#endif
     }
 }

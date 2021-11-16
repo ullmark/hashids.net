@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -73,7 +73,7 @@ namespace HashidsNet
         }
 
         /// <remarks>This method uses <c>out</c> params instead of returning a ValueTuple so it works with .NET 4.6.1.</remarks>
-        private static void InitCharArrays(string alphabet, string seps, char[] salt, out char[] alphabetChars, out char[] sepChars, out char[] guardChars)
+        private static void InitCharArrays(string alphabet, string seps, ReadOnlySpan<char> salt, out char[] alphabetChars, out char[] sepChars, out char[] guardChars)
         {
             alphabetChars = alphabet.ToCharArray().Distinct().ToArray();
             sepChars      = seps.ToCharArray();
@@ -235,9 +235,9 @@ namespace HashidsNet
             return result;
         }
 
-        private string GenerateHashFrom(long[] numbers)
+        private string GenerateHashFrom(ReadOnlySpan<long> numbers)
         {
-            if (numbers == null || numbers.Length == 0 || numbers.Any(n => n < 0))
+            if (numbers.Length == 0 || numbers.Any(n => n < 0))
                 return string.Empty;
 
             long numbersHashInt = 0;
@@ -331,7 +331,7 @@ namespace HashidsNet
             return result;
         }
 
-        private int BuildReversedHash(long input, char[] alphabet, char[] hashBuffer)
+        private int BuildReversedHash(long input, ReadOnlySpan<char> alphabet, char[] hashBuffer)
         {
             var length = 0;
             do
@@ -346,13 +346,13 @@ namespace HashidsNet
             return length;
         }
 
-        private long Unhash(string input, char[] alphabet)
+        private long Unhash(string input, ReadOnlySpan<char> alphabet)
         {
             long number = 0;
 
             for (var i = 0; i < input.Length; i++)
             {
-                var pos = Array.IndexOf(alphabet, input[i]);
+                var pos = alphabet.IndexOf(input[i]);
                 number = (number * _alphabetLength) + pos;
             }
 
@@ -429,7 +429,7 @@ namespace HashidsNet
             return buffer;
         }
 
-        private static void ConsistentShuffle(char[] alphabet, int alphabetLength, char[] salt, int saltLength)
+        private static void ConsistentShuffle(char[] alphabet, int alphabetLength, ReadOnlySpan<char> salt, int saltLength)
         {
             if (salt.Length == 0)
                 return;
