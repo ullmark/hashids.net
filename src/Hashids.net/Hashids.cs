@@ -200,14 +200,16 @@ namespace HashidsNet
             var matches = hexSplitter.Value.Matches(hex);
             if (matches.Count == 0) return string.Empty;
 
-            var numbers = new List<long>(capacity: matches.Count);
-            foreach (Match match in matches.GetMatches())
+            var numbers = new long[matches.Count];
+            for (int i = 0; i < numbers.Length; i++)
             {
-                var number = Convert.ToInt64(string.Concat("1", match.Value), fromBase: 16);
-                numbers.Add(number);
+                Match match = matches[i];
+                string concat = string.Concat("1", match.Value);
+                var number = Convert.ToInt64(concat, fromBase: 16);
+                numbers[i] = number;
             }
 
-            return EncodeLong(numbers.ToArray());
+            return EncodeLong(numbers);
         }
 
         /// <summary>
