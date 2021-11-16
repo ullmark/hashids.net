@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -21,7 +21,6 @@ namespace HashidsNet
         private const int MaxNumberHashLength = 12; // Length of long.MaxValue;
 
         private readonly char[] _alphabet;
-        private readonly long _alphabetLength;
         private readonly char[] _seps;
         private readonly char[] _guards;
         private readonly char[] _salt;
@@ -68,8 +67,6 @@ namespace HashidsNet
             _minHashLength = minHashLength;
 
             InitCharArrays(alphabet: alphabet, seps: seps, salt: _salt, alphabetChars: out _alphabet, sepChars: out _seps, guardChars: out _guards);
-
-            _alphabetLength = _alphabet.Length;
         }
 
         /// <remarks>This method uses <c>out</c> params instead of returning a ValueTuple so it works with .NET 4.6.1.</remarks>
@@ -97,8 +94,9 @@ namespace HashidsNet
                 alphabetChars = alphabetChars.Except(sepChars).ToArray();
             }
 
-            if (alphabetChars.Length < (MIN_ALPHABET_LENGTH - 6)) // TODO: What should the minimum length be after removing chars in `sep`?
+            if (alphabetChars.Length < (MIN_ALPHABET_LENGTH - 6))
             {
+                #warning TODO: What should the minimum length be after removing chars in `sep`?
                 throw new ArgumentException($"Alphabet must contain at least {MIN_ALPHABET_LENGTH:N0} unique characters that are also not present in .", paramName: nameof(alphabet));
             }
 
@@ -255,7 +253,7 @@ namespace HashidsNet
             var hashBuffer = ArrayPool<char>.Shared.Rent(MaxNumberHashLength);
             try
             {
-                var lottery = alphabet[numbersHashInt % _alphabetLength];
+                var lottery = alphabet[numbersHashInt % _alphabet.Length];
                 builder.Append(lottery);
                 shuffleBuffer = CreatePooledBuffer(_alphabet.Length, lottery);
 
@@ -338,10 +336,10 @@ namespace HashidsNet
             var length = 0;
             do
             {
-                int idx = (int)(input % _alphabetLength);
+                int idx = (int)(input % _alphabet.Length);
                 hashBuffer[length] = alphabet[idx];
                 length += 1;
-                input /= _alphabetLength;
+                input /= _alphabet.Length;
             }
             while (input > 0);
 
@@ -355,7 +353,7 @@ namespace HashidsNet
             for (var i = 0; i < input.Length; i++)
             {
                 var pos = alphabet.IndexOf(input[i]);
-                number = (number * _alphabetLength) + pos;
+                number = (number * _alphabet.Length) + pos;
             }
 
             return number;
@@ -370,11 +368,7 @@ namespace HashidsNet
             if (hashArray.Length == 0)
                 return Array.Empty<long>();
 
-            var i = 0;
-            if (hashArray.Length == 3 || hashArray.Length == 2)
-            {
-                i = 1;
-            }
+            var i = (hashArray.Length is 3 or 2 ) ? 1 : 0;
 
             var hashBreakdown = hashArray[i];
             var lottery = hashBreakdown[0];
