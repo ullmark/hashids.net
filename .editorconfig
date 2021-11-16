@@ -1,3 +1,6 @@
+# top-most EditorConfig file
+root = true
+
 [*.cs]
 end_of_line = lf
 indent_style = space
@@ -19,4 +22,5 @@ dotnet_style_qualification_for_field = false
 dotnet_style_qualification_for_property = false
 
 # IDE0058: Expression value is never used
+csharp_style_unused_value_expression_statement_preference = discard_variable:none
 dotnet_diagnostic.IDE0058.severity = none
