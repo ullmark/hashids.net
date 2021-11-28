@@ -7,7 +7,7 @@ using System.Buffers;
 namespace HashidsNet
 {
     /// <summary>
-    /// Generate YouTube-like hashes from one or many numbers. Use hashids when you do not want to expose your database ids to the user.
+    /// Generates YouTube-like hashes from one or many numbers. Use hashids when you do not want to expose your database ids to the user.
     /// </summary>
     public partial class Hashids : IHashids
     {
@@ -20,11 +20,10 @@ namespace HashidsNet
 
         private const int MaxNumberHashLength = 12; // Length of long.MaxValue;
 
-        private char[] _alphabet;
-        private long _alphabetLength;
-        private char[] _seps;
-        private char[] _guards;
-        private char[] _salt;
+        private readonly char[] _alphabet;
+        private readonly char[] _seps;
+        private readonly char[] _guards;
+        private readonly char[] _salt;
         private readonly int _minHashLength;
 
         private readonly StringBuilderPool _sbPool = new();
@@ -36,7 +35,7 @@ namespace HashidsNet
         /// <summary>
         /// Instantiates a new Hashids encoder/decoder with defaults.
         /// </summary>
-        public Hashids() : this(string.Empty, 0, DEFAULT_ALPHABET, DEFAULT_SEPS)
+        public Hashids() : this(salt: string.Empty, minHashLength: 0, alphabet: DEFAULT_ALPHABET, seps: DEFAULT_SEPS)
         {
             // empty constructor with defaults needed to allow mocking of public methods
         }
@@ -65,68 +64,81 @@ namespace HashidsNet
                 throw new ArgumentNullException(nameof(seps));
 
             _salt = salt.Trim().ToCharArray();
-            _alphabet = alphabet.ToCharArray().Distinct().ToArray();
-            _seps = seps.ToCharArray();
             _minHashLength = minHashLength;
 
-            if (_alphabet.Length < MIN_ALPHABET_LENGTH)
-                throw new ArgumentException($"Alphabet must contain at least {MIN_ALPHABET_LENGTH} unique characters.",
-                    nameof(alphabet));
-
-            SetupSeps();
-            SetupGuards();
-
-            _alphabetLength = _alphabet.Length;
+            InitCharArrays(alphabet: alphabet, seps: seps, salt: _salt, alphabetChars: out _alphabet, sepChars: out _seps, guardChars: out _guards);
         }
 
-        private void SetupSeps()
+        /// <remarks>This method uses <c>out</c> params instead of returning a ValueTuple so it works with .NET 4.6.1.</remarks>
+        private static void InitCharArrays(string alphabet, string seps, ReadOnlySpan<char> salt, out char[] alphabetChars, out char[] sepChars, out char[] guardChars)
         {
-            // seps should contain only characters present in alphabet; 
-            _seps = _seps.Intersect(_alphabet).ToArray();
+            alphabetChars = alphabet.ToCharArray().Distinct().ToArray();
+            sepChars      = seps.ToCharArray();
 
-            // alphabet should not contain seps.
-            _alphabet = _alphabet.Except(_seps).ToArray();
-
-            ConsistentShuffle(_seps, _seps.Length, _salt, _salt.Length);
-
-            if (_seps.Length == 0 || ((float)_alphabet.Length / _seps.Length) > SEP_DIV)
+            if (alphabetChars.Length < MIN_ALPHABET_LENGTH)
             {
-                var sepsLength = (int)Math.Ceiling((float)_alphabet.Length / SEP_DIV);
+                throw new ArgumentException($"Alphabet must contain at least {MIN_ALPHABET_LENGTH:N0} unique characters.", paramName: nameof(alphabet));
+            }
+
+            // SetupGuards():
+
+            // seps should contain only characters present in alphabet:
+            if (sepChars.Length > 0)
+            {
+                sepChars = sepChars.Intersect(alphabetChars).ToArray();
+            }
+            
+            // alphabet should not contain seps // TODO: This comment contradicts the above, it needs rephrasing.
+            if (sepChars.Length > 0 )
+            {
+                alphabetChars = alphabetChars.Except(sepChars).ToArray();
+            }
+
+            if (alphabetChars.Length < (MIN_ALPHABET_LENGTH - 6))
+            {
+                #warning TODO: What should the minimum length be after removing chars in `sep`?
+                throw new ArgumentException($"Alphabet must contain at least {MIN_ALPHABET_LENGTH:N0} unique characters that are also not present in .", paramName: nameof(alphabet));
+            }
+
+            ConsistentShuffle(alphabet: sepChars, alphabetLength: sepChars.Length, salt: salt, saltLength: salt.Length);
+
+            if (sepChars.Length == 0 || ((float)alphabetChars.Length / sepChars.Length) > SEP_DIV)
+            {
+                var sepsLength = (int)Math.Ceiling((float)alphabetChars.Length / SEP_DIV);
 
                 if (sepsLength == 1)
                 {
                     sepsLength = 2;
                 }
 
-                if (sepsLength > _seps.Length)
+                if (sepsLength > sepChars.Length)
                 {
-                    var diff = sepsLength - _seps.Length;
-                    _seps = _seps.Append(_alphabet, 0, diff);
-                    _alphabet = _alphabet.SubArray(diff);
+                    var diff = sepsLength - sepChars.Length;
+                    sepChars = sepChars.Append(alphabetChars, 0, diff);
+                    alphabetChars = alphabetChars.SubArray(diff);
                 }
                 else
                 {
-                    _seps = _seps.SubArray(0, sepsLength);
+                    sepChars = sepChars.SubArray(0, sepsLength);
                 }
             }
 
-            ConsistentShuffle(_alphabet, _alphabet.Length, _salt, _salt.Length);
-        }
+            ConsistentShuffle(alphabet: alphabetChars, alphabetChars.Length, salt: salt, salt.Length);
+            
+            // SetupGuards():
+           
+            var guardCount = (int)Math.Ceiling(alphabetChars.Length / GUARD_DIV);
 
-        private void SetupGuards()
-        {
-            var guardCount = (int)Math.Ceiling(_alphabet.Length / GUARD_DIV);
-
-            if (_alphabet.Length < 3)
+            if (alphabetChars.Length < 3)
             {
-                _guards = _seps.SubArray(0, guardCount);
-                _seps = _seps.SubArray(guardCount);
+                guardChars = sepChars.SubArray(index: 0, length: guardCount);
+                sepChars   = sepChars.SubArray(index: guardCount);
             }
 
             else
             {
-                _guards = _alphabet.SubArray(0, guardCount);
-                _alphabet = _alphabet.SubArray(guardCount);
+                guardChars    = alphabetChars.SubArray(index: 0, length: guardCount);
+                alphabetChars = alphabetChars.SubArray(index: guardCount);
             }
         }
 
@@ -180,19 +192,22 @@ namespace HashidsNet
         /// <returns>Encoded hash string.</returns>
         public virtual string EncodeHex(string hex)
         {
-            if (!hexValidator.Value.IsMatch(hex))
+            if (string.IsNullOrWhiteSpace(hex) || !hexValidator.Value.IsMatch(hex))
                 return string.Empty;
 
             var matches = hexSplitter.Value.Matches(hex);
-            var numbers = new List<long>(matches.Count);
+            if (matches.Count == 0) return string.Empty;
 
-            foreach (Match match in matches)
+            var numbers = new long[matches.Count];
+            for (int i = 0; i < numbers.Length; i++)
             {
-                var number = Convert.ToInt64(string.Concat("1", match.Value), 16);
-                numbers.Add(number);
+                Match match = matches[i];
+                string concat = string.Concat("1", match.Value);
+                var number = Convert.ToInt64(concat, fromBase: 16);
+                numbers[i] = number;
             }
 
-            return EncodeLong(numbers.ToArray());
+            return EncodeLong(numbers);
         }
 
         /// <summary>
@@ -220,9 +235,9 @@ namespace HashidsNet
             return result;
         }
 
-        private string GenerateHashFrom(long[] numbers)
+        private string GenerateHashFrom(ReadOnlySpan<long> numbers)
         {
-            if (numbers == null || numbers.Length == 0 || numbers.Any(n => n < 0))
+            if (numbers.Length == 0 || numbers.Any(n => n < 0))
                 return string.Empty;
 
             long numbersHashInt = 0;
@@ -238,7 +253,7 @@ namespace HashidsNet
             var hashBuffer = ArrayPool<char>.Shared.Rent(MaxNumberHashLength);
             try
             {
-                var lottery = alphabet[numbersHashInt % _alphabetLength];
+                var lottery = alphabet[numbersHashInt % _alphabet.Length];
                 builder.Append(lottery);
                 shuffleBuffer = CreatePooledBuffer(_alphabet.Length, lottery);
 
@@ -316,26 +331,29 @@ namespace HashidsNet
             return result;
         }
 
-        private int BuildReversedHash(long input, char[] alphabet, char[] hashBuffer)
+        private int BuildReversedHash(long input, ReadOnlySpan<char> alphabet, char[] hashBuffer)
         {
             var length = 0;
             do
             {
-                hashBuffer[length++] = alphabet[input % _alphabetLength];
-                input /= _alphabetLength;
-            } while (input > 0);
+                int idx = (int)(input % _alphabet.Length);
+                hashBuffer[length] = alphabet[idx];
+                length += 1;
+                input /= _alphabet.Length;
+            }
+            while (input > 0);
 
             return length;
         }
 
-        private long Unhash(string input, char[] alphabet)
+        private long Unhash(string input, ReadOnlySpan<char> alphabet)
         {
             long number = 0;
 
             for (var i = 0; i < input.Length; i++)
             {
-                var pos = Array.IndexOf(alphabet, input[i]);
-                number = number * _alphabetLength + pos;
+                var pos = alphabet.IndexOf(input[i]);
+                number = (number * _alphabet.Length) + pos;
             }
 
             return number;
@@ -350,16 +368,12 @@ namespace HashidsNet
             if (hashArray.Length == 0)
                 return Array.Empty<long>();
 
-            var i = 0;
-            if (hashArray.Length == 3 || hashArray.Length == 2)
-            {
-                i = 1;
-            }
+            var i = (hashArray.Length is 3 or 2 ) ? 1 : 0;
 
             var hashBreakdown = hashArray[i];
             var lottery = hashBreakdown[0];
 
-            if (lottery == default(char))
+            if (lottery == '\0') /* default(char) == '\0' */
                 return Array.Empty<long>();
                 
             hashBreakdown = hashBreakdown.Substring(1);
@@ -411,18 +425,22 @@ namespace HashidsNet
             return buffer;
         }
 
-        private static void ConsistentShuffle(char[] alphabet, int alphabetLength, char[] salt, int saltLength)
+        /// <summary>NOTE: This method mutates the <paramref name="alphabet"/> argument in-place.</summary>
+        private static void ConsistentShuffle(char[] alphabet, int alphabetLength, ReadOnlySpan<char> salt, int saltLength)
         {
             if (salt.Length == 0)
                 return;
 
+            // TODO: Document or rename these cryptically-named variables: i, v, p, n.
             int n;
             for (int i = alphabetLength - 1, v = 0, p = 0; i > 0; i--, v++)
             {
                 v %= saltLength;
-                p += (n = salt[v]);
+                n = salt[v];
+                p += n;
                 var j = (n + v + p) % i;
-                // swap characters at positions i and j
+
+                // swap characters at positions i and j:
                 var temp = alphabet[j];
                 alphabet[j] = alphabet[i];
                 alphabet[i] = temp;
