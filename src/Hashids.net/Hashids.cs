@@ -55,13 +55,13 @@ namespace HashidsNet
             string seps = DEFAULT_SEPS)
         {
             if (salt == null)
-                throw new ArgumentNullException(nameof(salt));
+                ThrowHelper.ThrowArgumentNullException(nameof(salt));
             if (string.IsNullOrWhiteSpace(alphabet))
-                throw new ArgumentNullException(nameof(alphabet));
+                ThrowHelper.ThrowArgumentNullException(nameof(alphabet));
             if (minHashLength < 0)
-                throw new ArgumentOutOfRangeException(nameof(minHashLength), "Value must be zero or greater.");
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(minHashLength), "Value must be zero or greater.");
             if (string.IsNullOrWhiteSpace(seps))
-                throw new ArgumentNullException(nameof(seps));
+                ThrowHelper.ThrowArgumentNullException(nameof(seps));
 
             _salt = salt.Trim().ToCharArray();
             _minHashLength = minHashLength;
@@ -77,7 +77,7 @@ namespace HashidsNet
 
             if (alphabetChars.Length < MIN_ALPHABET_LENGTH)
             {
-                throw new ArgumentException($"Alphabet must contain at least {MIN_ALPHABET_LENGTH:N0} unique characters.", paramName: nameof(alphabet));
+                ThrowHelper.ThrowArgumentException($"Alphabet must contain at least {MIN_ALPHABET_LENGTH:N0} unique characters.", paramName: nameof(alphabet));
             }
 
             // SetupGuards():
@@ -97,7 +97,7 @@ namespace HashidsNet
             if (alphabetChars.Length < (MIN_ALPHABET_LENGTH - 6))
             {
                 #warning TODO: What should the minimum length be after removing chars in `sep`?
-                throw new ArgumentException($"Alphabet must contain at least {MIN_ALPHABET_LENGTH:N0} unique characters that are also not present in .", paramName: nameof(alphabet));
+                ThrowHelper.ThrowArgumentException($"Alphabet must contain at least {MIN_ALPHABET_LENGTH:N0} unique characters that are also not present in .", paramName: nameof(alphabet));
             }
 
             ConsistentShuffle(alphabet: sepChars, alphabetLength: sepChars.Length, salt: salt, saltLength: salt.Length);

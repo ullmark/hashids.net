@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace HashidsNet
 {
 #if !NETCOREAPP3_1_OR_GREATER
-    internal struct ReadOnlySpan<T> : IReadOnlyList<T>
+    internal readonly struct ReadOnlySpan<T> : IReadOnlyList<T>
     {
         public static implicit operator ReadOnlySpan<T>(T[] array)
         {
@@ -39,16 +39,16 @@ namespace HashidsNet
 
             if (this.array.Length == 0)
             {
-                if (startIndex is not (0 or -1)       ) throw new ArgumentOutOfRangeException(paramName: nameof(startIndex), actualValue: startIndex, message: "Value must be zero or -1 for empty arrays.");
-                if (count             != 0            ) throw new ArgumentOutOfRangeException(paramName: nameof(count)     , actualValue: count     , message: "Value must be zero for empty arrays.");
+                if (startIndex is not (0 or -1)       ) ThrowHelper.ThrowArgumentOutOfRangeException(paramName: nameof(startIndex), actualValue: startIndex, message: "Value must be zero or -1 for empty arrays.");
+                if (count             != 0            ) ThrowHelper.ThrowArgumentOutOfRangeException(paramName: nameof(count)     , actualValue: count     , message: "Value must be zero for empty arrays.");
             }
             else
             {
-                if (count              < 0            ) throw new ArgumentOutOfRangeException(paramName: nameof(count)     , actualValue: count     , message: "Value must be non-negative.");
-                if (startIndex         < 0            ) throw new ArgumentOutOfRangeException(paramName: nameof(startIndex), actualValue: startIndex, message: "Value must be non-negative.");
+                if (count              < 0            ) ThrowHelper.ThrowArgumentOutOfRangeException(paramName: nameof(count)     , actualValue: count     , message: "Value must be non-negative.");
+                if (startIndex         < 0            ) ThrowHelper.ThrowArgumentOutOfRangeException(paramName: nameof(startIndex), actualValue: startIndex, message: "Value must be non-negative.");
 
-                if (startIndex         >= array.Length) throw new ArgumentOutOfRangeException(paramName: nameof(startIndex), actualValue: startIndex, message: "Value exceeds the length of the provided array.");
-                if (startIndex + count >  array.Length) throw new ArgumentOutOfRangeException(paramName: nameof(count)     , actualValue: count     , message: "Value (plus " + nameof(startIndex) + ") exceeds the length of the provided array.");
+                if (startIndex         >= array.Length) ThrowHelper.ThrowArgumentOutOfRangeException(paramName: nameof(startIndex), actualValue: startIndex, message: "Value exceeds the length of the provided array.");
+                if (startIndex + count >  array.Length) ThrowHelper.ThrowArgumentOutOfRangeException(paramName: nameof(count)     , actualValue: count     , message: "Value (plus " + nameof(startIndex) + ") exceeds the length of the provided array.");
             }
         }
 
@@ -56,9 +56,10 @@ namespace HashidsNet
         {
             get
             {
-                if(index < 0 || index >= this.count)
+                if (index < 0 || index >= this.count)
                 {
-                    throw new ArgumentOutOfRangeException(paramName: nameof(index), actualValue: index, message: "Value must be between 0 and " + nameof(this.Length) + " (exclusive).");
+                    ThrowHelper.ThrowArgumentOutOfRangeException(paramName: nameof(index), actualValue: index, message: "Value must be between 0 and " + nameof(this.Length) + " (exclusive).");
+                    return default;
                 }
                 else
                 {
@@ -82,14 +83,12 @@ namespace HashidsNet
 
         public IEnumerator<T> GetEnumerator()
         {
-            if( this.count == 0 )
+            if (this.count == 0)
             {
                 return ((IEnumerable<T>)Array.Empty<T>()).GetEnumerator();
             }
-            else
-            {
-                return this.AsEnumerable().GetEnumerator();
-            }
+
+            return this.AsEnumerable().GetEnumerator();
         }
 
         private IEnumerable<T> AsEnumerable()
@@ -103,7 +102,7 @@ namespace HashidsNet
 
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
-        public ArraySegment<T> AsArraySegment() => new ArraySegment<T>(this.array, offset: this.startIndex, count: this.count);
+        public ArraySegment<T> AsArraySegment() => new (this.array, offset: this.startIndex, count: this.count);
 
         /// <remarks>This method exists because using Linq's extensions over <see cref="IEnumerable{T}"/> or <see cref="IReadOnlyList{T}"/> are a lot slower than doing it directly.</remarks>
         public bool Any(Func<T,bool> predicate)
@@ -111,7 +110,7 @@ namespace HashidsNet
             int endIdx = this.EndIndex;
             for (int i = this.startIndex; i <= endIdx; i++)
             {
-               if(predicate(this.array[i])) return true;
+               if (predicate(this.array[i])) return true;
             }
 
             return false;
