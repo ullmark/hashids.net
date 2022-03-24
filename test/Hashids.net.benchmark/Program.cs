@@ -43,6 +43,20 @@ namespace Hashids.net.benchmark
                 var encodedValue = _hashids.EncodeHex(_hex);
                 var decodedValue = _hashids.DecodeHex(encodedValue);
             }
+
+            [Benchmark]
+            public void SingleNumber()
+            {
+                var encoded = _hashids.Encode(5);
+                var encodeLong = _hashids.EncodeLong(5);
+            }
+
+            [Benchmark]
+            public void SingleNumberAsParams()
+            {
+                var encoded = _hashids.Encode(new []{ 1 });
+                var encodedLong = _hashids.EncodeLong(new []{ (long)1 });
+            }
         }
     }
 }

@@ -142,6 +142,15 @@ namespace HashidsNet
             }
         }
 
+#if NETCOREAPP3_1_OR_GREATER
+        /// <summary>
+        /// Encodes the provided number into a hashed string
+        /// </summary>
+        /// <param name="number">the number</param>
+        /// <returns>the hashed string</returns>
+        public string Encode(int number) => EncodeLong(number);
+#endif
+
         /// <summary>
         /// Encodes the provided numbers into a hash string.
         /// </summary>
@@ -155,6 +164,20 @@ namespace HashidsNet
         /// <param name="numbers">Enumerable list of integers.</param>
         /// <returns>Encoded hash string.</returns>
         public virtual string Encode(IEnumerable<int> numbers) => Encode(numbers.ToArray());
+
+#if NETCOREAPP3_1_OR_GREATER
+        /// <summary>
+        /// Encodes the provided number into a hashed string
+        /// </summary>
+        /// <param name="number">the number</param>
+        /// <returns>the hashed string</returns>
+        public string EncodeLong(long number)
+        {
+            ReadOnlySpan<long> span = stackalloc[] { number };
+
+            return GenerateHashFrom(span);
+        }
+#endif
 
         /// <summary>
         /// Encodes the provided numbers into a hash string.
@@ -268,7 +291,7 @@ namespace HashidsNet
                     {
                         Array.Copy(alphabet, 0, shuffleBuffer, startIndex, length);
                     }
-                    
+
                     ConsistentShuffle(alphabet, _alphabet.Length, shuffleBuffer, _alphabet.Length);
                     var hashLength = BuildReversedHash(number, alphabet, hashBuffer);
 
@@ -375,7 +398,7 @@ namespace HashidsNet
 
             if (lottery == '\0') /* default(char) == '\0' */
                 return Array.Empty<long>();
-                
+
             hashBreakdown = hashBreakdown.Substring(1);
 
             hashArray = hashBreakdown.Split(_seps, StringSplitOptions.RemoveEmptyEntries);
