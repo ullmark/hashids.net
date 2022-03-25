@@ -1,25 +1,38 @@
 name: Build
 
-on:  
+on:
   push:
   pull_request:
-    branches:
-      - master
+    branches: [ main ]
+    paths:
+    - '**.cs'
+    - '**.csproj'
+
+env:
+  DOTNET_VERSION: '6.0.x' # The .NET SDK version to use
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  build-and-test:
+
+    name: build-and-test-${{matrix.os}}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
 
     steps:
-      - uses: actions/checkout@v2
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 6.0.0
-
-      - name: Test
-        run: dotnet test ./Hashids.net.sln
-
-      - name: Build RELEASE config
-        run: dotnet build ./Hashids.net.sln --configuration Release
+    - name: Install dependencies
+      run: dotnet restore
+      
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+    
+    - name: Test
+      run: dotnet test --no-restore --verbosity normal
+      
