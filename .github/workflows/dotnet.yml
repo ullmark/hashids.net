@@ -12,7 +12,7 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 5.0.201
+          dotnet-version: 6.0
 
       - name: Test
         run: dotnet test ./Hashids.net.sln
