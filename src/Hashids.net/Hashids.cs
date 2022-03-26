@@ -96,7 +96,6 @@ namespace HashidsNet
 
             if (alphabetChars.Length < (MIN_ALPHABET_LENGTH - 6))
             {
-                #warning TODO: What should the minimum length be after removing chars in `sep`?
                 throw new ArgumentException($"Alphabet must contain at least {MIN_ALPHABET_LENGTH:N0} unique characters that are also not present in .", paramName: nameof(alphabet));
             }
 
