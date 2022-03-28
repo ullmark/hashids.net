@@ -208,6 +208,80 @@ namespace HashidsNet
         public long[] DecodeLong(string hash) => GetNumbersFrom(hash);
 
         /// <summary>
+        /// Decodes the provided hash into numbers.
+        /// </summary>
+        /// <param name="hash">Hash string to decode.</param>
+        /// <returns>A 64-bit integer.</returns>
+        /// <exception cref="T:HashidsNet.MultipleResultsException">If the decoded hash returns more than one long</exception>
+        public long DecodeSingleLong(string hash)
+        {
+            var numbers = GetNumbersFrom(hash);
+
+            if (numbers.Length == 1) return numbers[0];
+            else throw new MultipleResultsException("The hash provided yielded more than one result.");
+        }
+
+        /// <summary>
+        /// Decodes the provided hash into numbers.
+        /// </summary>
+        /// <param name="hash">Hash string to decode.</param>
+        /// <param name="id">A 64-bit integer variable to output the result to.</param>
+        /// <returns>A 64-bit integer.</returns>
+        public bool DecodeSingleLong(string hash, out long id)
+        {
+            var numbers = GetNumbersFrom(hash);
+
+            if (numbers.Length == 1)
+            {
+                id = numbers[0];
+                return true;
+            }
+            else
+            {
+                id = -1;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Decodes the provided hash into a number.
+        /// </summary>
+        /// <param name="hash">Hash string to decode.</param>
+        /// <returns>An integer.</returns>
+        /// <exception cref="T:System.OverflowException">If the decoded number overflows integer.</exception>
+        /// <exception cref="T:HashidsNet.MultipleResultsException">If the decoded hash returns more than one integer</exception>
+        public virtual int DecodeSingle(string hash)
+        {
+            var numbers = GetNumbersFrom(hash);
+
+            if (numbers.Length == 1) return (int)numbers[0];
+            else throw new MultipleResultsException("The hash provided yielded more than one result.");
+        }
+
+        /// <summary>
+        /// Decodes the provided hash into a number.
+        /// </summary>
+        /// <param name="hash">Hash string to decode.</param>
+        /// <param name="id">An integer variable to output the result to.</param>
+        /// <returns>An integer greater or equal to zero or -1 if the hash conversion yields more than one result.</returns>
+        /// <exception cref="T:System.OverflowException">If the decoded number overflows integer.</exception>
+        public virtual bool DecodeSingle(string hash, out int id)
+        {
+            var numbers = GetNumbersFrom(hash);
+
+            if (numbers.Length == 1)
+            {
+                id = (int)numbers[0];
+                return true;
+            }
+            else
+            {
+                id = -1;
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Encodes the provided hex-string into a hash string.
         /// </summary>
         /// <param name="hex">Hex string to encode.</param>
