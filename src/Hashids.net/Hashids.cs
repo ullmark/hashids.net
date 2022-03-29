@@ -263,7 +263,7 @@ namespace HashidsNet
         /// </summary>
         /// <param name="hash">Hash string to decode.</param>
         /// <param name="id">An integer variable to output the result to.</param>
-        /// <returns>An integer greater or equal to zero or -1 if the hash conversion yields more than one result.</returns>
+        /// <returns>An integer greater or equal to zero or 0 if the hash conversion yields more than one result.</returns>
         /// <exception cref="T:System.OverflowException">If the decoded number overflows integer.</exception>
         public virtual bool TryDecodeSingle(string hash, out int id)
         {
