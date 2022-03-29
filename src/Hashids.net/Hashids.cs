@@ -227,7 +227,7 @@ namespace HashidsNet
         /// <param name="hash">Hash string to decode.</param>
         /// <param name="id">A 64-bit integer variable to output the result to.</param>
         /// <returns>A 64-bit integer.</returns>
-        public bool DecodeSingleLong(string hash, out long id)
+        public bool TryDecodeSingleLong(string hash, out long id)
         {
             var numbers = GetNumbersFrom(hash);
 
@@ -238,7 +238,7 @@ namespace HashidsNet
             }
             else
             {
-                id = -1;
+                id = 0L;
                 return false;
             }
         }
@@ -265,7 +265,7 @@ namespace HashidsNet
         /// <param name="id">An integer variable to output the result to.</param>
         /// <returns>An integer greater or equal to zero or -1 if the hash conversion yields more than one result.</returns>
         /// <exception cref="T:System.OverflowException">If the decoded number overflows integer.</exception>
-        public virtual bool DecodeSingle(string hash, out int id)
+        public virtual bool TryDecodeSingle(string hash, out int id)
         {
             var numbers = GetNumbersFrom(hash);
 
@@ -276,7 +276,7 @@ namespace HashidsNet
             }
             else
             {
-                id = -1;
+                id = 0;
                 return false;
             }
         }

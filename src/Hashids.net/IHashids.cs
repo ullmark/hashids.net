@@ -31,7 +31,7 @@ namespace HashidsNet
         /// <param name="id">An integer variable to output the result to.</param>
         /// <exception cref="T:System.OverflowException">if the number in the hash overflows the integer storage</exception>
         /// <returns>the number or -1 if the hash yields more than one result</returns>
-        bool DecodeSingle(string hash, out int id);
+        bool TryDecodeSingle(string hash, out int id);
 
         /// <summary>
         /// Decodes the provided hashed string into longs
@@ -53,7 +53,7 @@ namespace HashidsNet
         /// <param name="hash">the hashed string</param>
         /// <param name="id">An 64-bit integer variable to output the result to.</param>
         /// <returns>the number or -1 if the hash yields more than one result</returns>
-        bool DecodeSingleLong(string hash, out long id);
+        bool TryDecodeSingleLong(string hash, out long id);
 
         /// <summary>
         /// Decodes the provided hashed string into a hex string

@@ -71,24 +71,24 @@ namespace HashidsNet.test
         {
             int value;
 
-            _hashids.DecodeSingle("NkK9,NkK9", out value).Should().Be(false);
-            _hashids.DecodeSingle("NkK9", out value).Should().Be(true);
+            _hashids.TryDecodeSingle("NkK9,NkK9", out value).Should().Be(false);
+            _hashids.TryDecodeSingle("NkK9", out value).Should().Be(true);
             value.Should().Be(12345);
 
-            _hashids.DecodeSingle("5O8yp5P,5O8yp5P", out value).Should().Be(false);
-            _hashids.DecodeSingle("5O8yp5P", out value).Should().Be(true);
+            _hashids.TryDecodeSingle("5O8yp5P,5O8yp5P", out value).Should().Be(false);
+            _hashids.TryDecodeSingle("5O8yp5P", out value).Should().Be(true);
             value.Should().Be(666555444);
 
-            _hashids.DecodeSingle("Wzo,Wzo", out value).Should().Be(false);
-            _hashids.DecodeSingle("Wzo", out value).Should().Be(true);
+            _hashids.TryDecodeSingle("Wzo,Wzo", out value).Should().Be(false);
+            _hashids.TryDecodeSingle("Wzo", out value).Should().Be(true);
             value.Should().Be(1337);
 
-            _hashids.DecodeSingle("DbE,DbE", out value).Should().Be(false);
-            _hashids.DecodeSingle("DbE", out value).Should().Be(true);
+            _hashids.TryDecodeSingle("DbE,DbE", out value).Should().Be(false);
+            _hashids.TryDecodeSingle("DbE", out value).Should().Be(true);
             value.Should().Be(808);
 
-            _hashids.DecodeSingle("yj8,yj8", out value).Should().Be(false);
-            _hashids.DecodeSingle("yj8", out value).Should().Be(true);
+            _hashids.TryDecodeSingle("yj8,yj8", out value).Should().Be(false);
+            _hashids.TryDecodeSingle("yj8", out value).Should().Be(true);
             value.Should().Be(303);
         }
 
@@ -147,28 +147,28 @@ namespace HashidsNet.test
         {
             long value;
 
-            _hashids.DecodeSingleLong("NV,NV", out value).Should().Be(false);
-            _hashids.DecodeSingleLong("NV", out value).Should().Be(true);
+            _hashids.TryDecodeSingleLong("NV,NV", out value).Should().Be(false);
+            _hashids.TryDecodeSingleLong("NV", out value).Should().Be(true);
             value.Should().Be(1L);
 
-            _hashids.DecodeSingleLong("21OjjRK,21OjjRK", out value).Should().Be(false);
-            _hashids.DecodeSingleLong("21OjjRK", out value).Should().Be(true);
+            _hashids.TryDecodeSingleLong("21OjjRK,21OjjRK", out value).Should().Be(false);
+            _hashids.TryDecodeSingleLong("21OjjRK", out value).Should().Be(true);
             value.Should().Be(2147483648L);
 
-            _hashids.DecodeSingleLong("D54yen6,D54yen6", out value).Should().Be(false);
-            _hashids.DecodeSingleLong("D54yen6", out value).Should().Be(true);
+            _hashids.TryDecodeSingleLong("D54yen6,D54yen6", out value).Should().Be(false);
+            _hashids.TryDecodeSingleLong("D54yen6", out value).Should().Be(true);
             value.Should().Be(4294967296L);
 
-            _hashids.DecodeSingleLong("KVO9yy1oO5j,KVO9yy1oO5j", out value).Should().Be(false);
-            _hashids.DecodeSingleLong("KVO9yy1oO5j", out value).Should().Be(true);
+            _hashids.TryDecodeSingleLong("KVO9yy1oO5j,KVO9yy1oO5j", out value).Should().Be(false);
+            _hashids.TryDecodeSingleLong("KVO9yy1oO5j", out value).Should().Be(true);
             value.Should().Be(666555444333222L);
 
-            _hashids.DecodeSingleLong("4bNP1L26r,4bNP1L26r", out value).Should().Be(false);
-            _hashids.DecodeSingleLong("4bNP1L26r", out value).Should().Be(true);
+            _hashids.TryDecodeSingleLong("4bNP1L26r,4bNP1L26r", out value).Should().Be(false);
+            _hashids.TryDecodeSingleLong("4bNP1L26r", out value).Should().Be(true);
             value.Should().Be(12345678901112L);
 
-            _hashids.DecodeSingleLong("jvNx4BjM5KYjv,jvNx4BjM5KYjv", out value).Should().Be(false);
-            _hashids.DecodeSingleLong("jvNx4BjM5KYjv", out value).Should().Be(true);
+            _hashids.TryDecodeSingleLong("jvNx4BjM5KYjv,jvNx4BjM5KYjv", out value).Should().Be(false);
+            _hashids.TryDecodeSingleLong("jvNx4BjM5KYjv", out value).Should().Be(true);
             value.Should().Be(Int64.MaxValue);
         }
 
