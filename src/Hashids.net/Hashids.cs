@@ -238,7 +238,7 @@ namespace HashidsNet
             }
             else
             {
-                id = 0;
+                id = 0L;
                 return false;
             }
         }
