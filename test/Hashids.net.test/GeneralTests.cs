@@ -59,11 +59,8 @@ namespace HashidsNet.test
             _hashids.DecodeSingle("DbE").Should().Be(808);
             _hashids.DecodeSingle("yj8").Should().Be(303);
 
-            Assert.Throws<MultipleResultsException>(() => _hashids.DecodeSingle("NkK9,NkK9").Should().Be(12345));
-            Assert.Throws<MultipleResultsException>(() => _hashids.DecodeSingle("5O8yp5P,5O8yp5P").Should().Be(12345));
-            Assert.Throws<MultipleResultsException>(() => _hashids.DecodeSingle("Wzo,Wzo").Should().Be(12345));
-            Assert.Throws<MultipleResultsException>(() => _hashids.DecodeSingle("DbE,DbE").Should().Be(12345));
-            Assert.Throws<MultipleResultsException>(() => _hashids.DecodeSingle("yj8,yj8").Should().Be(12345));
+            Assert.Throws<NoResultException>(() => _hashids.DecodeSingle(string.Empty).Should().Be(12345));
+            Assert.Throws<MultipleResultsException>(() => _hashids.DecodeSingle("aBMswoO2UB3Sj").Should().Be(12345));
         }
 
         [Fact]
@@ -134,12 +131,8 @@ namespace HashidsNet.test
             _hashids.DecodeSingleLong("4bNP1L26r").Should().Be(12345678901112L);
             _hashids.DecodeSingleLong("jvNx4BjM5KYjv").Should().Be(Int64.MaxValue);
 
-            Assert.Throws<MultipleResultsException>(() => _hashids.DecodeSingleLong("NV,NV").Should().Be(1L));
-            Assert.Throws<MultipleResultsException>(() => _hashids.DecodeSingleLong("21OjjRK,21OjjRK").Should().Be(2147483648L));
-            Assert.Throws<MultipleResultsException>(() => _hashids.DecodeSingleLong("D54yen6,D54yen6").Should().Be(4294967296L));
-            Assert.Throws<MultipleResultsException>(() => _hashids.DecodeSingleLong("KVO9yy1oO5j,KVO9yy1oO5j").Should().Be(666555444333222L));
-            Assert.Throws<MultipleResultsException>(() => _hashids.DecodeSingleLong("4bNP1L26r,4bNP1L26r").Should().Be(12345678901112L));
-            Assert.Throws<MultipleResultsException>(() => _hashids.DecodeSingleLong("jvNx4BjM5KYjv,jvNx4BjM5KYjv").Should().Be(Int64.MaxValue));
+            Assert.Throws<NoResultException>(() => _hashids.DecodeSingleLong(string.Empty).Should().Be(1L));
+            Assert.Throws<MultipleResultsException>(() => _hashids.DecodeSingleLong("aBMswoO2UB3Sj").Should().Be(1L));
         }
 
         [Fact]

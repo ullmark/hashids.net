@@ -217,8 +217,13 @@ namespace HashidsNet
         {
             var numbers = GetNumbersFrom(hash);
 
-            if (numbers.Length == 1) return numbers[0];
-            else throw new MultipleResultsException("The hash provided yielded more than one result.");
+            if (numbers.Length == 0)
+                throw new NoResultException("The hash provided yielded no result.");
+
+            if (numbers.Length > 1)
+                throw new MultipleResultsException("The hash provided yielded more than one result.");
+
+            return numbers[0];
         }
 
         /// <summary>
@@ -254,8 +259,13 @@ namespace HashidsNet
         {
             var numbers = GetNumbersFrom(hash);
 
-            if (numbers.Length == 1) return (int)numbers[0];
-            else throw new MultipleResultsException("The hash provided yielded more than one result.");
+            if (numbers.Length == 0)
+                throw new NoResultException("The hash provided yielded no result.");
+
+            if (numbers.Length > 1)
+                throw new MultipleResultsException("The hash provided yielded more than one result.");
+
+            return (int)numbers[0];
         }
 
         /// <summary>
