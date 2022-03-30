@@ -59,8 +59,8 @@ namespace HashidsNet.test
             _hashids.DecodeSingle("DbE").Should().Be(808);
             _hashids.DecodeSingle("yj8").Should().Be(303);
 
-            Assert.Throws<NoResultException>(() => _hashids.DecodeSingle(string.Empty).Should().Be(12345));
-            Assert.Throws<MultipleResultsException>(() => _hashids.DecodeSingle("aBMswoO2UB3Sj").Should().Be(12345));
+            Assert.Throws<NoResultException>(() => _hashids.DecodeSingle(string.Empty));
+            Assert.Throws<MultipleResultsException>(() => _hashids.DecodeSingle("aBMswoO2UB3Sj"));
         }
 
         [Fact]
@@ -131,8 +131,8 @@ namespace HashidsNet.test
             _hashids.DecodeSingleLong("4bNP1L26r").Should().Be(12345678901112L);
             _hashids.DecodeSingleLong("jvNx4BjM5KYjv").Should().Be(Int64.MaxValue);
 
-            Assert.Throws<NoResultException>(() => _hashids.DecodeSingleLong(string.Empty).Should().Be(1L));
-            Assert.Throws<MultipleResultsException>(() => _hashids.DecodeSingleLong("aBMswoO2UB3Sj").Should().Be(1L));
+            Assert.Throws<NoResultException>(() => _hashids.DecodeSingleLong(string.Empty));
+            Assert.Throws<MultipleResultsException>(() => _hashids.DecodeSingleLong("6gH3kPY7MJ9zjM3"));
         }
 
         [Fact]
