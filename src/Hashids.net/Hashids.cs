@@ -207,6 +207,68 @@ namespace HashidsNet
         /// <returns>Array of 64-bit integers.</returns>
         public long[] DecodeLong(string hash) => GetNumbersFrom(hash);
 
+        /// <inheritdoc />
+        public long DecodeSingleLong(string hash)
+        {
+            var numbers = GetNumbersFrom(hash);
+
+            if (numbers.Length == 0)
+                throw new NoResultException("The hash provided yielded no result.");
+
+            if (numbers.Length > 1)
+                throw new MultipleResultsException("The hash provided yielded more than one result.");
+
+            return numbers[0];
+        }
+
+        /// <inheritdoc />
+        public bool TryDecodeSingleLong(string hash, out long id)
+        {
+            var numbers = GetNumbersFrom(hash);
+
+            if (numbers.Length == 1)
+            {
+                id = numbers[0];
+                return true;
+            }
+            else
+            {
+                id = 0L;
+                return false;
+            }
+        }
+
+        /// <inheritdoc />
+        public virtual int DecodeSingle(string hash)
+        {
+            var numbers = GetNumbersFrom(hash);
+
+            if (numbers.Length == 0)
+                throw new NoResultException("The hash provided yielded no result.");
+
+            if (numbers.Length > 1)
+                throw new MultipleResultsException("The hash provided yielded more than one result.");
+
+            return (int)numbers[0];
+        }
+
+        /// <inheritdoc />
+        public virtual bool TryDecodeSingle(string hash, out int id)
+        {
+            var numbers = GetNumbersFrom(hash);
+
+            if (numbers.Length == 1)
+            {
+                id = (int)numbers[0];
+                return true;
+            }
+            else
+            {
+                id = 0;
+                return false;
+            }
+        }
+
         /// <summary>
         /// Encodes the provided hex-string into a hash string.
         /// </summary>

@@ -16,11 +16,47 @@ namespace HashidsNet
         int[] Decode(string hash);
 
         /// <summary>
+        /// Decodes the provided hashed string.
+        /// </summary>
+        /// <param name="hash">the hashed string</param>
+        /// <exception cref="T:System.OverflowException">if the number in the hash overflows the integer storage</exception>
+        /// <exception cref="T:HashidsNet.NoResultException">If the decoded hash does not return any value</exception>
+        /// <exception cref="T:HashidsNet.MultipleResultsException">If the decoded hash returns more than one integer</exception>
+        /// <returns>the number</returns>
+        int DecodeSingle(string hash);
+
+        /// <summary>
+        /// Decodes the provided hashed string.
+        /// </summary>
+        /// <param name="hash">the hashed string</param>
+        /// <param name="id">An integer variable to output the result to.</param>
+        /// <exception cref="T:System.OverflowException">if the number in the hash overflows the integer storage</exception>
+        /// <returns>the number or 0 if the hash yields more than one result</returns>
+        bool TryDecodeSingle(string hash, out int id);
+
+        /// <summary>
         /// Decodes the provided hashed string into longs
         /// </summary>
         /// <param name="hash">the hashed string</param>
         /// <returns>the numbers</returns>
         long[] DecodeLong(string hash);
+
+        /// <summary>
+        /// Decodes the provided hashed string into a long
+        /// </summary>
+        /// <param name="hash">the hashed string</param>
+        /// <exception cref="T:HashidsNet.NoResultException">If the decoded hash does not return any value</exception>
+        /// <exception cref="T:HashidsNet.MultipleResultsException">If the decoded hash returns more than one integer</exception>
+        /// <returns>the number</returns>
+        long DecodeSingleLong(string hash);
+
+        /// <summary>
+        /// Decodes the provided hashed string into a long
+        /// </summary>
+        /// <param name="hash">the hashed string</param>
+        /// <param name="id">An 64-bit integer variable to output the result to.</param>
+        /// <returns>the number or 0 if the hash yields more than one result</returns>
+        bool TryDecodeSingleLong(string hash, out long id);
 
         /// <summary>
         /// Decodes the provided hashed string into a hex string
