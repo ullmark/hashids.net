@@ -212,7 +212,8 @@ namespace HashidsNet
         /// </summary>
         /// <param name="hash">Hash string to decode.</param>
         /// <returns>A 64-bit integer.</returns>
-        /// <exception cref="T:HashidsNet.MultipleResultsException">If the decoded hash returns more than one long</exception>
+        /// <exception cref="T:HashidsNet.NoResultException">If the decoded hash does not return any value.</exception>
+        /// <exception cref="T:HashidsNet.MultipleResultsException">If the decoded hash returns more than one long.</exception>
         public long DecodeSingleLong(string hash)
         {
             var numbers = GetNumbersFrom(hash);
@@ -254,7 +255,8 @@ namespace HashidsNet
         /// <param name="hash">Hash string to decode.</param>
         /// <returns>An integer.</returns>
         /// <exception cref="T:System.OverflowException">If the decoded number overflows integer.</exception>
-        /// <exception cref="T:HashidsNet.MultipleResultsException">If the decoded hash returns more than one integer</exception>
+        /// <exception cref="T:HashidsNet.NoResultException">If the decoded hash does not return any value.</exception>
+        /// <exception cref="T:HashidsNet.MultipleResultsException">If the decoded hash returns more than one integer.</exception>
         public virtual int DecodeSingle(string hash)
         {
             var numbers = GetNumbersFrom(hash);
