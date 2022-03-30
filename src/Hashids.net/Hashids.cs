@@ -207,13 +207,7 @@ namespace HashidsNet
         /// <returns>Array of 64-bit integers.</returns>
         public long[] DecodeLong(string hash) => GetNumbersFrom(hash);
 
-        /// <summary>
-        /// Decodes the provided hash into numbers.
-        /// </summary>
-        /// <param name="hash">Hash string to decode.</param>
-        /// <returns>A 64-bit integer.</returns>
-        /// <exception cref="T:HashidsNet.NoResultException">If the decoded hash does not return any value.</exception>
-        /// <exception cref="T:HashidsNet.MultipleResultsException">If the decoded hash returns more than one long.</exception>
+        /// <inheritdoc />
         public long DecodeSingleLong(string hash)
         {
             var numbers = GetNumbersFrom(hash);
@@ -227,12 +221,7 @@ namespace HashidsNet
             return numbers[0];
         }
 
-        /// <summary>
-        /// Decodes the provided hash into numbers.
-        /// </summary>
-        /// <param name="hash">Hash string to decode.</param>
-        /// <param name="id">A 64-bit integer variable to output the result to.</param>
-        /// <returns>A 64-bit integer.</returns>
+        /// <inheritdoc />
         public bool TryDecodeSingleLong(string hash, out long id)
         {
             var numbers = GetNumbersFrom(hash);
@@ -249,14 +238,7 @@ namespace HashidsNet
             }
         }
 
-        /// <summary>
-        /// Decodes the provided hash into a number.
-        /// </summary>
-        /// <param name="hash">Hash string to decode.</param>
-        /// <returns>An integer.</returns>
-        /// <exception cref="T:System.OverflowException">If the decoded number overflows integer.</exception>
-        /// <exception cref="T:HashidsNet.NoResultException">If the decoded hash does not return any value.</exception>
-        /// <exception cref="T:HashidsNet.MultipleResultsException">If the decoded hash returns more than one integer.</exception>
+        /// <inheritdoc />
         public virtual int DecodeSingle(string hash)
         {
             var numbers = GetNumbersFrom(hash);
@@ -270,13 +252,7 @@ namespace HashidsNet
             return (int)numbers[0];
         }
 
-        /// <summary>
-        /// Decodes the provided hash into a number.
-        /// </summary>
-        /// <param name="hash">Hash string to decode.</param>
-        /// <param name="id">An integer variable to output the result to.</param>
-        /// <returns>An integer greater or equal to zero or 0 if the hash conversion yields more than one result.</returns>
-        /// <exception cref="T:System.OverflowException">If the decoded number overflows integer.</exception>
+        /// <inheritdoc />
         public virtual bool TryDecodeSingle(string hash, out int id)
         {
             var numbers = GetNumbersFrom(hash);
