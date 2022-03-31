@@ -321,8 +321,12 @@ namespace HashidsNet
 
         private string GenerateHashFrom(ReadOnlySpan<long> numbers)
         {
-            if (numbers.Length == 0 || numbers.Any(n => n < 0))
+            if(numbers.Length == 0) 
                 return string.Empty;
+
+            foreach (var item in numbers)
+                if(item < 0)
+                    return string.Empty;
 
             long numbersHashInt = 0;
             for (var i = 0; i < numbers.Length; i++)
