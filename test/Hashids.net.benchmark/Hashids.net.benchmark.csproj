@@ -4,7 +4,7 @@
         <OutputType>Exe</OutputType>
         <TargetFrameworks>net48;net5.0</TargetFrameworks>
         <IsPackable>false</IsPackable>
-        <LangVersion>9</LangVersion>
+        <LangVersion>latest</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>

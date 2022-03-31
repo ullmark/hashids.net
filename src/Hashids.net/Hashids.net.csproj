@@ -13,9 +13,9 @@
         <PackageTags>ids;hash</PackageTags>
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/ullmark/hashids.net</RepositoryUrl>
-        <TargetFrameworks>net461;netstandard2.0;net5.0;net6.0</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;net5.0;net6.0</TargetFrameworks>
         <OutputType>Library</OutputType>
-        <LangVersion>9</LangVersion>
+        <LangVersion>latest</LangVersion>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -23,7 +23,7 @@
         <NoWarn>$(NoWarn);CS1591</NoWarn>
     </PropertyGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net461' OR '$(TargetFramework)' == 'netstandard2.0'">
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
       <PackageReference Include="System.Buffers" Version="4.5.1" />
     </ItemGroup>
 
