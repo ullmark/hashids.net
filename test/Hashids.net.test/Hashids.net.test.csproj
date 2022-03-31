@@ -1,13 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-		<!--
-		The main project targets net461, netstandard2.0, net5.0 and net6.0
-		As test projects cannot target netstandard the net48 target is used as a stand-in for that.
-		-->
-        <TargetFrameworks>net461;net48;net5.0;net6.0</TargetFrameworks>
+		<!-- net48 target is used as a stand-in for testing netstandard2.0 -->
+        <TargetFrameworks>net48;net5.0;net6.0</TargetFrameworks>
         <IsPackable>false</IsPackable>
-        <LangVersion>9</LangVersion>
+        <LangVersion>latest</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>

@@ -15,7 +15,7 @@
         <RepositoryUrl>https://github.com/ullmark/hashids.net</RepositoryUrl>
         <TargetFrameworks>netstandard2.0;net5.0;net6.0</TargetFrameworks>
         <OutputType>Library</OutputType>
-        <LangVersion>9</LangVersion>
+        <LangVersion>latest</LangVersion>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
