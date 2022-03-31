@@ -18,14 +18,19 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [windows-latest]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v2
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Setup .NET 5
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 5.0.x
 
     - name: Install dependencies
       run: dotnet restore
