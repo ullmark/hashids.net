@@ -77,8 +77,8 @@ numbers = hashids.DecodeLong("KVO9yy1oO5j");
     
 ### Decoding a single id
 
-By default the decode function will return an array of either an int or an int64, if you need to decode just one id some additional functions are
-provided in order to simplify:
+By default, Decode and DecodeLong will return an array. if you need to decode just one id you can use
+the following helper functions:
 
 ```C#
 var hashids = new Hashids("this is my pepper");
