@@ -91,9 +91,8 @@ number = hashids.DecodeSingle("NkK9");
 
 ```C#
 var hashids = new Hashids("this is my pepper");
-int number;
 
-if (hashids.TryDecodeSingle("NkK9", out number)) { // Decoding hash successfull. }
+if (hashids.TryDecodeSingle("NkK9", out int number)) { // Decoding hash successfull. }
 ```
 
 `number` is now going to be:
@@ -104,7 +103,10 @@ You can handle the exception to see what went wrong with the decoding:
 
 ```C#
 var hashids = new Hashids("this is my pepper");
-try { number = hashids.DecodeSingle("NkK9"); }
+try
+{    
+    number = hashids.DecodeSingle("NkK9");
+}
 catch (NoResultException) { // Decoding the provided hash has not yielded any result. }
 catch (MultipleResultsException) { // The decoding process yielded more than one result when just one was expected. }
 ```
@@ -124,9 +126,8 @@ number = hashids.DecodeSingleLong("KVO9yy1oO5j");
 
 ```C#
 var hashids = new Hashids("this is my pepper");
-long number;
 
-if (hashids.TryDecodeSingleLong("NkK9", out number)) { // Decoding hash successfull. }
+if (hashids.TryDecodeSingleLong("NkK9", out long number)) { // Decoding hash successfull. }
 ```
 
 `number` is now going to be:
@@ -135,7 +136,10 @@ if (hashids.TryDecodeSingleLong("NkK9", out number)) { // Decoding hash successf
 
 ```C#
 var hashids = new Hashids("this is my pepper");
-try { number = hashids.DecodeSingleLong("KVO9yy1oO5j"); }
+try
+{
+    number = hashids.DecodeSingleLong("KVO9yy1oO5j");
+}
 catch (NoResultException) { // Decoding the provided hash has not yielded any result. }
 catch (MultipleResultsException) { // The decoding process yielded more than one result when just one was expected. }
 ```
