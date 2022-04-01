@@ -74,6 +74,79 @@ numbers = hashids.DecodeLong("KVO9yy1oO5j");
 `numbers` is now going to be:
 
     [ 666555444333222L ]
+    
+### Decoding a single id
+
+By default, Decode and DecodeLong will return an array. If you need to decode just one id you can use
+the following helper functions:
+
+```C#
+var hashids = new Hashids("this is my pepper");
+number = hashids.DecodeSingle("NkK9");
+```
+
+`number` is now going to be:
+
+    12345
+
+```C#
+var hashids = new Hashids("this is my pepper");
+
+if (hashids.TryDecodeSingle("NkK9", out int number)) { // Decoding hash successfull. }
+```
+
+`number` is now going to be:
+
+    12345
+
+You can handle the exception to see what went wrong with the decoding:
+
+```C#
+var hashids = new Hashids("this is my pepper");
+try
+{    
+    number = hashids.DecodeSingle("NkK9");
+}
+catch (NoResultException) { // Decoding the provided hash has not yielded any result. }
+catch (MultipleResultsException) { // The decoding process yielded more than one result when just one was expected. }
+```
+
+`number` is now going to be:
+
+    12345
+
+```C#
+var hashids = new Hashids("this is my pepper");
+number = hashids.DecodeSingleLong("KVO9yy1oO5j");
+```
+
+`number` is now going to be:
+
+    666555444333222L
+
+```C#
+var hashids = new Hashids("this is my pepper");
+
+if (hashids.TryDecodeSingleLong("NkK9", out long number)) { // Decoding hash successfull. }
+```
+
+`number` is now going to be:
+
+    666555444333222L
+
+```C#
+var hashids = new Hashids("this is my pepper");
+try
+{
+    number = hashids.DecodeSingleLong("KVO9yy1oO5j");
+}
+catch (NoResultException) { // Decoding the provided hash has not yielded any result. }
+catch (MultipleResultsException) { // The decoding process yielded more than one result when just one was expected. }
+```
+
+`number` is now going to be:
+
+    666555444333222L
 
 ### Decoding with different salt
 
