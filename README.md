@@ -77,7 +77,7 @@ numbers = hashids.DecodeLong("KVO9yy1oO5j");
     
 ### Decoding a single id
 
-By default, Decode and DecodeLong will return an array. if you need to decode just one id you can use
+By default, Decode and DecodeLong will return an array. If you need to decode just one id you can use
 the following helper functions:
 
 ```C#
@@ -104,10 +104,7 @@ You can handle the exception to see what went wrong with the decoding:
 
 ```C#
 var hashids = new Hashids("this is my pepper");
-try
-{    
-    number = hashids.DecodeSingle("NkK9");
-}
+try { number = hashids.DecodeSingle("NkK9"); }
 catch (NoResultException) { // Decoding the provided hash has not yielded any result. }
 catch (MultipleResultsException) { // The decoding process yielded more than one result when just one was expected. }
 ```
@@ -138,10 +135,7 @@ if (hashids.TryDecodeSingleLong("NkK9", out number)) { // Decoding hash successf
 
 ```C#
 var hashids = new Hashids("this is my pepper");
-try
-{
-    number = hashids.DecodeSingleLong("KVO9yy1oO5j");
-}
+try { number = hashids.DecodeSingleLong("KVO9yy1oO5j"); }
 catch (NoResultException) { // Decoding the provided hash has not yielded any result. }
 catch (MultipleResultsException) { // The decoding process yielded more than one result when just one was expected. }
 ```
