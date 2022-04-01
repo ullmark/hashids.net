@@ -93,10 +93,7 @@ number = hashids.DecodeSingle("NkK9");
 var hashids = new Hashids("this is my pepper");
 int number;
 
-if (hashids.TryDecodeSingle("NkK9", out number))
-{
-    //Decoding hash successfull.
-}
+if (hashids.TryDecodeSingle("NkK9", out number)) { // Decoding hash successfull. }
 ```
 
 `number` is now going to be:
@@ -106,19 +103,13 @@ if (hashids.TryDecodeSingle("NkK9", out number))
 You can handle the exception to see what went wrong with the decoding:
 
 ```C#
+var hashids = new Hashids("this is my pepper");
 try
-{
-    var hashids = new Hashids("this is my pepper");
+{    
     number = hashids.DecodeSingle("NkK9");
 }
-catch (NoResultException)
-{
-    //Decoding the provided hash has not yielded any result.
-}
-catch (MultipleResultsException)
-{
-    //The decoding process yielded more than one result when just one was expected.
-}
+catch (NoResultException) { // Decoding the provided hash has not yielded any result. }
+catch (MultipleResultsException) { // The decoding process yielded more than one result when just one was expected. }
 ```
 
 `number` is now going to be:
@@ -138,10 +129,7 @@ number = hashids.DecodeSingleLong("KVO9yy1oO5j");
 var hashids = new Hashids("this is my pepper");
 long number;
 
-if (hashids.TryDecodeSingleLong("NkK9", out number))
-{
-    //Decoding hash successfull.
-}
+if (hashids.TryDecodeSingleLong("NkK9", out number)) { // Decoding hash successfull. }
 ```
 
 `number` is now going to be:
@@ -149,19 +137,13 @@ if (hashids.TryDecodeSingleLong("NkK9", out number))
     666555444333222L
 
 ```C#
+var hashids = new Hashids("this is my pepper");
 try
 {
-    var hashids = new Hashids("this is my pepper");
     number = hashids.DecodeSingleLong("KVO9yy1oO5j");
 }
-catch (NoResultException)
-{
-    //Decoding the provided hash has not yielded any result.
-}
-catch (MultipleResultsException)
-{
-    //The decoding process yielded more than one result when just one was expected.
-}
+catch (NoResultException) { // Decoding the provided hash has not yielded any result. }
+catch (MultipleResultsException) { // The decoding process yielded more than one result when just one was expected. }
 ```
 
 `number` is now going to be:
