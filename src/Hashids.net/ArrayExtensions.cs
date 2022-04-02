@@ -1,7 +1,4 @@
 using System;
-using System.Buffers;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 namespace HashidsNet
 {
@@ -33,26 +30,6 @@ namespace HashidsNet
             Array.Copy(array, 0, newArray, 0, array.Length);
             Array.Copy(appendArray, index, newArray, array.Length, length - index);
             return newArray;
-        }
-
-        public static T[] CopyPooled<T>(this T[] array)
-        {
-            return SubArrayPooled(array, 0, array.Length);
-        }
-
-        public static T[] SubArrayPooled<T>(this T[] array, int index, int length)
-        {
-            var subarray = ArrayPool<T>.Shared.Rent(length);
-            Array.Copy(array, index, subarray, 0, length);
-            return subarray;
-        }
-
-        public static void ReturnToPool<T>(this T[] array)
-        {
-            if (array == null)
-                return;
-
-            ArrayPool<T>.Shared.Return(array);
         }
 
 #if NETCOREAPP3_1_OR_GREATER
