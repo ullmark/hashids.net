@@ -470,10 +470,9 @@ namespace HashidsNet
                 result[j] = Unhash(subHash, alphabet);
             }
 
-            if (EncodeLong(result) == hash)
-            {
+            // regenerate hash from numbers and compare to given hash to ensure the correct parameters were used
+            if (GenerateHashFrom(result).Equals(hash, StringComparison.Ordinal))
                 return result;
-            }
 
             return Array.Empty<long>();
         }
