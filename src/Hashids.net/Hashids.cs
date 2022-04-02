@@ -136,14 +136,12 @@ namespace HashidsNet
             }
         }
 
-#if NETCOREAPP3_1_OR_GREATER
         /// <summary>
         /// Encodes the provided number into a hashed string
         /// </summary>
         /// <param name="number">the number</param>
         /// <returns>the hashed string</returns>
         public string Encode(int number) => EncodeLong(number);
-#endif
 
         /// <summary>
         /// Encodes the provided numbers into a hash string.
@@ -159,19 +157,12 @@ namespace HashidsNet
         /// <returns>Encoded hash string.</returns>
         public virtual string Encode(IEnumerable<int> numbers) => Encode(numbers.ToArray());
 
-#if NETCOREAPP3_1_OR_GREATER
         /// <summary>
         /// Encodes the provided number into a hashed string
         /// </summary>
         /// <param name="number">the number</param>
         /// <returns>the hashed string</returns>
-        public string EncodeLong(long number)
-        {
-            ReadOnlySpan<long> span = stackalloc[] { number };
-
-            return GenerateHashFrom(span);
-        }
-#endif
+        public string EncodeLong(long number) => GenerateHashFrom(stackalloc[] { number });
 
         /// <summary>
         /// Encodes the provided numbers into a hash string.

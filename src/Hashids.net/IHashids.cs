@@ -65,14 +65,12 @@ namespace HashidsNet
         /// <returns>the hex string</returns>
         string DecodeHex(string hash);
 
-#if NETCOREAPP3_1_OR_GREATER
         /// <summary>
         /// Encodes the provided number into a hashed string
         /// </summary>
         /// <param name="number">the number</param>
         /// <returns>the hashed string</returns>
         string Encode(int number);
-#endif
 
         /// <summary>
         /// Encodes the provided numbers into a hashed string
@@ -88,14 +86,12 @@ namespace HashidsNet
         /// <returns>the hashed string</returns>
         string Encode(IEnumerable<int> numbers);
 
-#if NETCOREAPP3_1_OR_GREATER
         /// <summary>
         /// Encodes the provided number into a hashed string
         /// </summary>
         /// <param name="number">the number</param>
         /// <returns>the hashed string</returns>
         string EncodeLong(long number);
-#endif
 
         /// <summary>
         /// Encodes the provided numbers into a hashed string
