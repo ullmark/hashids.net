@@ -79,13 +79,13 @@ namespace HashidsNet
                 throw new ArgumentException($"Alphabet must contain at least {MIN_ALPHABET_LENGTH:N0} unique characters.", paramName: nameof(alphabet));
             }
 
-            // seps should contain only characters present in alphabet:
+            // separator characters can only be chosen from the characters in the alphabet
             if (sepChars.Length > 0)
             {
                 sepChars = sepChars.Intersect(alphabetChars).ToArray();
             }
             
-            // alphabet should not contain seps // TODO: This comment contradicts the above, it needs rephrasing.
+            // once separator characters are chosen, they must be removed from the alphabet available for hash generation
             if (sepChars.Length > 0 )
             {
                 alphabetChars = alphabetChars.Except(sepChars).ToArray();
