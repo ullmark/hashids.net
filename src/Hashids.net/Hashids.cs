@@ -16,7 +16,6 @@ namespace HashidsNet
 
         private const double SEP_DIV = 3.5;
         private const double GUARD_DIV = 12.0;
-
         private const int MaxNumberHashLength = 12; // Length of long.MaxValue;
 
         private readonly char[] _alphabet;
@@ -25,11 +24,10 @@ namespace HashidsNet
         private readonly char[] _salt;
         private readonly int _minHashLength;
 
-        private readonly StringBuilderPool _sbPool = new();
-
         // Creates the Regex in the first usage, speed up first use of non-hex methods
-        private static readonly Lazy<Regex> hexValidator = new(() => new Regex("^[0-9a-fA-F]+$", RegexOptions.Compiled));
-        private static readonly Lazy<Regex> hexSplitter = new(() => new Regex(@"[\w\W]{1,12}", RegexOptions.Compiled));
+        private static readonly Lazy<Regex> HexValidator = new(() => new Regex("^[0-9a-fA-F]+$", RegexOptions.Compiled));
+        private static readonly Lazy<Regex> HexSplitter = new(() => new Regex(@"[\w\W]{1,12}", RegexOptions.Compiled));
+        private readonly StringBuilderPool StringBuilderPool = new();
 
         /// <summary>
         /// Instantiates a new Hashids encoder/decoder with defaults.
@@ -53,14 +51,10 @@ namespace HashidsNet
             string alphabet = DEFAULT_ALPHABET,
             string seps = DEFAULT_SEPS)
         {
-            if (salt == null)
-                throw new ArgumentNullException(nameof(salt));
-            if (string.IsNullOrWhiteSpace(alphabet))
-                throw new ArgumentNullException(nameof(alphabet));
-            if (minHashLength < 0)
-                throw new ArgumentOutOfRangeException(nameof(minHashLength), "Value must be zero or greater.");
-            if (string.IsNullOrWhiteSpace(seps))
-                throw new ArgumentNullException(nameof(seps));
+            if (salt == null) throw new ArgumentNullException(nameof(salt));
+            if (minHashLength < 0) throw new ArgumentOutOfRangeException(nameof(minHashLength), "Value must be zero or greater.");
+            if (string.IsNullOrWhiteSpace(alphabet)) throw new ArgumentNullException(nameof(alphabet));
+            if (string.IsNullOrWhiteSpace(seps)) throw new ArgumentNullException(nameof(seps));
 
             _salt = salt.Trim().ToCharArray();
             _minHashLength = minHashLength;
@@ -68,26 +62,18 @@ namespace HashidsNet
             _seps = seps.ToCharArray();
 
             if (_alphabet.Length < MIN_ALPHABET_LENGTH)
-            {
                 throw new ArgumentException($"Alphabet must contain at least {MIN_ALPHABET_LENGTH:N0} unique characters.", paramName: nameof(alphabet));
-            }
 
             // separator characters can only be chosen from the characters in the alphabet
             if (_seps.Length > 0)
-            {
                 _seps = _seps.Intersect(_alphabet).ToArray();
-            }
 
             // once separator characters are chosen, they must be removed from the alphabet available for hash generation
             if (_seps.Length > 0)
-            {
                 _alphabet = _alphabet.Except(_seps).ToArray();
-            }
 
             if (_alphabet.Length < (MIN_ALPHABET_LENGTH - 6))
-            {
                 throw new ArgumentException($"Alphabet must contain at least {MIN_ALPHABET_LENGTH:N0} unique characters that are also not present in .", paramName: nameof(alphabet));
-            }
 
             ConsistentShuffle(alphabet: _seps, salt: _salt);
 
@@ -96,9 +82,7 @@ namespace HashidsNet
                 var sepsLength = (int)Math.Ceiling((float)_alphabet.Length / SEP_DIV);
 
                 if (sepsLength == 1)
-                {
                     sepsLength = 2;
-                }
 
                 if (sepsLength > _seps.Length)
                 {
@@ -251,17 +235,17 @@ namespace HashidsNet
         /// <returns>Encoded hash string.</returns>
         public virtual string EncodeHex(string hex)
         {
-            if (string.IsNullOrWhiteSpace(hex) || !hexValidator.Value.IsMatch(hex))
+            if (string.IsNullOrWhiteSpace(hex) || !HexValidator.Value.IsMatch(hex))
                 return string.Empty;
 
-            var matches = hexSplitter.Value.Matches(hex);
+            var matches = HexSplitter.Value.Matches(hex);
             if (matches.Count == 0) return string.Empty;
 
             var numbers = new long[matches.Count];
             for (int i = 0; i < numbers.Length; i++)
             {
-                Match match = matches[i];
-                string concat = string.Concat("1", match.Value);
+                var match = matches[i];
+                var concat = string.Concat("1", match.Value);
                 var number = Convert.ToInt64(concat, fromBase: 16);
                 numbers[i] = number;
             }
@@ -276,21 +260,18 @@ namespace HashidsNet
         /// <returns>Decoded hex string.</returns>
         public virtual string DecodeHex(string hash)
         {
-            var builder = _sbPool.Get();
+            var builder = StringBuilderPool.Get();
             var numbers = DecodeLong(hash);
 
             foreach (var number in numbers)
             {
                 var s = number.ToString("X");
-
                 for (var i = 1; i < s.Length; i++)
-                {
                     builder.Append(s[i]);
-                }
             }
 
             var result = builder.ToString();
-            _sbPool.Return(builder);
+            StringBuilderPool.Return(builder);
             return result;
         }
 
@@ -299,17 +280,15 @@ namespace HashidsNet
             if (numbers.Length == 0)
                 return string.Empty;
 
-            foreach (var item in numbers)
-                if (item < 0)
+            foreach (var num in numbers)
+                if (num < 0)
                     return string.Empty;
 
             long numbersHashInt = 0;
             for (var i = 0; i < numbers.Length; i++)
-            {
                 numbersHashInt += numbers[i] % (i + 100);
-            }
 
-            var stringBuilder = _sbPool.Get();
+            var stringBuilder = StringBuilderPool.Get();
 
             Span<char> alphabet = _alphabet.Length < 512 ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
             _alphabet.CopyTo(alphabet);
@@ -331,17 +310,13 @@ namespace HashidsNet
                 var number = numbers[i];
 
                 if (length > 0)
-                {
                     alphabet.Slice(0, length).CopyTo(shuffleBuffer.Slice(startIndex));
-                }
 
                 ConsistentShuffle(alphabet, shuffleBuffer);
                 var hashLength = BuildReversedHash(number, alphabet, hashBuffer);
 
                 for (var j = hashLength - 1; j > -1; j--)
-                {
                     stringBuilder.Append(hashBuffer[j]);
-                }
 
                 if (i + 1 < numbers.Length)
                 {
@@ -392,7 +367,7 @@ namespace HashidsNet
             }
 
             var result = stringBuilder.ToString();
-            _sbPool.Return(stringBuilder);
+            StringBuilderPool.Return(stringBuilder);
             return result;
         }
 
@@ -433,17 +408,14 @@ namespace HashidsNet
             if (hashArray.Length == 0)
                 return Array.Empty<long>();
 
-            var i = (hashArray.Length is 3 or 2) ? 1 : 0;
+            var unguardedIdx = (hashArray.Length is 3 or 2) ? 1 : 0;
+            var hashBreakdown = hashArray[unguardedIdx];
 
-            var hashBreakdown = hashArray[i];
             var lottery = hashBreakdown[0];
-
-            if (lottery == '\0') /* default(char) == '\0' */
+            if (lottery == '\0') // default(char) is '\0'
                 return Array.Empty<long>();
 
-            hashBreakdown = hashBreakdown.Substring(1);
-
-            hashArray = hashBreakdown.Split(_seps, StringSplitOptions.RemoveEmptyEntries);
+            hashArray = hashBreakdown.Substring(1).Split(_seps, StringSplitOptions.RemoveEmptyEntries);
 
             var result = new long[hashArray.Length];
 
@@ -462,9 +434,7 @@ namespace HashidsNet
                 var subHash = hashArray[j];
 
                 if (length > 0)
-                {
                     alphabet.Slice(0, length).CopyTo(buffer.Slice(startIndex));
-                }
 
                 ConsistentShuffle(alphabet, buffer);
                 result[j] = Unhash(subHash, alphabet);
@@ -477,15 +447,16 @@ namespace HashidsNet
             return Array.Empty<long>();
         }
 
-        /// <summary>NOTE: This method mutates the <paramref name="alphabet"/> argument in-place.</summary>
+        /// <summary>
+        /// NOTE: This method mutates the <paramref name="alphabet"/> argument in-place.
+        /// </summary>
         private static void ConsistentShuffle(Span<char> alphabet, ReadOnlySpan<char> salt)
         {
             if (salt.Length == 0)
                 return;
 
             // TODO: Document or rename these cryptically-named variables: i, v, p, n.
-            int n;
-            for (int i = alphabet.Length - 1, v = 0, p = 0; i > 0; i--, v++)
+            for (int i = alphabet.Length - 1, v = 0, n, p = 0; i > 0; i--, v++)
             {
                 v %= salt.Length;
                 n = salt[v];
