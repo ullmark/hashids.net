@@ -64,75 +64,68 @@ namespace HashidsNet
 
             _salt = salt.Trim().ToCharArray();
             _minHashLength = minHashLength;
+            _alphabet = alphabet.ToCharArray().Distinct().ToArray();
+            _seps = seps.ToCharArray();
 
-            InitCharArrays(alphabet: alphabet, seps: seps, salt: _salt, alphabetChars: out _alphabet, sepChars: out _seps, guardChars: out _guards);
-        }
-
-        /// <remarks>This method uses <c>out</c> params instead of returning a ValueTuple so it works with .NET 4.6.1.</remarks>
-        private static void InitCharArrays(string alphabet, string seps, ReadOnlySpan<char> salt, out char[] alphabetChars, out char[] sepChars, out char[] guardChars)
-        {
-            alphabetChars = alphabet.ToCharArray().Distinct().ToArray();
-            sepChars = seps.ToCharArray();
-
-            if (alphabetChars.Length < MIN_ALPHABET_LENGTH)
+            if (_alphabet.Length < MIN_ALPHABET_LENGTH)
             {
                 throw new ArgumentException($"Alphabet must contain at least {MIN_ALPHABET_LENGTH:N0} unique characters.", paramName: nameof(alphabet));
             }
 
             // separator characters can only be chosen from the characters in the alphabet
-            if (sepChars.Length > 0)
+            if (_seps.Length > 0)
             {
-                sepChars = sepChars.Intersect(alphabetChars).ToArray();
+                _seps = _seps.Intersect(_alphabet).ToArray();
             }
 
             // once separator characters are chosen, they must be removed from the alphabet available for hash generation
-            if (sepChars.Length > 0)
+            if (_seps.Length > 0)
             {
-                alphabetChars = alphabetChars.Except(sepChars).ToArray();
+                _alphabet = _alphabet.Except(_seps).ToArray();
             }
 
-            if (alphabetChars.Length < (MIN_ALPHABET_LENGTH - 6))
+            if (_alphabet.Length < (MIN_ALPHABET_LENGTH - 6))
             {
                 throw new ArgumentException($"Alphabet must contain at least {MIN_ALPHABET_LENGTH:N0} unique characters that are also not present in .", paramName: nameof(alphabet));
             }
 
-            ConsistentShuffle(alphabet: sepChars, salt: salt);
+            ConsistentShuffle(alphabet: _seps, salt: _salt);
 
-            if (sepChars.Length == 0 || ((float)alphabetChars.Length / sepChars.Length) > SEP_DIV)
+            if (_seps.Length == 0 || ((float)_alphabet.Length / _seps.Length) > SEP_DIV)
             {
-                var sepsLength = (int)Math.Ceiling((float)alphabetChars.Length / SEP_DIV);
+                var sepsLength = (int)Math.Ceiling((float)_alphabet.Length / SEP_DIV);
 
                 if (sepsLength == 1)
                 {
                     sepsLength = 2;
                 }
 
-                if (sepsLength > sepChars.Length)
+                if (sepsLength > _seps.Length)
                 {
-                    var diff = sepsLength - sepChars.Length;
-                    sepChars = sepChars.Append(alphabetChars, 0, diff);
-                    alphabetChars = alphabetChars.SubArray(diff);
+                    var diff = sepsLength - _seps.Length;
+                    _seps = _seps.Append(_alphabet, 0, diff);
+                    _alphabet = _alphabet.SubArray(diff);
                 }
                 else
                 {
-                    sepChars = sepChars.SubArray(0, sepsLength);
+                    _seps = _seps.SubArray(0, sepsLength);
                 }
             }
 
-            ConsistentShuffle(alphabet: alphabetChars, salt: salt);
+            ConsistentShuffle(alphabet: _alphabet, salt: _salt);
 
-            var guardCount = (int)Math.Ceiling(alphabetChars.Length / GUARD_DIV);
+            var guardCount = (int)Math.Ceiling(_alphabet.Length / GUARD_DIV);
 
-            if (alphabetChars.Length < 3)
+            if (_alphabet.Length < 3)
             {
-                guardChars = sepChars.SubArray(index: 0, length: guardCount);
-                sepChars = sepChars.SubArray(index: guardCount);
+                _guards = _seps.SubArray(index: 0, length: guardCount);
+                _seps = _seps.SubArray(index: guardCount);
             }
 
             else
             {
-                guardChars = alphabetChars.SubArray(index: 0, length: guardCount);
-                alphabetChars = alphabetChars.SubArray(index: guardCount);
+                _guards = _alphabet.SubArray(index: 0, length: guardCount);
+                _alphabet = _alphabet.SubArray(index: guardCount);
             }
         }
 
