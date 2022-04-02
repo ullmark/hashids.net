@@ -31,18 +31,5 @@ namespace HashidsNet
             Array.Copy(appendArray, index, newArray, array.Length, length - index);
             return newArray;
         }
-
-#if NETCOREAPP3_1_OR_GREATER
-        /// <remarks>This method exists because <see cref="ReadOnlySpan{T}"/> does not implement <see cref="IEnumerable{T}"/> and using <c>.AsEnumerable()</c> will cause boxing.</remarks>
-        public static bool Any<T>(this ReadOnlySpan<T> span, Func<T,bool> predicate)
-        {
-            for(int i = 0; i < span.Length; i++)
-            {
-                if(predicate(span[i])) return true;
-            }
-
-            return false;
-        }
-#endif
     }
 }

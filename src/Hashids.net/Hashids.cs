@@ -79,8 +79,6 @@ namespace HashidsNet
                 throw new ArgumentException($"Alphabet must contain at least {MIN_ALPHABET_LENGTH:N0} unique characters.", paramName: nameof(alphabet));
             }
 
-            // SetupGuards():
-
             // seps should contain only characters present in alphabet:
             if (sepChars.Length > 0)
             {
@@ -123,8 +121,6 @@ namespace HashidsNet
 
             ConsistentShuffle(alphabet: alphabetChars, salt: salt);
             
-            // SetupGuards():
-           
             var guardCount = (int)Math.Ceiling(alphabetChars.Length / GUARD_DIV);
 
             if (alphabetChars.Length < 3)
