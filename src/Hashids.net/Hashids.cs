@@ -2,7 +2,6 @@
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Buffers;
 
 namespace HashidsNet
 {
@@ -99,7 +98,7 @@ namespace HashidsNet
                 throw new ArgumentException($"Alphabet must contain at least {MIN_ALPHABET_LENGTH:N0} unique characters that are also not present in .", paramName: nameof(alphabet));
             }
 
-            ConsistentShuffle(alphabet: sepChars, alphabetLength: sepChars.Length, salt: salt, saltLength: salt.Length);
+            ConsistentShuffle(alphabet: sepChars, salt: salt);
 
             if (sepChars.Length == 0 || ((float)alphabetChars.Length / sepChars.Length) > SEP_DIV)
             {
@@ -122,7 +121,7 @@ namespace HashidsNet
                 }
             }
 
-            ConsistentShuffle(alphabet: alphabetChars, alphabetChars.Length, salt: salt, salt.Length);
+            ConsistentShuffle(alphabet: alphabetChars, salt: salt);
             
             // SetupGuards():
            
@@ -231,11 +230,9 @@ namespace HashidsNet
                 id = numbers[0];
                 return true;
             }
-            else
-            {
-                id = 0L;
-                return false;
-            }
+            
+            id = 0L;
+            return false;
         }
 
         /// <inheritdoc />
@@ -262,11 +259,9 @@ namespace HashidsNet
                 id = (int)numbers[0];
                 return true;
             }
-            else
-            {
-                id = 0;
-                return false;
-            }
+            
+            id = 0;
+            return false;
         }
 
         /// <summary>
@@ -321,11 +316,11 @@ namespace HashidsNet
 
         private string GenerateHashFrom(ReadOnlySpan<long> numbers)
         {
-            if(numbers.Length == 0) 
+            if (numbers.Length == 0) 
                 return string.Empty;
 
             foreach (var item in numbers)
-                if(item < 0)
+                if (item < 0)
                     return string.Empty;
 
             long numbersHashInt = 0;
@@ -334,92 +329,94 @@ namespace HashidsNet
                 numbersHashInt += numbers[i] % (i + 100);
             }
 
-            var builder = _sbPool.Get();
+            var stringBuilder = _sbPool.Get();
 
-            char[] shuffleBuffer = null;
-            var alphabet = _alphabet.CopyPooled();
-            var hashBuffer = ArrayPool<char>.Shared.Rent(MaxNumberHashLength);
-            try
+            Span<char> alphabet = _alphabet.Length < 512 ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
+            _alphabet.CopyTo(alphabet);
+
+            var lottery = alphabet[(int)(numbersHashInt % _alphabet.Length)];
+            stringBuilder.Append(lottery);
+
+            Span<char> shuffleBuffer = _alphabet.Length < 512 ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
+            shuffleBuffer[0] = lottery;
+            _salt.AsSpan().Slice(0, Math.Min(_salt.Length, _alphabet.Length - 1)).CopyTo(shuffleBuffer.Slice(1));
+
+            var startIndex = 1 + _salt.Length;
+            var length = _alphabet.Length - startIndex;
+
+            Span<char> hashBuffer = stackalloc char[MaxNumberHashLength];
+
+            for (var i = 0; i < numbers.Length; i++)
             {
-                var lottery = alphabet[numbersHashInt % _alphabet.Length];
-                builder.Append(lottery);
-                shuffleBuffer = CreatePooledBuffer(_alphabet.Length, lottery);
+                var number = numbers[i];
 
-                var startIndex = 1 + _salt.Length;
-                var length = _alphabet.Length - startIndex;
-
-                for (var i = 0; i < numbers.Length; i++)
+                if (length > 0)
                 {
-                    var number = numbers[i];
-
-                    if (length > 0)
-                    {
-                        Array.Copy(alphabet, 0, shuffleBuffer, startIndex, length);
-                    }
-
-                    ConsistentShuffle(alphabet, _alphabet.Length, shuffleBuffer, _alphabet.Length);
-                    var hashLength = BuildReversedHash(number, alphabet, hashBuffer);
-
-                    for (var j = hashLength - 1; j > -1; j--)
-                    {
-                        builder.Append(hashBuffer[j]);
-                    }
-
-                    if (i + 1 < numbers.Length)
-                    {
-                        number %= hashBuffer[hashLength - 1] + i;
-                        var sepsIndex = number % _seps.Length;
-
-                        builder.Append(_seps[sepsIndex]);
-                    }
+                    alphabet.Slice(0, length).CopyTo(shuffleBuffer.Slice(startIndex));
                 }
 
-                if (builder.Length < _minHashLength)
+                ConsistentShuffle(alphabet, shuffleBuffer);
+                var hashLength = BuildReversedHash(number, alphabet, hashBuffer);
+
+                for (var j = hashLength - 1; j > -1; j--)
                 {
-                    var guardIndex = (numbersHashInt + builder[0]) % _guards.Length;
-                    var guard = _guards[guardIndex];
-
-                    builder.Insert(0, guard);
-
-                    if (builder.Length < _minHashLength)
-                    {
-                        guardIndex = (numbersHashInt + builder[2]) % _guards.Length;
-                        guard = _guards[guardIndex];
-
-                        builder.Append(guard);
-                    }
+                    stringBuilder.Append(hashBuffer[j]);
                 }
 
-                var halfLength = _alphabet.Length / 2;
-
-                while (builder.Length < _minHashLength)
+                if (i + 1 < numbers.Length)
                 {
-                    Array.Copy(alphabet, shuffleBuffer, _alphabet.Length);
-                    ConsistentShuffle(alphabet, _alphabet.Length, shuffleBuffer, _alphabet.Length);
-                    builder.Insert(0, alphabet, halfLength, _alphabet.Length - halfLength);
-                    builder.Append(alphabet, 0, halfLength);
+                    number %= hashBuffer[hashLength - 1] + i;
+                    var sepsIndex = number % _seps.Length;
 
-                    var excess = builder.Length - _minHashLength;
-                    if (excess > 0)
-                    {
-                        builder.Remove(0, excess / 2);
-                        builder.Remove(_minHashLength, builder.Length - _minHashLength);
-                    }
+                    stringBuilder.Append(_seps[sepsIndex]);
                 }
             }
-            finally
+
+            if (stringBuilder.Length < _minHashLength)
             {
-                alphabet.ReturnToPool();
-                shuffleBuffer.ReturnToPool();
-                hashBuffer.ReturnToPool();
+                var guardIndex = (numbersHashInt + stringBuilder[0]) % _guards.Length;
+                var guard = _guards[guardIndex];
+
+                stringBuilder.Insert(0, guard);
+
+                if (stringBuilder.Length < _minHashLength)
+                {
+                    guardIndex = (numbersHashInt + stringBuilder[2]) % _guards.Length;
+                    guard = _guards[guardIndex];
+
+                    stringBuilder.Append(guard);
+                }
             }
 
-            var result = builder.ToString();
-            _sbPool.Return(builder);
+            var halfLength = _alphabet.Length / 2;
+
+            while (stringBuilder.Length < _minHashLength)
+            {
+                alphabet.CopyTo(shuffleBuffer);
+                ConsistentShuffle(alphabet, shuffleBuffer);
+
+#if NETSTANDARD2_0
+                stringBuilder.Insert(0, alphabet.Slice(halfLength, _alphabet.Length - halfLength).ToArray());
+                stringBuilder.Append(alphabet.Slice(0, halfLength).ToArray());
+#else
+                stringBuilder.Insert(0, alphabet[halfLength.._alphabet.Length]);
+                stringBuilder.Append(alphabet[..halfLength]);
+#endif
+
+                var excess = stringBuilder.Length - _minHashLength;
+                if (excess > 0)
+                {
+                    stringBuilder.Remove(0, excess / 2);
+                    stringBuilder.Remove(_minHashLength, stringBuilder.Length - _minHashLength);
+                }
+            }
+
+            var result = stringBuilder.ToString();
+            _sbPool.Return(stringBuilder);
             return result;
         }
 
-        private int BuildReversedHash(long input, ReadOnlySpan<char> alphabet, char[] hashBuffer)
+        private int BuildReversedHash(long input, ReadOnlySpan<char> alphabet, Span<char> hashBuffer)
         {
             var length = 0;
             do
@@ -469,32 +466,28 @@ namespace HashidsNet
             hashArray = hashBreakdown.Split(_seps, StringSplitOptions.RemoveEmptyEntries);
 
             var result = new long[hashArray.Length];
-            char[] buffer = null;
-            var alphabet = _alphabet.CopyPooled();
-            try
+
+            Span<char> alphabet = _alphabet.Length < 512 ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
+            _alphabet.CopyTo(alphabet);
+
+            Span<char> buffer = _alphabet.Length < 512 ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
+            buffer[0] = lottery;
+            _salt.AsSpan().Slice(0, Math.Min(_salt.Length, _alphabet.Length - 1)).CopyTo(buffer.Slice(1));
+
+            var startIndex = 1 + _salt.Length;
+            var length = _alphabet.Length - startIndex;
+
+            for (var j = 0; j < hashArray.Length; j++)
             {
-                buffer = CreatePooledBuffer(_alphabet.Length, lottery);
+                var subHash = hashArray[j];
 
-                var startIndex = 1 + _salt.Length;
-                var length = _alphabet.Length - startIndex;
-
-                for (var j = 0; j < hashArray.Length; j++)
+                if (length > 0)
                 {
-                    var subHash = hashArray[j];
-
-                    if (length > 0)
-                    {
-                        Array.Copy(alphabet, 0, buffer, startIndex, length);
-                    }
-
-                    ConsistentShuffle(alphabet, _alphabet.Length, buffer, _alphabet.Length);
-                    result[j] = Unhash(subHash, alphabet);
+                    alphabet.Slice(0, length).CopyTo(buffer.Slice(startIndex));
                 }
-            }
-            finally
-            {
-                alphabet.ReturnToPool();
-                buffer.ReturnToPool();
+
+                ConsistentShuffle(alphabet, buffer);
+                result[j] = Unhash(subHash, alphabet);
             }
 
             if (EncodeLong(result) == hash)
@@ -505,33 +498,23 @@ namespace HashidsNet
             return Array.Empty<long>();
         }
 
-        private char[] CreatePooledBuffer(int alphabetLength, char lottery)
-        {
-            var buffer = ArrayPool<char>.Shared.Rent(alphabetLength);
-            buffer[0] = lottery;
-            Array.Copy(_salt, 0, buffer, 1, Math.Min(_salt.Length, alphabetLength - 1));
-            return buffer;
-        }
-
         /// <summary>NOTE: This method mutates the <paramref name="alphabet"/> argument in-place.</summary>
-        private static void ConsistentShuffle(char[] alphabet, int alphabetLength, ReadOnlySpan<char> salt, int saltLength)
+        private static void ConsistentShuffle(Span<char> alphabet, ReadOnlySpan<char> salt)
         {
             if (salt.Length == 0)
                 return;
 
             // TODO: Document or rename these cryptically-named variables: i, v, p, n.
             int n;
-            for (int i = alphabetLength - 1, v = 0, p = 0; i > 0; i--, v++)
+            for (int i = alphabet.Length - 1, v = 0, p = 0; i > 0; i--, v++)
             {
-                v %= saltLength;
+                v %= salt.Length;
                 n = salt[v];
                 p += n;
                 var j = (n + v + p) % i;
 
                 // swap characters at positions i and j:
-                var temp = alphabet[j];
-                alphabet[j] = alphabet[i];
-                alphabet[i] = temp;
+                (alphabet[i], alphabet[j]) = (alphabet[j], alphabet[i]);
             }
         }
     }
