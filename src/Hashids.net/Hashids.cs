@@ -72,7 +72,7 @@ namespace HashidsNet
         private static void InitCharArrays(string alphabet, string seps, ReadOnlySpan<char> salt, out char[] alphabetChars, out char[] sepChars, out char[] guardChars)
         {
             alphabetChars = alphabet.ToCharArray().Distinct().ToArray();
-            sepChars      = seps.ToCharArray();
+            sepChars = seps.ToCharArray();
 
             if (alphabetChars.Length < MIN_ALPHABET_LENGTH)
             {
@@ -84,9 +84,9 @@ namespace HashidsNet
             {
                 sepChars = sepChars.Intersect(alphabetChars).ToArray();
             }
-            
+
             // once separator characters are chosen, they must be removed from the alphabet available for hash generation
-            if (sepChars.Length > 0 )
+            if (sepChars.Length > 0)
             {
                 alphabetChars = alphabetChars.Except(sepChars).ToArray();
             }
@@ -120,18 +120,18 @@ namespace HashidsNet
             }
 
             ConsistentShuffle(alphabet: alphabetChars, salt: salt);
-            
+
             var guardCount = (int)Math.Ceiling(alphabetChars.Length / GUARD_DIV);
 
             if (alphabetChars.Length < 3)
             {
                 guardChars = sepChars.SubArray(index: 0, length: guardCount);
-                sepChars   = sepChars.SubArray(index: guardCount);
+                sepChars = sepChars.SubArray(index: guardCount);
             }
 
             else
             {
-                guardChars    = alphabetChars.SubArray(index: 0, length: guardCount);
+                guardChars = alphabetChars.SubArray(index: 0, length: guardCount);
                 alphabetChars = alphabetChars.SubArray(index: guardCount);
             }
         }
@@ -217,7 +217,7 @@ namespace HashidsNet
                 id = numbers[0];
                 return true;
             }
-            
+
             id = 0L;
             return false;
         }
@@ -246,7 +246,7 @@ namespace HashidsNet
                 id = (int)numbers[0];
                 return true;
             }
-            
+
             id = 0;
             return false;
         }
@@ -303,7 +303,7 @@ namespace HashidsNet
 
         private string GenerateHashFrom(ReadOnlySpan<long> numbers)
         {
-            if (numbers.Length == 0) 
+            if (numbers.Length == 0)
                 return string.Empty;
 
             foreach (var item in numbers)
@@ -440,7 +440,7 @@ namespace HashidsNet
             if (hashArray.Length == 0)
                 return Array.Empty<long>();
 
-            var i = (hashArray.Length is 3 or 2 ) ? 1 : 0;
+            var i = (hashArray.Length is 3 or 2) ? 1 : 0;
 
             var hashBreakdown = hashArray[i];
             var lottery = hashBreakdown[0];
