@@ -315,7 +315,7 @@ namespace HashidsNet.test
         public void DifferentSalt_ReturnsEmptyList()
         {
             _hashids.Decode("NkK9").Should().Equal(new[] { 12345 });
-            new Hashids("different salt").Decode("NkK9").Should().Equal(new int [0]);
+            new Hashids("different salt").Decode("NkK9").Should().Equal(new int[0]);
         }
 
         [Fact]
