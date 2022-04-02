@@ -7,6 +7,7 @@
 		<PackageVersion>1.4.1</PackageVersion>
 		<Description>Generate YouTube-like hashes from one or many numbers. Use hashids when you do not want to expose your database ids to the user.</Description>
 		<PackageIconUrl>https://raw.githubusercontent.com/ullmark/hashids.net/master/hashids.png</PackageIconUrl>
+		<PackageIcon>hashids.png</PackageIcon>
 		<PackageProjectUrl>https://github.com/ullmark/hashids.net</PackageProjectUrl>
 		<PackageReleaseNotes>https://github.com/ullmark/hashids.net#changelog</PackageReleaseNotes>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -22,6 +23,10 @@
 		<!-- CS1591: Missing XML comment for publicly visible type or member -->
 		<NoWarn>$(NoWarn);CS1591</NoWarn>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\..\hashids.png" Pack="true" PackagePath="" />
+	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
 		<PackageReference Include="System.Memory" Version="4.5.4" />
