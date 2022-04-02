@@ -1,4 +1,5 @@
 # Hashids
+
 A small .NET package to generate YouTube-like IDs from numbers.
 
 It converts numbers like `347` into strings like `yr8`, or array of numbers like `[27, 986]` into `3kTMd`. You can also decode those ids back. This is useful in bundling several parameters into one, hiding actual IDs, or simply using them as short string IDs.
@@ -7,16 +8,17 @@ It converts numbers like `347` into strings like `yr8`, or array of numbers like
 
 ## Features
 
-- Creates short unique ids from integers. *(only positive numbers & zero)*
-- Generates non-sequential IDs for incremental input to stay unguessable.
-- Supports single number or array of numbers. *(supports `int` and `long`)*
-- Allows custom alphabet as well as salt — so ids are unique only to you. *(salt must be smaller than alphabet)*
-- Allows specifying minimum hash length.
-- Tries to avoid basic English curse words.
+-   Creates short unique ids from integers. _(only positive numbers & zero)_
+-   Generates non-sequential IDs for incremental input to stay unguessable.
+-   Supports single number or array of numbers. _(supports `int` and `long`)_
+-   Allows custom alphabet as well as salt — so ids are unique only to you. _(salt must be smaller than alphabet)_
+-   Allows specifying minimum hash length.
+-   Tries to avoid basic English curse words.
 
-*NOTE: This is **NOT** a true cryptographic hash, since it is reversible*
+_NOTE: This is **NOT** a true cryptographic hash, since it is reversible_
 
 ## Installation
+
 Install the package with [NuGet][]
 
     Install-Package hashids.net
@@ -74,7 +76,7 @@ numbers = hashids.DecodeLong("KVO9yy1oO5j");
 `numbers` is now going to be:
 
     [ 666555444333222L ]
-    
+
 ### Decoding a single id
 
 By default, Decode and DecodeLong will return an array. If you need to decode just one id you can use
@@ -104,7 +106,7 @@ You can handle the exception to see what went wrong with the decoding:
 ```C#
 var hashids = new Hashids("this is my pepper");
 try
-{    
+{
     number = hashids.DecodeSingle("NkK9");
 }
 catch (NoResultException) { // Decoding the provided hash has not yielded any result. }
@@ -196,7 +198,7 @@ var hash = hashids.Encode(1);
 
     gB0NV05e
 
-### Decoding 
+### Decoding
 
 ```C#
 var hashids = new Hashids("this is my salt", 8);
@@ -266,7 +268,7 @@ var hashids = new Hashids("this is my salt");
 var hash = hashids.EncodeHex("DEADBEEF");
 ```
 
-`hash` is now going to be: 
+`hash` is now going to be:
 
     kRNrpKlJ
 
@@ -283,73 +285,95 @@ var hex = hashids.DecodeHex("kRNrpKlJ");
 
 ## Changelog
 
+**v1.5.0**
+
+-   PR [#59](https://github.com/ullmark/hashids.net/pull/59) and PR [#61](https://github.com/ullmark/hashids.net/pull/61) - Project clean up and removal of `net461` target.
+-   PR [#50](https://github.com/ullmark/hashids.net/pull/50) - Added support for .NET 6.
+-   PR [#49](https://github.com/ullmark/hashids.net/pull/49) - Optimized methods for single number encoding.
+-   PR [#57](https://github.com/ullmark/hashids.net/pull/57) - Optimized methods for single number decoding.
+-   PR [#54](https://github.com/ullmark/hashids.net/pull/54) and [#58](https://github.com/ullmark/hashids.net/pull/58) - Fixed Github Actions build and test.
+-   PR [#55](https://github.com/ullmark/hashids.net/pull/55) - Removed System.Buffers dependency for .NET 5 and higher.
+-   PR [#47](https://github.com/ullmark/hashids.net/pull/47) - Improved performance with `readonly` and `Span<T>` usage.
+-   PR [#60](https://github.com/ullmark/hashids.net/pull/60) - Reference `System.Memory` to replace internal `ReadOnlySpan<T>` class.
+-   PR [#63](https://github.com/ullmark/hashids.net/pull/63) - Array and Span usage optimizations.
+-   PR [#62](https://github.com/ullmark/hashids.net/pull/62) - Documentation improvements.
+
 **1.4.1**
-- Accepted PR [#45](https://github.com/ullmark/hashids.net/pull/45) - Cleanup unused nuget references and replace `Microsoft.Extensions.ObjectPool` with internal implementation.
+
+-   PR [#45](https://github.com/ullmark/hashids.net/pull/45) - Cleanup unused nuget references and replace `Microsoft.Extensions.ObjectPool` with internal implementation.
 
 **1.4.0**
-- Modernized project with updated build targets now set to `netnet461`, `net5.0`, `netstandard2.0`
-- Accepted PR [#30](https://github.com/ullmark/hashids.net/pull/30) - Fix floating-point math to handle large ratio of alphabet to separators.
-- Accepted PR [#37](https://github.com/ullmark/hashids.net/pull/37) - Performance and memory optimizations.
-- Accepted PR [#42](https://github.com/ullmark/hashids.net/pull/42) - Performance updates and added BenchmarkDotnet for profiling.
-- Accepted PR [#43](https://github.com/ullmark/hashids.net/pull/43) - Improved performance and reduced allocations.  
-- Fixed issues [#23](https://github.com/ullmark/hashids.net/issues/23), [#32](https://github.com/ullmark/hashids.net/issues/32), [#35](https://github.com/ullmark/hashids.net/issues/35) - Fix floating-point math, now replaced by Horner's method. 
-- Fixed issue [#27](https://github.com/ullmark/hashids.net/issues/27) - Allow dashes in alphabet (dashes caused issues with Regex which is not used anymore).
-- Fixed issue [#21](https://github.com/ullmark/hashids.net/issues/21) - Fix encoding exception when decoding a character used as guard. 
-- Fixed issue [#29](https://github.com/ullmark/hashids.net/issues/29) - Added tests to confirm thread-safety.
+
+-   Modernized project with updated build targets now set to `net461`, `net5.0`, `netstandard2.0`
+-   PR [#30](https://github.com/ullmark/hashids.net/pull/30) - Fix floating-point math to handle large ratio of alphabet to separators.
+-   PR [#37](https://github.com/ullmark/hashids.net/pull/37) - Performance and memory optimizations.
+-   PR [#42](https://github.com/ullmark/hashids.net/pull/42) - Performance updates and added BenchmarkDotnet for profiling.
+-   PR [#43](https://github.com/ullmark/hashids.net/pull/43) - Improved performance and reduced allocations.
+-   Issues [#23](https://github.com/ullmark/hashids.net/issues/23), [#32](https://github.com/ullmark/hashids.net/issues/32), [#35](https://github.com/ullmark/hashids.net/issues/35) - Fix floating-point math, now replaced by Horner's method.
+-   Issue [#27](https://github.com/ullmark/hashids.net/issues/27) - Allow dashes in alphabet (dashes caused issues with Regex which is not used anymore).
+-   Issue [#21](https://github.com/ullmark/hashids.net/issues/21) - Fix encoding exception when decoding a character used as guard.
+-   Issue [#29](https://github.com/ullmark/hashids.net/issues/29) - Added tests to confirm thread-safety.
 
 **1.3.0**
-- Accepted PR [#26](https://github.com/ullmark/hashids.net/pull/26) - We now support .netstandard2.0.
+
+-   PR [#26](https://github.com/ullmark/hashids.net/pull/26) - Support .netstandard2.0.
 
 **1.2.2**
-- Accepted PR [#19](https://github.com/ullmark/hashids.net/pull/19) - We now only instantiate the HEX-connected Regexes if we use any of the HEX functions. This will speed up creation of "Hashids"-instances. It 
-is likely that most users doesn't use the HEX-functions.
+
+-   PR [#19](https://github.com/ullmark/hashids.net/pull/19) - Only instantiate the HEX-connected Regexes if we use any of the HEX functions. This will speed up creation of "Hashids"-instances. It
+    is likely that most users doesn't use the HEX-functions.
 
 **1.2.1**
-- Accepted PR [#11](https://github.com/ullmark/hashids.net/pull/11)
-- Fixed issue [#15](https://github.com/ullmark/hashids.net/issues/15) Decoding strings that contain characters not in the alphabet will now return empty array. (To conform to behaviour in the js-library).
-- Fixed issue [#18](https://github.com/ullmark/hashids.net/issues/18) Encoding with a negative number will now return empty string. (To conform to behaviour in the js-library).
 
-**1.2.0**
-- .NET Core support.
+-   PR [#11](https://github.com/ullmark/hashids.net/pull/11) - Speed up consistent shuffle with less string manipulation.
+-   Issue [#15](https://github.com/ullmark/hashids.net/issues/15) - Decoding strings that contain characters not in the alphabet will now return empty array. (To conform to behaviour in the js-library).
+-   Issue [#18](https://github.com/ullmark/hashids.net/issues/18) - Encoding with a negative number will now return empty string. (To conform to behaviour in the js-library).
+
+**1.2.0**Added
+
+-   Added .NET Core support.
 
 **1.1.2**
-- Fixed issue [#14](https://github.com/ullmark/hashids.net/issues/14) that caused HEX values to be encoded/decoded incorrectly.
+
+-   Fixed issue [#14](https://github.com/ullmark/hashids.net/issues/14) that caused HEX values to be encoded/decoded incorrectly.
 
 **1.1.1**
-- Accepted PR [#12](https://github.com/ullmark/hashids.net/pull/12) that fixed an issue when encoding very many longs at the same time
+
+-   Accepted PR [#12](https://github.com/ullmark/hashids.net/pull/12) that fixed an issue when encoding very many longs at the same time
 
 **1.1.0**
 
-- Added support for `long` via *new* functions to not introduce breaking changes.
-    - `EncodeLong` for encodes.
-	- `DecodeLong` for decodes.
-- Added interface `IHashids` for people who want an interface to work with.
+-   Added support for `long` via _new_ functions to not introduce breaking changes.
+    -   `EncodeLong` for encodes.
+    -   `DecodeLong` for decodes.
+-   Added interface `IHashids` for people who want an interface to work with.
 
 **1.0.1**
 
-- The .NET 4.0 version of the package used .NET 4.5 as build target. This was fixed and a new version was pushed to nuget. 
+-   The .NET 4.0 version of the package used .NET 4.5 as build target. This was fixed and a new version was pushed to nuget.
 
 **1.0.0**
 
-- Several public functions marked obsolete and renamed versions added, to be more appropriate:
-	- Function `Encrypt()` changed to `Encode()`
-	- Function `Decrypt()` changed to `Decode()`
-	- Function `EncryptHex()` changed to `EncodeHex()`
-	- Function `DecryptHex()` changed to `DecodeHex()`
-	
-	Hashids was designed to encode integers, primary ids at most. We've had several requests to encrypt sensitive data with Hashids and this is the wrong algorithm for that. So to encourage more appropriate use, `encrypt/decrypt` is being "downgraded" to `encode/decode`.
+-   Several public functions marked obsolete and renamed versions added, to be more appropriate:
+
+    -   Function `Encrypt()` changed to `Encode()`
+    -   Function `Decrypt()` changed to `Decode()`
+    -   Function `EncryptHex()` changed to `EncodeHex()`
+    -   Function `DecryptHex()` changed to `DecodeHex()`
+
+    Hashids was designed to encode integers, primary ids at most. We've had several requests to encrypt sensitive data with Hashids and this is the wrong algorithm for that. So to encourage more appropriate use, `encrypt/decrypt` is being "downgraded" to `encode/decode`.
 
 **0.3.4**
 
-  - The public functions are now virtual and therefor can be mocked with a mocking library.
+-   The public functions are now virtual and therefor can be mocked with a mocking library.
 
 **0.3.3**
 
-  - Rewrote the code to support the new hashing algorithm.
-  - Support for `EncryptHex` and `DecryptHex`
+-   Rewrote the code to support the new hashing algorithm.
+-   Support for `EncryptHex` and `DecryptHex`
 
 **0.1.4**
 
-  - Initial version of the port.
+-   Initial version of the port.
 
-[Nuget]: http://nuget.org/
+[nuget]: http://nuget.org/
