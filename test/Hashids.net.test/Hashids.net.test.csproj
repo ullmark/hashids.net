@@ -1,25 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
+	<PropertyGroup>
 		<!-- net48 target is used as a stand-in for testing netstandard2.0 -->
-        <TargetFrameworks>net48;net5.0;net6.0</TargetFrameworks>
-        <IsPackable>false</IsPackable>
-        <LangVersion>latest</LangVersion>
-    </PropertyGroup>
+		<TargetFrameworks>net48;net5.0;net6.0</TargetFrameworks>
+		<IsPackable>false</IsPackable>
+		<LangVersion>latest</LangVersion>
+	</PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="FluentAssertions" Version="5.10.3" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
-        <PackageReference Include="Moq" Version="4.16.1" />
-        <PackageReference Include="xunit" Version="2.4.1" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-    </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="FluentAssertions" Version="5.10.3" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
+		<PackageReference Include="Moq" Version="4.16.1" />
+		<PackageReference Include="xunit" Version="2.4.1" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\..\src\Hashids.net\Hashids.net.csproj" />
-    </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\Hashids.net\Hashids.net.csproj" />
+	</ItemGroup>
 
 </Project>

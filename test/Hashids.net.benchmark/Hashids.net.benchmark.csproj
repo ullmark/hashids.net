@@ -1,18 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <OutputType>Exe</OutputType>
-        <TargetFrameworks>net48;net5.0;net6.0</TargetFrameworks>
-        <IsPackable>false</IsPackable>
-        <LangVersion>latest</LangVersion>
-    </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFrameworks>net48;net5.0;net6.0</TargetFrameworks>
+		<IsPackable>false</IsPackable>
+		<LangVersion>latest</LangVersion>
+	</PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="BenchmarkDotNet" Version="0.13.1" />
-    </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="BenchmarkDotNet" Version="0.13.1" />
+	</ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\..\src\Hashids.net\Hashids.net.csproj" />
-    </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\Hashids.net\Hashids.net.csproj" />
+	</ItemGroup>
 
 </Project>
