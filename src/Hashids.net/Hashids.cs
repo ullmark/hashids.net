@@ -172,25 +172,24 @@ namespace HashidsNet
         /// <inheritdoc />
         public long DecodeSingleLong(string hash)
         {
-            var numbers = GetNumbersFrom(hash);
+            var number = GetNumberFrom(hash);
 
-            if (numbers.Length == 0)
-                throw new NoResultException("The hash provided yielded no result.");
-
-            if (numbers.Length > 1)
-                throw new MultipleResultsException("The hash provided yielded more than one result.");
-
-            return numbers[0];
+            return number switch
+            {
+                -1 => throw new NoResultException("The hash provided yielded no result."),
+                -2 => throw new MultipleResultsException("The hash provided yielded more than one result."),
+                _ => number,
+            };
         }
 
         /// <inheritdoc />
         public bool TryDecodeSingleLong(string hash, out long id)
         {
-            var numbers = GetNumbersFrom(hash);
+            var number = GetNumberFrom(hash);
 
-            if (numbers.Length == 1)
+            if (number > 0)
             {
-                id = numbers[0];
+                id = number;
                 return true;
             }
 
@@ -201,25 +200,24 @@ namespace HashidsNet
         /// <inheritdoc />
         public virtual int DecodeSingle(string hash)
         {
-            var numbers = GetNumbersFrom(hash);
+            var number = GetNumberFrom(hash);
 
-            if (numbers.Length == 0)
-                throw new NoResultException("The hash provided yielded no result.");
-
-            if (numbers.Length > 1)
-                throw new MultipleResultsException("The hash provided yielded more than one result.");
-
-            return (int)numbers[0];
+            return number switch
+            {
+                -1 => throw new NoResultException("The hash provided yielded no result."),
+                -2 => throw new MultipleResultsException("The hash provided yielded more than one result."),
+                _ => (int)number,
+            };
         }
 
         /// <inheritdoc />
         public virtual bool TryDecodeSingle(string hash, out int id)
         {
-            var numbers = GetNumbersFrom(hash);
+            var number = GetNumberFrom(hash);
 
-            if (numbers.Length == 1)
+            if (number > 0)
             {
-                id = (int)numbers[0];
+                id = (int)number;
                 return true;
             }
 
@@ -386,7 +384,7 @@ namespace HashidsNet
             return length;
         }
 
-        private long Unhash(string input, ReadOnlySpan<char> alphabet)
+        private long Unhash(ReadOnlySpan<char> input, ReadOnlySpan<char> alphabet)
         {
             long number = 0;
 
@@ -397,6 +395,45 @@ namespace HashidsNet
             }
 
             return number;
+        }
+
+        private long GetNumberFrom(string hash)
+        {
+            if (string.IsNullOrWhiteSpace(hash))
+                return -1;
+
+            var lottery = hash[0];
+            if (lottery == '\0')
+                return -1;
+
+            var indexOfSep = hash.IndexOfAny(_seps);
+            
+            if (indexOfSep != -1)
+                return -2;
+            
+            var hashBuffer = hash.AsSpan().Slice(1);
+            
+            Span<char> alphabet = _alphabet.Length < 512 ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
+            _alphabet.CopyTo(alphabet);
+
+            Span<char> buffer = _alphabet.Length < 512 ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
+            buffer[0] = lottery;
+            _salt.AsSpan().Slice(0, Math.Min(_salt.Length, _alphabet.Length - 1)).CopyTo(buffer.Slice(1));
+            
+            var startIndex = 1 + _salt.Length;
+            var length = _alphabet.Length - startIndex;
+            
+            if (length > 0)
+                alphabet.Slice(0, length).CopyTo(buffer.Slice(startIndex));
+
+            ConsistentShuffle(alphabet, buffer);
+            var result = Unhash(hashBuffer, alphabet);
+
+            // regenerate hash from numbers and compare to given hash to ensure the correct parameters were used
+            if (GenerateHashFrom(stackalloc[] { result }).Equals(hash, StringComparison.Ordinal))
+                return result;
+
+            return -1;
         }
 
         private long[] GetNumbersFrom(string hash)
@@ -431,7 +468,7 @@ namespace HashidsNet
 
             for (var j = 0; j < hashArray.Length; j++)
             {
-                var subHash = hashArray[j];
+                var subHash = hashArray[j].AsSpan();
 
                 if (length > 0)
                     alphabet.Slice(0, length).CopyTo(buffer.Slice(startIndex));
