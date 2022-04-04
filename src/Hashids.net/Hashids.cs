@@ -514,8 +514,8 @@ namespace HashidsNet
                 (alphabet[i], alphabet[j]) = (alphabet[j], alphabet[i]);
             }
         }
-        
-        public static (int count, (int, int)[] ranges) Split(ReadOnlySpan<char> line, ReadOnlySpan<char> separators)
+
+        private static (int count, (int, int)[] ranges) Split(ReadOnlySpan<char> line, ReadOnlySpan<char> separators)
         {
             var count = 0;
             var indexStart = 0;
