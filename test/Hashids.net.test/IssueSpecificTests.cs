@@ -52,5 +52,18 @@ namespace HashidsNet.test
             hashids.Decode("asdfb").Length.Should().Be(0);
             hashids.DecodeLong("asdfgfdgdfgkj").Length.Should().Be(0);
         }
+
+        [Fact]
+        void issue_64_it_should_be_possible_to_encode_and_decode_long_max_value()
+        {
+            var hashids = new Hashids("salt", alphabet: "0123456789ABCDEF");
+            var hash = hashids.EncodeLong(long.MaxValue);
+
+            hash.Should().Be("58E9BDD9A7598254DA4E");
+
+            var decoded = hashids.DecodeSingleLong(hash);
+
+            decoded.Should().Be(long.MaxValue);
+        }
     }
 }

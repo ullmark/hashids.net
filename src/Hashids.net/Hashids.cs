@@ -16,7 +16,7 @@ namespace HashidsNet
 
         private const double SEP_DIV = 3.5;
         private const double GUARD_DIV = 12.0;
-        private const int MaxNumberHashLength = 12; // Length of long.MaxValue;
+        private const int MaxNumberHashLength = 19; // Length of long.MaxValue;
 
         private readonly char[] _alphabet;
         private readonly char[] _seps;
