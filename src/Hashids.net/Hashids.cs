@@ -451,20 +451,26 @@ namespace HashidsNet
             if (string.IsNullOrWhiteSpace(hash))
                 return Array.Empty<long>();
 
-            var hashArray = hash.Split(_guards, StringSplitOptions.RemoveEmptyEntries);
-            if (hashArray.Length == 0)
+            var guardedHash = hash.AsSpan();
+            var (count, ranges) = Split(guardedHash, _guards);
+            
+            if (count == 0)
                 return Array.Empty<long>();
-
-            var unguardedIdx = (hashArray.Length is 3 or 2) ? 1 : 0;
-            var hashBreakdown = hashArray[unguardedIdx];
+            
+            var unguardedIndex = count is 3 or 2 ? 1 : 0;
+            var (start, offset) = ranges[unguardedIndex];
+            var hashBreakdown = guardedHash.Slice(start, offset);
+            
+            ArrayPool<(int, int)>.Shared.Return(ranges);
 
             var lottery = hashBreakdown[0];
             if (lottery == '\0') // default(char) is '\0'
                 return Array.Empty<long>();
 
-            hashArray = hashBreakdown.Substring(1).Split(_seps, StringSplitOptions.RemoveEmptyEntries);
+            var hashBuffer = hashBreakdown.Slice(1);
+            (count, ranges) = Split(hashBuffer, _seps);
 
-            var result = new long[hashArray.Length];
+            var result = new long[count];
 
             Span<char> alphabet = _alphabet.Length < 512 ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
             _alphabet.CopyTo(alphabet);
@@ -476,9 +482,10 @@ namespace HashidsNet
             var startIndex = 1 + _salt.Length;
             var length = _alphabet.Length - startIndex;
 
-            for (var j = 0; j < hashArray.Length; j++)
+            for (var j = 0; j < count; j++)
             {
-                var subHash = hashArray[j].AsSpan();
+                (start, offset) = ranges[j];
+                var subHash = hashBuffer.Slice(start, offset); 
 
                 if (length > 0)
                     alphabet.Slice(0, length).CopyTo(buffer.Slice(startIndex));
@@ -486,6 +493,8 @@ namespace HashidsNet
                 ConsistentShuffle(alphabet, buffer);
                 result[j] = Unhash(subHash, alphabet);
             }
+            
+            ArrayPool<(int, int)>.Shared.Return(ranges);
 
             // regenerate hash from numbers and compare to given hash to ensure the correct parameters were used
             if (GenerateHashFrom(result).Equals(hash, StringComparison.Ordinal))
