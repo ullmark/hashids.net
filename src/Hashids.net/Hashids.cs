@@ -402,17 +402,31 @@ namespace HashidsNet
             if (string.IsNullOrWhiteSpace(hash))
                 return -1;
 
-            var lottery = hash[0];
+            var hashGuarded = hash.AsSpan();
+            var guards = _guards.AsSpan();
+            var firstGuardIndex = hashGuarded.IndexOfAny(guards);
+            var count = 0;
+            var guardIndex = firstGuardIndex;
+            while (guardIndex != -1)
+            {
+                hashGuarded = hashGuarded.Slice(guardIndex + 1);
+                guardIndex = hashGuarded.IndexOfAny(guards);
+                count++;
+            }
+            var unguardedIndex = count is 3 or 2 ? firstGuardIndex : 0;
+            var unguardedHash = hashGuarded.Slice(unguardedIndex);
+
+            var lottery = unguardedHash[0];
             if (lottery == '\0')
                 return -1;
 
-            var indexOfSep = hash.IndexOfAny(_seps);
+            var hashBuffer = unguardedHash.Slice(1);
+
+            var indexOfSep = hashBuffer.IndexOfAny(_seps);
             
             if (indexOfSep != -1)
                 return -2;
-            
-            var hashBuffer = hash.AsSpan().Slice(1);
-            
+
             Span<char> alphabet = _alphabet.Length < 512 ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
             _alphabet.CopyTo(alphabet);
 
