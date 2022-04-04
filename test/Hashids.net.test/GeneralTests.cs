@@ -418,10 +418,17 @@ namespace HashidsNet.test
             mock.Object.Encode(new[] { 1 }).Should().Be("It works");
         }
 
-        [Fact]
-        public void GuardCharacterSingleDecode()
+        [Theory]
+        [InlineData(4)]
+        [InlineData(5)]
+        [InlineData(6)]
+        [InlineData(7)]
+        [InlineData(8)]
+        [InlineData(9)]
+        [InlineData(10)]
+        public void GuardCharacterSingleDecode(int minHashLength)
         {
-            var hashids = new HashidsNet.Hashids("salt", minHashLength: 4);
+            var hashids = new HashidsNet.Hashids("salt", minHashLength);
             var hash = hashids.Encode(123);
             hashids.DecodeSingle(hash).Should().Be(123);
         }

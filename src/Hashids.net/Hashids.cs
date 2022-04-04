@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System;
+using System.Buffers;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -402,25 +403,20 @@ namespace HashidsNet
             if (string.IsNullOrWhiteSpace(hash))
                 return -1;
 
-            var hashGuarded = hash.AsSpan();
-            var guards = _guards.AsSpan();
-            var firstGuardIndex = hashGuarded.IndexOfAny(guards);
-            var count = 0;
-            var guardIndex = firstGuardIndex;
-            while (guardIndex != -1)
-            {
-                hashGuarded = hashGuarded.Slice(guardIndex + 1);
-                guardIndex = hashGuarded.IndexOfAny(guards);
-                count++;
-            }
-            var unguardedIndex = count is 3 or 2 ? firstGuardIndex : 0;
-            var unguardedHash = hashGuarded.Slice(unguardedIndex);
+            var guardedHash = hash.AsSpan();
+            var (count, ranges) = Split(guardedHash, _guards);
+            
+            var unguardedIndex = count is 3 or 2 ? 1 : 0;
+            var (start, offset) = ranges[unguardedIndex];
+            var hashBreakdown = guardedHash.Slice(start, offset);
+            
+            ArrayPool<(int, int)>.Shared.Return(ranges);
 
-            var lottery = unguardedHash[0];
+            var lottery = hashBreakdown[0];
             if (lottery == '\0')
                 return -1;
 
-            var hashBuffer = unguardedHash.Slice(1);
+            var hashBuffer = hashBreakdown.Slice(1);
 
             var indexOfSep = hashBuffer.IndexOfAny(_seps);
             
@@ -517,6 +513,42 @@ namespace HashidsNet
                 // swap characters at positions i and j:
                 (alphabet[i], alphabet[j]) = (alphabet[j], alphabet[i]);
             }
+        }
+        
+        public static (int count, (int, int)[] ranges) Split(ReadOnlySpan<char> line, ReadOnlySpan<char> separators)
+        {
+            var count = 0;
+            var indexStart = 0;
+            var nextSeparatorIndex = 0;
+            var ranges = ArrayPool<(int, int)>.Shared.Rent(line.Length);
+            var isLastLoop = false;
+            while (!isLastLoop)
+            {
+                indexStart += nextSeparatorIndex;
+                nextSeparatorIndex = line.Slice(indexStart).IndexOfAny(separators);
+                if (nextSeparatorIndex == 0)
+                {
+                    indexStart++;
+                    nextSeparatorIndex = line.Slice(indexStart).IndexOfAny(separators);
+                }
+                
+                isLastLoop = nextSeparatorIndex == -1;
+                if (isLastLoop)
+                {
+                    nextSeparatorIndex = line.Length - indexStart;
+                }
+                
+                var slice = line.Slice(indexStart, nextSeparatorIndex);
+                if (slice.IsEmpty)
+                {
+                    continue;
+                }
+
+                ranges[count] = (indexStart, nextSeparatorIndex);
+                count++;
+            }
+
+            return (count, ranges);
         }
     }
 }
