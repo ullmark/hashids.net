@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
@@ -12,22 +11,19 @@ namespace HashidsNet.test
         private readonly Hashids _hashids = new Hashids(salt: "this is my salt");
 
         [Fact]
-        public async Task EncodingIsThreadSafe()
+        public void EncodingIsThreadSafe()
         {
             var hashids = new Hashids();
-            const int threadCount = 6;
-            const int numberCount = 1000001;
+            const int numberCount = 10_000;
 
-            var tasks = Enumerable.Range(1, threadCount).Select(t => Task.Run(() =>
+            Parallel.For(0, 100, i =>
             {
-                for (var n = 1; n < numberCount; n++)
+                for (var n = 0; n < numberCount; n++)
                 {
-                    var s = hashids.Encode(n);
-                    hashids.Decode(s).Should().Equal(n);
+                    var e = hashids.Encode(n);
+                    hashids.Decode(e).Should().Equal(n);
                 }
-            })).ToArray();
-
-            await Task.WhenAll(tasks);
+            });
         }
 
         [Fact]
