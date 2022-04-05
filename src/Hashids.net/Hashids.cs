@@ -16,7 +16,6 @@ namespace HashidsNet
 
         private const double SEP_DIV = 3.5;
         private const double GUARD_DIV = 12.0;
-        private const int MaxNumberHashLength = 19; // Length of long.MaxValue;
 
         private readonly char[] _alphabet;
         private readonly char[] _seps;
@@ -303,7 +302,8 @@ namespace HashidsNet
             var startIndex = 1 + _salt.Length;
             var length = _alphabet.Length - startIndex;
 
-            Span<char> hashBuffer = stackalloc char[MaxNumberHashLength];
+            // use buffer size of 19 which is the length of the biggest 64-bit integer (long.MaxValue = 9223372036854775807)
+            Span<char> hashBuffer = stackalloc char[19];
 
             for (var i = 0; i < numbers.Length; i++)
             {
