@@ -178,7 +178,6 @@ namespace HashidsNet
             return number switch
             {
                 -1 => throw new NoResultException("The hash provided yielded no result."),
-                -2 => throw new MultipleResultsException("The hash provided yielded more than one result."),
                 _ => number,
             };
         }
@@ -206,7 +205,6 @@ namespace HashidsNet
             return number switch
             {
                 -1 => throw new NoResultException("The hash provided yielded no result."),
-                -2 => throw new MultipleResultsException("The hash provided yielded more than one result."),
                 _ => (int)number,
             };
         }
@@ -417,11 +415,6 @@ namespace HashidsNet
                 return -1;
 
             var hashBuffer = hashBreakdown.Slice(1);
-
-            var indexOfSep = hashBuffer.IndexOfAny(_seps);
-            
-            if (indexOfSep != -1)
-                return -2;
 
             Span<char> alphabet = _alphabet.Length < 512 ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
             _alphabet.CopyTo(alphabet);
