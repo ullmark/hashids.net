@@ -8,7 +8,7 @@ namespace HashidsNet.test
     public class IssueSpecificTests
     {
         [Fact]
-        void issue_8_should_not_throw_out_of_range_exception()
+        void Issue_8_should_not_throw_out_of_range_exception()
         {
             var hashids = new Hashids("janottaa", 6);
             var numbers = hashids.Decode("NgAzADEANAA=");
@@ -18,7 +18,7 @@ namespace HashidsNet.test
         // seems to happen when you are encoding A LOT of longs at the same time.
         // see if it is possible to make this a faster test (or remove it since it is unlikely that it will reapper).
         [Fact]
-        void issue_12_should_not_throw_out_of_range_exception()
+        void Issue_12_should_not_throw_out_of_range_exception()
         {
             var hash = new Hashids("zXZVFf2N38uV");
             var longs = new List<long>();
@@ -38,7 +38,7 @@ namespace HashidsNet.test
         }
 
         [Fact]
-        void issue_15_it_should_return_emtpy_array_when_decoding_characters_missing_in_alphabet()
+        void Issue_15_it_should_return_empty_array_when_decoding_characters_missing_in_alphabet()
         {
             var hashids = new Hashids(salt: "Salty stuff", alphabet: "qwerty1234!¤%&/()=", seps: "1234");
             var numbers = hashids.Decode("abcd");
@@ -54,7 +54,7 @@ namespace HashidsNet.test
         }
 
         [Fact]
-        void issue_64_it_should_be_possible_to_encode_and_decode_long_max_value()
+        void Issue_64_long_max_value_with_min_alphabet_length()
         {
             var hashids = new Hashids("salt", alphabet: "0123456789ABCDEF");
             var hash = hashids.EncodeLong(long.MaxValue);
