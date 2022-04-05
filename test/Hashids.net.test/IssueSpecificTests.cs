@@ -45,12 +45,12 @@ namespace HashidsNet.test
             numbers.Length.Should().Be(0);
 
             var hashids2 = new Hashids();
-            hashids.Decode("13-37").Length.Should().Be(0);
-            hashids.DecodeLong("32323kldffd!").Length.Should().Be(0);
+            hashids2.Decode("13-37").Length.Should().Be(0);
+            hashids2.DecodeLong("32323kldffd!").Length.Should().Be(0);
 
             var hashids3 = new Hashids(alphabet: "1234567890;:_!#¤%&/()=", seps: "!#¤%&/()=");
-            hashids.Decode("asdfb").Length.Should().Be(0);
-            hashids.DecodeLong("asdfgfdgdfgkj").Length.Should().Be(0);
+            hashids3.Decode("asdfb").Length.Should().Be(0);
+            hashids3.DecodeLong("asdfgfdgdfgkj").Length.Should().Be(0);
         }
 
         [Fact]
