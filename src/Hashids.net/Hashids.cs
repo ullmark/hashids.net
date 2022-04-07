@@ -187,7 +187,7 @@ namespace HashidsNet
         {
             var number = GetNumberFrom(hash);
 
-            if (number > 0)
+            if (number >= 0)
             {
                 id = number;
                 return true;
@@ -214,7 +214,7 @@ namespace HashidsNet
         {
             var number = GetNumberFrom(hash);
 
-            if (number > 0)
+            if (number >= 0)
             {
                 id = (int)number;
                 return true;
