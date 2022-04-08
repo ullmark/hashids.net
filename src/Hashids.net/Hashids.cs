@@ -143,7 +143,7 @@ namespace HashidsNet
         {
             Span<char> result = stackalloc char[20];
             var length = GenerateHashFrom(number, ref result);
-            return result.Slice(0, length).ToString();
+            return length == -1 ? string.Empty : result.Slice(0, length).ToString();
         }
 
         /// <summary>
