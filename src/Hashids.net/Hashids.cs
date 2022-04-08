@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using System;
+﻿using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -271,6 +271,103 @@ namespace HashidsNet
             return result;
         }
 
+        private int GenerateHashFrom(long number, ref Span<char> result)
+        {
+            if (number < 0) return 0;
+
+            var numberHashInt = number % 100;
+
+            var alphabet = _alphabet.Length < 512 ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
+            _alphabet.CopyTo(alphabet);
+
+            var lottery = alphabet[(int)(numberHashInt % _alphabet.Length)];
+            result[0] = lottery;
+
+            var shuffleBuffer = _alphabet.Length < 512 ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
+            shuffleBuffer[0] = lottery;
+            _salt.AsSpan().Slice(0, Math.Min(_salt.Length, _alphabet.Length - 1)).CopyTo(shuffleBuffer.Slice(1));
+
+            var startIndex = 1 + _salt.Length;
+            var length = _alphabet.Length - startIndex;
+
+            // use buffer size of 19 which is the length of the biggest 64-bit integer (long.MaxValue = 9223372036854775807)
+            Span<char> hashBuffer = stackalloc char[19];
+
+            if (length > 0)
+                alphabet.Slice(0, length).CopyTo(shuffleBuffer.Slice(startIndex));
+
+            ConsistentShuffle(alphabet, shuffleBuffer);
+            var hashLength = BuildReversedHash(number, alphabet, hashBuffer);
+
+            // Reverse hashBuffer in a loop and insert into result
+            for (var i = 0; i < hashLength; i++)
+                result[i + 1] = hashBuffer[hashLength - i - 1];
+
+            hashLength += 1;
+
+            if (hashLength < _minHashLength)
+            {
+                var guardIndex = (numberHashInt + result[0]) % _guards.Length;
+                var guard = _guards[guardIndex];
+
+                result.Slice(0, hashLength).CopyTo(result.Slice(1));
+                result[0] = guard;
+                hashLength += 1;
+
+                if (hashLength < _minHashLength)
+                {
+                    guardIndex = (numberHashInt + result[2]) % _guards.Length;
+                    guard = _guards[guardIndex];
+
+                    result[hashLength] = guard;
+                    hashLength += 1;
+                }
+            }
+
+            var halfLength = _alphabet.Length / 2;
+
+            var stringBuilder = StringBuilderPool.Get();
+#if NETSTANDARD2_0
+            stringBuilder.Append(result.Slice(0, hashLength).ToArray());
+#else
+            stringBuilder.Append(result[..hashLength]);
+#endif
+
+            while (stringBuilder.Length < _minHashLength)
+            {
+                alphabet.CopyTo(shuffleBuffer);
+                ConsistentShuffle(alphabet, shuffleBuffer);
+
+#if NETSTANDARD2_0
+                stringBuilder.Insert(0, alphabet.Slice(halfLength, _alphabet.Length - halfLength).ToArray());
+                stringBuilder.Append(alphabet.Slice(0, halfLength).ToArray());
+#else
+                stringBuilder.Insert(0, alphabet[halfLength.._alphabet.Length]);
+                stringBuilder.Append(alphabet[..halfLength]);
+#endif
+
+                var excess = stringBuilder.Length - _minHashLength;
+                if (excess > 0)
+                {
+                    stringBuilder.Remove(0, excess / 2);
+                    stringBuilder.Remove(_minHashLength, stringBuilder.Length - _minHashLength);
+                }
+            }
+
+            hashLength = stringBuilder.Length;
+
+#if NETSTANDARD2_0
+            for (var i = 0; i < stringBuilder.Length; i++)
+                result[i] = stringBuilder[i];
+#else
+            stringBuilder.CopyTo(0, result, stringBuilder.Length);
+#endif
+
+            StringBuilderPool.Return(stringBuilder);
+
+            return hashLength;
+        }
+
         private string GenerateHashFrom(ReadOnlySpan<long> numbers)
         {
             if (numbers.Length == 0)
@@ -432,8 +529,11 @@ namespace HashidsNet
             ConsistentShuffle(alphabet, buffer);
             var result = Unhash(hashBuffer, alphabet);
 
+            Span<char> resultBuffer = stackalloc char[guardedHash.Length];
+            var hashLength = GenerateHashFrom(result, ref resultBuffer);
+            ReadOnlySpan<char> rehash = resultBuffer.Slice(0, hashLength);
             // regenerate hash from numbers and compare to given hash to ensure the correct parameters were used
-            if (GenerateHashFrom(stackalloc[] { result }).Equals(hash, StringComparison.Ordinal))
+            if (guardedHash.Equals(rehash, StringComparison.Ordinal))
                 return result;
 
             return -1;
