@@ -141,7 +141,8 @@ namespace HashidsNet
         /// <returns>the hashed string</returns>
         public string EncodeLong(long number)
         {
-            Span<char> result = stackalloc char[20];
+            var numberLength = _minHashLength > 20 ? _minHashLength : 20;
+            var result = numberLength < 512 ? stackalloc char[numberLength] : new char[numberLength];
             var length = GenerateHashFrom(number, ref result);
             return length == -1 ? string.Empty : result.Slice(0, length).ToString();
         }
@@ -153,7 +154,7 @@ namespace HashidsNet
         /// <returns>Encoded hash string.</returns>
         public string EncodeLong(params long[] numbers)
         {
-            var numbersLength = numbers.Length * 20;
+            var numbersLength = _minHashLength > 20 ? _minHashLength * numbers.Length : numbers.Length * 20;
             var result = numbersLength < 512 ? stackalloc char[numbersLength] : new char[numbersLength];
             var length = GenerateHashFrom(numbers, ref result);
             return length == -1 ? string.Empty : result.Slice(0, length).ToString();
