@@ -1,10 +1,14 @@
-﻿namespace HashidsNet.Alphabets
+﻿using System;
+
+namespace HashidsNet.Alphabets
 {
     public interface IAlphabet
     {
         char GetChar(int index);
         int GetIndex(char @char);
-        void CopyChars(char[] buffer, int sourceIndex, int destinationIndex, int length);
+        
+        void CopyTo(Span<char> buffer, int index);
+
         IAlphabet NextPage();
         IAlphabet NextShuffle();
         IAlphabet Clone();

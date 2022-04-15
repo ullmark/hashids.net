@@ -1,4 +1,6 @@
-﻿namespace HashidsNet.Alphabets
+﻿using System;
+
+namespace HashidsNet.Alphabets
 {
     public class StepAlphabet : IAlphabet
     {
@@ -19,9 +21,9 @@
             return _inner.GetIndex(@char);
         }
 
-        public void CopyChars(char[] buffer, int sourceIndex, int destinationIndex, int length)
+        public void CopyTo(Span<char> buffer, int index)
         {
-            _inner.CopyChars(buffer, sourceIndex, destinationIndex, length);
+            _inner.CopyTo(buffer, index);
         }
 
         public virtual IAlphabet NextPage()

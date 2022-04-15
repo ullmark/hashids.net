@@ -44,12 +44,12 @@ namespace HashidsNet.Alphabets.Salts
 
             do
             {
-                int sliceLength = Math.Min(salt.Length, buffer.Length - index);
-                Span<int> sliceBuffer = buffer.Slice(index, sliceLength);
+                int spanLength = Math.Min(salt.Length, buffer.Length - index);
+                Span<int> span = buffer.Slice(index, spanLength);
 
-                salt.Calculate(sliceBuffer, 0, ref saltSum);
+                salt.Calculate(span, 0, ref saltSum);
 
-                index += sliceLength;
+                index += spanLength;
             } while (index < buffer.Length);
         }
     }

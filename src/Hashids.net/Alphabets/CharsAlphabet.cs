@@ -26,9 +26,9 @@ namespace HashidsNet.Alphabets
             return Array.IndexOf(_chars, @char);
         }
 
-        public void CopyChars(char[] buffer, int sourceIndex, int destinationIndex, int length)
+        public void CopyTo(Span<char> buffer, int index)
         {
-            Array.Copy(_chars, sourceIndex, buffer, destinationIndex, length);
+            _chars.AsSpan(index, buffer.Length).CopyTo(buffer);
         }
 
         public IAlphabet NextPage()

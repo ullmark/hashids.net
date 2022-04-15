@@ -136,7 +136,7 @@ namespace HashidsNet
 
             private bool Validate()
             {
-                return _parent.NewEncoder().Validate(_input, _buffer, _numbersCount);
+                return HashEncoder.Validate(_parent, _input, _buffer);
             }
 
             private long[] BuildArray()

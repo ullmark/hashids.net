@@ -6,40 +6,40 @@ namespace HashidsNet
 {
     public partial class Hashids
     {
-        private struct HashEncoder
+        private ref struct HashEncoder
         {
             private const int MaxCharsPerNumber = 20;
 
             [ThreadStatic]
             private static char[] _bufferCache;
 
-            private Hashids _parent;
-            private int _alphabetLength;
-            private long _hash;
-            private char[] _buffer;
+            private readonly Hashids _parent;
+            private readonly Span<char> _buffer;
+            private IAlphabet _alphabet;
+            private long _payloadHash;
             private int _payloadIndex;
             private int _payloadLength;
             private int _idleLength;
-            private int _numbersWritten;
+            private int _numbersCount;
             private long _lastNumber;
             private int _lastNumberIndex;
-            private IAlphabet _alphabet;
             private int _index;
 
-            public HashEncoder(Hashids parent)
+            public HashEncoder(Hashids parent, Span<char> buffer)
                 : this()
             {
                 _parent = parent;
-                _alphabetLength = parent._alphabetProvider.Default.Length;
+                _buffer = buffer;
+                _alphabet = _parent._alphabetProvider.Default;
             }
 
-            public string Encode(ReadOnlySpan<long> numbers)
+            public static string Encode(Hashids parent, ReadOnlySpan<long> numbers)
             {
                 if (numbers.Length == 0)
                     return string.Empty;
 
                 if (numbers.Length == 1)
-                    return Encode(numbers[0]);
+                    return Encode(parent, numbers[0]);
 
                 for (int i = 0; i < numbers.Length; i++)
                 {
@@ -47,110 +47,79 @@ namespace HashidsNet
                         return string.Empty;
                 }
 
-                _buffer = RentBuffer(numbers);
+                Span<char> buffer = stackalloc char[GetBufferSize(parent, numbers.Length)];
+                HashEncoder encoder = new HashEncoder(parent, buffer);
 
-                try
-                {
-                    Write(numbers, numbers.Length);
+                encoder.Write(numbers);
 
-                    return BuildString();
-                }
-                finally
-                {
-                    ReturnBuffer();
-                }
+                return encoder.BuildString();
             }
 
-            public string Encode(long number)
+            public static string Encode(Hashids parent, long number)
             {
                 if (number < 0)
                     return string.Empty;
 
-                InitializeBuffer();
-                Prepare(number, 0);
-                Write(number);
-                WriteIdle();
+                Span<char> buffer = stackalloc char[GetBufferSize(parent, 1)];
+                HashEncoder encoder = new HashEncoder(parent, buffer);
 
-                return BuildString();
+                encoder.Prepare(number, 0);
+                encoder.Write(number);
+                encoder.WriteIdle();
+
+                return encoder.BuildString();
             }
 
-            public bool Validate(string input, long[] numbers, int numbersCount)
+            public static bool Validate(Hashids parent, string input, ReadOnlySpan<long> numbers)
             {
-                if (numbersCount == 0)
+                if (numbers.Length == 0)
                     return false;
 
-                if (numbersCount == 1)
-                    return Validate(input, numbers[0]);
+                if (numbers.Length == 1)
+                    return Validate(parent, input, numbers[0]);
 
-                for (int i = 0; i < numbersCount; i++)
+                for (int i = 0; i < numbers.Length; i++)
                 {
                     if (numbers[i] < 0)
                         return false;
                 }
 
-                _buffer = RentBuffer(numbers);
+                Span<char> buffer = stackalloc char[GetBufferSize(parent, numbers.Length)];
+                HashEncoder encoder = new HashEncoder(parent, buffer);
 
-                try
-                {
-                    Write(numbers, numbersCount);
+                encoder.Write(numbers);
 
-                    return Compare(input);
-                }
-                finally
-                {
-                    ReturnBuffer();
-                }
+                return encoder.Compare(input);
             }
 
-            public bool Validate(string input, long number)
+            public static bool Validate(Hashids parent, string input, long number)
             {
                 if (number < 0)
                     return false;
 
-                InitializeBuffer();
-                Prepare(number, 0);
-                Write(number);
-                WriteIdle();
+                Span<char> buffer = stackalloc char[GetBufferSize(parent, 1)];
+                HashEncoder encoder = new HashEncoder(parent, buffer);
 
-                return Compare(input);
+                encoder.Prepare(number, 0);
+                encoder.Write(number);
+                encoder.WriteIdle();
+
+                return encoder.Compare(input);
             }
 
-            private int GetBufferSize(int numbersCount)
+            private static int GetBufferSize(Hashids parent, int numbersCount)
             {
-                return Math.Max(MaxCharsPerNumber * numbersCount, _parent._minHashLength);
+                return Math.Max(MaxCharsPerNumber * numbersCount, parent._minHashLength);
             }
 
-            private void InitializeBuffer()
+            private void Write(ReadOnlySpan<long> numbers)
             {
-                int bufferSize = GetBufferSize(1);
-
-                _buffer = _bufferCache;
-
-                if (_buffer == null || _buffer.Length < bufferSize)
-                {
-                    _buffer = new char[bufferSize];
-                    _bufferCache = _buffer;
-                }
-            }
-
-            private char[] RentBuffer(ReadOnlySpan<long> numbers)
-            {
-                return ArrayPool<char>.Shared.Rent(GetBufferSize(numbers.Length));
-            }
-
-            private readonly void ReturnBuffer()
-            {
-                ArrayPool<char>.Shared.Return(_buffer);
-            }
-
-            private void Write(ReadOnlySpan<long> numbers, int numbersCount)
-            {
-                for (int i = 0; i < numbersCount; i++)
+                for (int i = 0; i < numbers.Length; i++)
                     Prepare(numbers[i], i);
 
                 Write(numbers[0]);
 
-                for (int i = 1; i < numbersCount; i++)
+                for (int i = 1; i < numbers.Length; i++)
                     Write(numbers[i]);
 
                 WriteIdle();
@@ -158,7 +127,7 @@ namespace HashidsNet
 
             private void Write(long number)
             {
-                if (_numbersWritten == 0)
+                if (_numbersCount == 0)
                 {
                     CalculateIndexes();
                     WriteHeader();
@@ -170,12 +139,12 @@ namespace HashidsNet
                 _lastNumber = number;
                 _lastNumberIndex = _index;
 
-                if (number < _alphabetLength)
+                if (number < _alphabet.Length)
                     Write((int)number);
                 else
                     WriteLong(number);
 
-                _numbersWritten++;
+                _numbersCount++;
             }
 
             private void WriteLong(long number)
@@ -184,11 +153,11 @@ namespace HashidsNet
 
                 for (int i = _index + length - 1; i >= _index; i--)
                 {
-                    int charIndex = (int)(number % _alphabetLength);
+                    int charIndex = (int)(number % _alphabet.Length);
 
                     _buffer[i] = _alphabet.GetChar(charIndex);
 
-                    number /= _alphabetLength;
+                    number /= _alphabet.Length;
                 }
 
                 _index += length;
@@ -196,7 +165,7 @@ namespace HashidsNet
 
             private void WriteHeader()
             {
-                int lottery = (int)(_hash % _alphabetLength);
+                int lottery = (int)(_payloadHash % _alphabet.Length);
 
                 _alphabet = _parent._alphabetProvider.GetAlphabet(lottery);
 
@@ -205,7 +174,7 @@ namespace HashidsNet
 
             private void WriteSeparator()
             {
-                int sepsIndex = (int)(_lastNumber % (_buffer[_lastNumberIndex] + _numbersWritten - 1) % _parent._seps.Length);
+                int sepsIndex = (int)(_lastNumber % (_buffer[_lastNumberIndex] + _numbersCount - 1) % _parent._seps.Length);
 
                 Write(_parent._seps[sepsIndex]);
             }
@@ -231,15 +200,19 @@ namespace HashidsNet
 
                 while (length > 0)
                 {
-                    int len = Math.Min(length, _alphabetLength);
+                    int len = Math.Min(length, _alphabet.Length);
                     int leftLen = len - len / 2;
                     int rightLen = len - leftLen;
 
                     leftIndex -= leftLen;
 
                     _alphabet = _alphabet.NextShuffle();
-                    _alphabet.CopyChars(_buffer, _alphabetLength - leftLen, leftIndex, leftLen);
-                    _alphabet.CopyChars(_buffer, 0, rightIndex, rightLen);
+
+                    Span<char> leftSpan = _buffer.Slice(leftIndex, leftLen);
+                    Span<char> rightSpan = _buffer.Slice(rightIndex, rightLen);
+
+                    _alphabet.CopyTo(leftSpan, _alphabet.Length - leftLen);
+                    _alphabet.CopyTo(rightSpan, 0);
 
                     rightIndex += rightLen;
 
@@ -249,7 +222,7 @@ namespace HashidsNet
 
             private void WriteGuard(int position, char salt)
             {
-                long index = (_hash + salt) % _parent._guards.Length;
+                long index = (_payloadHash + salt) % _parent._guards.Length;
 
                 _buffer[position] = _parent._guards[index];
             }
@@ -266,7 +239,7 @@ namespace HashidsNet
 
             private void Prepare(long number, int position)
             {
-                _hash += number % (position + 100);
+                _payloadHash += number % (position + 100);
                 _payloadLength += GetLength(number) + 1;
             }
 
@@ -282,15 +255,15 @@ namespace HashidsNet
 
             private int GetLength(long number)
             {
-                if (number < _alphabetLength)
+                if (number < _alphabet.Length)
                     return 1;
 
-                return (int)Math.Log(number, _alphabetLength) + 1;
+                return (int)Math.Log(number, _alphabet.Length) + 1;
             }
 
             private string BuildString()
             {
-                return new string(_buffer, 0, _idleLength + _payloadLength);
+                return _buffer.Slice(0, _idleLength + _payloadLength).ToString();
             }
 
             private bool Compare(string input)

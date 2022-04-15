@@ -143,7 +143,7 @@ namespace HashidsNet
         /// </summary>
         /// <param name="number">the number</param>
         /// <returns>the hashed string</returns>
-        public string EncodeLong(long number) => NewEncoder().Encode(number);
+        public string EncodeLong(long number) => HashEncoder.Encode(this, number);
 
         /// <summary>
         /// Encodes the provided numbers into a hash string.
@@ -471,16 +471,6 @@ namespace HashidsNet
                 // swap characters at positions i and j:
                 (alphabet[i], alphabet[j]) = (alphabet[j], alphabet[i]);
             }
-        }
-
-        private HashEncoder NewEncoder()
-        {
-            return new HashEncoder(this);
-        }
-
-        private HashEncoder NewDecoder()
-        {
-            return new HashEncoder(this);
         }
     }
 }
