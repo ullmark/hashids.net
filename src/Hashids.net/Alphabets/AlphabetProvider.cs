@@ -12,7 +12,7 @@ namespace HashidsNet.Alphabets
         public AlphabetProvider(char[] chars, char[] salt)
         {
             _chars = chars;
-            _salt = Salt.Create(salt).TakeSnapshot();
+            _salt = Salt.Create(salt).Snapshot();
             _default = new CharsAlphabet(_salt, chars);
         }
 

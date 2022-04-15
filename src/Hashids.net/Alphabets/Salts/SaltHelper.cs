@@ -2,7 +2,7 @@
 {
     public static class SaltHelper
     {
-        public static ISalt TakeSnapshot(this ISalt salt)
+        public static ISalt Snapshot(this ISalt salt)
         {
             if (salt.Length == 0)
                 return EmptySalt.Instance;
