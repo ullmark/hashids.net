@@ -11,21 +11,21 @@ namespace HashidsNet.Alphabets.Salts
             _chars = chars;
         }
 
-        public void Calculate(int[] buffer, int bufferIndex, int saltIndex, int saltLength, ref int saltSum)
+        public void Calculate(Span<int> buffer, int saltIndex, ref int saltSum)
         {
-            if (saltLength <= 0)
+            if (buffer.Length == 0)
                 return;
 
-            if (saltLength > _chars.Length)
+            if (buffer.Length > _chars.Length)
                 throw new InvalidOperationException($"The salt could calculate only { _chars.Length} values.");
 
-            for (var i = 0; i < _chars.Length && i < saltLength; i++)
+            for (var i = 0; i < buffer.Length; i++)
             {
                 int x = _chars[i];
 
                 saltSum += x;
 
-                buffer[bufferIndex + i] = saltSum + saltIndex + x + i;
+                buffer[i] = saltSum + saltIndex + x + i;
             }
         }
 

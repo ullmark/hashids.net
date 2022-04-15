@@ -4,9 +4,6 @@ namespace HashidsNet.Alphabets.Salts
 {
     public static class ShuffleHelper
     {
-        [ThreadStatic]
-        private static int[] _saltValueBuffer;
-
         public static void Shuffle(this ISalt salt, char[] chars)
         {
             if (salt.Length == 0)
@@ -15,7 +12,9 @@ namespace HashidsNet.Alphabets.Salts
             if (chars.Length <= 1)
                 return;
 
-            int[] saltValue = GetSaltValue(salt, chars.Length);
+            Span<int> saltValue = stackalloc int[chars.Length];
+
+            CalculateSaltValue(salt, saltValue);
 
             int len = chars.Length;
             Mods mods = FastMod.Create(len);
@@ -31,29 +30,27 @@ namespace HashidsNet.Alphabets.Salts
             }
         }
 
-        private static int[] GetSaltValue(ISalt salt, int length)
+        private static void CalculateSaltValue(ISalt salt, Span<int> buffer)
         {
-            int[] buffer = _saltValueBuffer;
+            int saltSum = 0;
 
-            if (buffer == null || buffer.Length < length)
+            if (salt.Length > buffer.Length)
             {
-                buffer = new int[length];
-                _saltValueBuffer = buffer;
+                salt.Calculate(buffer, 0, ref saltSum);
+                return;
             }
 
             int index = 0;
-            int sum = 0;
 
-            while (index < length)
+            do
             {
-                int saltLength = Math.Min(salt.Length, length - index);
+                int sliceLength = Math.Min(salt.Length, buffer.Length - index);
+                Span<int> sliceBuffer = buffer.Slice(index, sliceLength);
 
-                salt.Calculate(buffer, index, 0, saltLength, ref sum);
+                salt.Calculate(sliceBuffer, 0, ref saltSum);
 
-                index += saltLength;
-            }
-
-            return buffer;
+                index += sliceLength;
+            } while (index < buffer.Length);
         }
     }
 }

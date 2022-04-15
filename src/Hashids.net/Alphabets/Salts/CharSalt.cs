@@ -11,15 +11,15 @@ namespace HashidsNet.Alphabets.Salts
             _char = @char;
         }
 
-        public void Calculate(int[] buffer, int bufferIndex, int saltIndex, int saltLength, ref int saltSum)
+        public void Calculate(Span<int> buffer, int saltIndex, ref int saltSum)
         {
-            if (saltLength <= 0)
+            if (buffer.Length == 0)
                 return;
 
-            if (saltLength > 1)
+            if (buffer.Length > 1)
                 throw new InvalidOperationException("The one char salt could calculate only sinle value.");
 
-            buffer[bufferIndex] = saltSum + saltIndex + _char + _char;
+            buffer[0] = saltSum + saltIndex + _char + _char;
             saltSum += _char;
         }
 

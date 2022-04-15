@@ -1,8 +1,10 @@
-﻿namespace HashidsNet.Alphabets.Salts
+﻿using System;
+
+namespace HashidsNet.Alphabets.Salts
 {
     public interface ISalt
     {
-        void Calculate(int[] buffer, int bufferIndex, int saltIndex, int saltLength, ref int saltSum);
+        void Calculate(Span<int> buffer, int saltIndex, ref int saltSum);
 
         int Length { get; }
     }

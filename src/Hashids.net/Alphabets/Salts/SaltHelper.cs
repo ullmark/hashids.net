@@ -1,4 +1,6 @@
-﻿namespace HashidsNet.Alphabets.Salts
+﻿using System;
+
+namespace HashidsNet.Alphabets.Salts
 {
     public static class SaltHelper
     {
@@ -13,7 +15,7 @@
             int[] buffer = new int[salt.Length];
             int saltSum = 0;
 
-            salt.Calculate(buffer, 0, 0, buffer.Length, ref saltSum);
+            salt.Calculate(new Span<int>(buffer), 0, ref saltSum);
 
             return Salt.Create(buffer, saltSum);
         }
