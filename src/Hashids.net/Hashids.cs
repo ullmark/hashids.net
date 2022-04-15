@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using HashidsNet.Alphabets;
 
 namespace HashidsNet
 {
@@ -22,6 +23,8 @@ namespace HashidsNet
         private readonly char[] _guards;
         private readonly char[] _salt;
         private readonly int _minHashLength;
+
+        private readonly IAlphabetProvider _alphabetProvider;
 
         // Creates the Regex in the first usage, speed up first use of non-hex methods
         private static readonly Lazy<Regex> HexValidator = new(() => new Regex("^[0-9a-fA-F]+$", RegexOptions.Compiled));
@@ -466,6 +469,16 @@ namespace HashidsNet
                 // swap characters at positions i and j:
                 (alphabet[i], alphabet[j]) = (alphabet[j], alphabet[i]);
             }
+        }
+
+        private HashEncoder NewEncoder()
+        {
+            return new HashEncoder(this);
+        }
+
+        private HashEncoder NewDecoder()
+        {
+            return new HashEncoder(this);
         }
     }
 }
