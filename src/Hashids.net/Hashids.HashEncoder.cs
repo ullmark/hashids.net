@@ -282,7 +282,7 @@ namespace HashidsNet
 
             private int GetLength(long number)
             {
-                if (number <= _alphabetLength)
+                if (number < _alphabetLength)
                     return 1;
 
                 return (int)Math.Log(number, _alphabetLength) + 1;

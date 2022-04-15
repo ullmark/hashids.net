@@ -113,6 +113,8 @@ namespace HashidsNet
                 _guards = _alphabet.SubArray(index: 0, length: guardCount);
                 _alphabet = _alphabet.SubArray(index: guardCount);
             }
+
+            _alphabetProvider = new AlphabetProvider(_alphabet, _salt);
         }
 
         /// <summary>
@@ -141,7 +143,7 @@ namespace HashidsNet
         /// </summary>
         /// <param name="number">the number</param>
         /// <returns>the hashed string</returns>
-        public string EncodeLong(long number) => GenerateHashFrom(stackalloc[] { number });
+        public string EncodeLong(long number) => NewEncoder().Encode(number);
 
         /// <summary>
         /// Encodes the provided numbers into a hash string.

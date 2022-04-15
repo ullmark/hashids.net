@@ -6,7 +6,7 @@ namespace Hashids.net.benchmark
     {
         public static void Main(string[] args)
         {
-            var summary = BenchmarkRunner.Run<HashBenchmarks>();
+            var summary = BenchmarkRunner.Run<EncodeLongBenchmarks>();
         }
     }
 }
