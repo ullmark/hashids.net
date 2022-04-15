@@ -10,7 +10,7 @@ namespace HashidsNet
         {
             Mod[] mods = _mods;
 
-            if (mods == null || mods.Length <= maxDivisor)
+            if (mods == null || mods.Length < maxDivisor)
             {
                 Mod[] newMods = Calc(maxDivisor);
 

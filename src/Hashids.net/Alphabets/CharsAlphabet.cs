@@ -5,15 +5,15 @@ namespace HashidsNet.Alphabets
 {
     public sealed class CharsAlphabet : IAlphabet
     {
-        private readonly ISalt _salt;
+        private readonly ISalt _shuffleSalt;
+        private readonly ISalt _pageSalt;
         private readonly char[] _chars;
 
         public CharsAlphabet(ISalt salt, char[] chars)
         {
-            _salt = salt;
-            _chars = new char[chars.Length];
-
-            Array.Copy(chars, 0, _chars, 0, chars.Length);
+            _shuffleSalt = Salt.Create(chars);
+            _pageSalt = salt.Concat(_shuffleSalt);
+            _chars = chars;
         }
 
         public char GetChar(int index)
@@ -33,21 +33,21 @@ namespace HashidsNet.Alphabets
 
         public IAlphabet NextPage()
         {
-            _salt.Concat(_chars).Shuffle(_chars);
+            _pageSalt.Shuffle(_chars);
 
             return this;
         }
 
         public IAlphabet NextShuffle()
         {
-            Salt.Create(_chars).Shuffle(_chars);
+            _shuffleSalt.Shuffle(_chars);
 
             return this;
         }
 
         public IAlphabet Clone()
         {
-            return new CharsAlphabet(_salt, _chars);
+            return new CharsAlphabet(_pageSalt, _chars);
         }
 
         public int Length => _chars.Length;
