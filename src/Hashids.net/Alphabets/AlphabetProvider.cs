@@ -5,9 +5,6 @@ namespace HashidsNet.Alphabets
 {
     public class AlphabetProvider : IAlphabetProvider
     {
-        private readonly ISalt _salt;
-        private readonly CharsAlphabet _default;
-
         public AlphabetProvider(char[] chars, char[] salt)
         {
             Chars = chars;
@@ -17,7 +14,7 @@ namespace HashidsNet.Alphabets
 
         public virtual IAlphabet GetAlphabet(int index)
         {
-            return LotteryAlphabet.Get(_default, _default.GetChar(index), Salt);
+            return LotteryAlphabet.Get(Default, Default.GetChar(index), Salt);
         }
 
         public IAlphabet GetAlphabet(char @char)
