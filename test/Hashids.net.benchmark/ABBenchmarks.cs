@@ -17,12 +17,15 @@ namespace Hashids.net.benchmark
         {
             VersionAInstance = new HashidsPrev();
             VersionBInstance = new HashidsNet.Hashids();
+            VersionCInstance = new HashidsNet.Hashids(useCache: false);
         }
 
         public abstract void VersionA();
         public abstract void VersionB();
+        public abstract void VersionC();
 
         protected IHashids VersionAInstance { get; private set; }
         protected IHashids VersionBInstance { get; private set; }
+        protected IHashids VersionCInstance { get; private set; }
     }
 }

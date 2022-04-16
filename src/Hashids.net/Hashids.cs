@@ -51,7 +51,8 @@ namespace HashidsNet
             string salt = "",
             int minHashLength = 0,
             string alphabet = DEFAULT_ALPHABET,
-            string seps = DEFAULT_SEPS)
+            string seps = DEFAULT_SEPS,
+            bool useCache = true)
         {
             if (salt == null) throw new ArgumentNullException(nameof(salt));
             if (minHashLength < 0) throw new ArgumentOutOfRangeException(nameof(minHashLength), "Value must be zero or greater.");
@@ -114,8 +115,9 @@ namespace HashidsNet
                 _alphabet = _alphabet.SubArray(index: guardCount);
             }
 
-            _alphabetProvider = new AlphabetProvider(_alphabet, _salt);
-            _alphabetProvider = new CacheAlphabetProvider(_alphabet, _salt);
+            _alphabetProvider = useCache ?
+                new CacheAlphabetProvider(_alphabet, _salt) :
+                new AlphabetProvider(_alphabet, _salt);
         }
 
         /// <summary>

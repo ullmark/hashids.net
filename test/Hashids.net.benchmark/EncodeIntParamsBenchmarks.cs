@@ -16,6 +16,12 @@ namespace Hashids.net.benchmark
             VersionBInstance.Encode(Value);
         }
 
+        [Benchmark]
+        public override void VersionC()
+        {
+            VersionCInstance.Encode(Value);
+        }
+
         [Params(
             new[] { 12345 },
             new[] { 12345, int.MaxValue }
