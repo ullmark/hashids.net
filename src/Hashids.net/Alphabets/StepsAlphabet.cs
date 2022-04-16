@@ -1,17 +1,22 @@
-﻿using System;
+﻿using HashidsNet.Alphabets.Salts;
+using System;
 
 namespace HashidsNet.Alphabets
 {
-    public class StepsAlphabet : StepAlphabet
+    public class StepsAlphabet : AlphabetDecorator
     {
+        private readonly char _lottery;
+        private readonly ISalt _salt;
         private readonly int _stepsCount;
 
         private IAlphabet _nextPage;
         private IAlphabet _nextShuffle;
 
-        public StepsAlphabet(IAlphabet inner, int stepsCount)
+        public StepsAlphabet(IAlphabet inner, char lottery, ISalt salt, int stepsCount)
             : base(inner)
         {
+            _lottery = lottery;
+            _salt = salt;
             _stepsCount = stepsCount;
         }
 
@@ -22,7 +27,7 @@ namespace HashidsNet.Alphabets
             if (instance != null)
                 return instance;
 
-            return NextAlphabet(ref _nextPage, () => base.NextPage());
+            return NextAlphabet(ref _nextPage, x => x.NextPage());
         }
 
         public override IAlphabet NextShuffle()
@@ -32,23 +37,25 @@ namespace HashidsNet.Alphabets
             if (instance != null)
                 return instance;
 
-            return NextAlphabet(ref _nextShuffle, () => base.NextShuffle());
-        }
-
-        public override IAlphabet Clone()
-        {
-            return (IAlphabet)MemberwiseClone();
+            return NextAlphabet(ref _nextShuffle, x => x.NextShuffle());
         }
 
         private IAlphabet NextAlphabet(
             ref IAlphabet field,
-            Func<IAlphabet> initializeInnerFunc)
+            Func<IAlphabet, IAlphabet> initializeInnerFunc)
         {
-            IAlphabet inner = initializeInnerFunc();
+            char[] chars = new char[Inner.Length];
+
+            Inner.CopyTo(chars, 0);
+
+            ISalt salt = Salt.Create(_lottery).Concat(_salt);
+            IAlphabet inner = new CharsAlphabet(salt, chars);
+
+            initializeInnerFunc(inner);
 
             IAlphabet instance = _stepsCount > 0 ?
-                new StepsAlphabet(inner, _stepsCount - 1) :
-                new StepAlphabet(inner);
+                new StepsAlphabet(inner, _lottery, _salt, _stepsCount - 1) :
+                new StepAlphabet(inner, _lottery, _salt);
 
             field = instance;
 

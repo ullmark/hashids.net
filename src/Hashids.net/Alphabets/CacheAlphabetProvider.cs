@@ -13,17 +13,14 @@
                 _items[i] = new Item();
         }
 
-        public IAlphabet GetAlphabet(int index)
+        public override IAlphabet GetAlphabet(int index)
         {
-            if (index < 0 || index >= _items.Length)
-                return null;
-
             Item item = _items[index];
             IAlphabet alphabet = item.Alphabet;
 
             if (alphabet == null)
             {
-                alphabet = base.GetAlphabet(index);
+                alphabet = new StepsAlphabet(Default, Default.GetChar(index), Salt, 2);
 
                 item.Alphabet = alphabet;
             }

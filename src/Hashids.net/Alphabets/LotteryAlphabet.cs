@@ -84,11 +84,6 @@ namespace HashidsNet.Alphabets
             return null;
         }
 
-        public IAlphabet Clone()
-        {
-            throw new InvalidOperationException("The LotteryAlphabet can't be cloned.");
-        }
-
         public int Length => _chars.Length;
     }
 }

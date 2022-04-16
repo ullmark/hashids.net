@@ -12,7 +12,6 @@ namespace HashidsNet.Alphabets
         IAlphabet NextPage();
         IAlphabet NextShuffle();
         IAlphabet Return();
-        IAlphabet Clone();
 
         int Length { get; }
     }

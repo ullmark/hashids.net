@@ -1,51 +1,33 @@
-﻿using System;
+﻿using HashidsNet.Alphabets.Salts;
+using System;
 
 namespace HashidsNet.Alphabets
 {
-    public class StepAlphabet : IAlphabet
+    public class StepAlphabet : AlphabetDecorator, IAlphabet
     {
-        private readonly IAlphabet _inner;
+        private readonly char _lottery;
+        private readonly ISalt _salt;
 
-        public StepAlphabet(IAlphabet inner)
+        public StepAlphabet(IAlphabet inner, char lottery, ISalt salt)
+            : base(inner)
         {
-            _inner = inner;
+            _lottery = lottery;
+            _salt = salt;
         }
 
-        public char GetChar(int index)
+        public override IAlphabet NextPage()
         {
-            return _inner.GetChar(index);
+            return LotteryAlphabet.Get(Inner, _lottery, _salt).NextPage();
         }
 
-        public int GetIndex(char @char)
+        public override IAlphabet NextShuffle()
         {
-            return _inner.GetIndex(@char);
+            return LotteryAlphabet.Get(Inner, _lottery, _salt).NextShuffle();
         }
 
-        public void CopyTo(Span<char> buffer, int index)
-        {
-            _inner.CopyTo(buffer, index);
-        }
-
-        public virtual IAlphabet NextPage()
-        {
-            return _inner.Clone().NextPage();
-        }
-
-        public virtual IAlphabet NextShuffle()
-        {
-            return _inner.Clone().NextShuffle();
-        }
-
-        public IAlphabet Return()
+        public override IAlphabet Return()
         {
             return this;
         }
-
-        public virtual IAlphabet Clone()
-        {
-            return new StepAlphabet(_inner);
-        }
-
-        public int Length => _inner.Length;
     }
 }

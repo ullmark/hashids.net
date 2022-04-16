@@ -115,6 +115,7 @@ namespace HashidsNet
             }
 
             _alphabetProvider = new AlphabetProvider(_alphabet, _salt);
+            _alphabetProvider = new CacheAlphabetProvider(_alphabet, _salt);
         }
 
         /// <summary>
@@ -150,7 +151,7 @@ namespace HashidsNet
         /// </summary>
         /// <param name="numbers">List of 64-bit integers.</param>
         /// <returns>Encoded hash string.</returns>
-        public string EncodeLong(params long[] numbers) => GenerateHashFrom(numbers);
+        public string EncodeLong(params long[] numbers) => HashEncoder.Encode(this, numbers);
 
         /// <summary>
         /// Encodes the provided numbers into a hash string.

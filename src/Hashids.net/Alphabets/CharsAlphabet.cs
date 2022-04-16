@@ -50,11 +50,6 @@ namespace HashidsNet.Alphabets
             return this;
         }
 
-        public IAlphabet Clone()
-        {
-            return new CharsAlphabet(_pageSalt, _chars);
-        }
-
         public int Length => _chars.Length;
     }
 }
