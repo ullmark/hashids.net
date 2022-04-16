@@ -47,7 +47,8 @@ namespace HashidsNet
                         return string.Empty;
                 }
 
-                Span<char> buffer = stackalloc char[GetBufferSize(parent, numbers.Length)];
+                int bufferSize = GetBufferSize(parent, numbers.Length);
+                Span<char> buffer = bufferSize <= 512 ? stackalloc char[bufferSize] : new char[bufferSize];
                 HashEncoder encoder = new HashEncoder(parent, buffer);
 
                 encoder.Write(numbers);
