@@ -18,11 +18,7 @@ namespace HashidsNet.Alphabets
 
         public virtual IAlphabet GetAlphabet(int index)
         {
-            ISalt salt = Salt
-                .Create(_default.GetChar(index))
-                .Concat(_salt);
-
-            return new CharsAlphabet(salt, _chars);
+            return LotteryAlphabet.Get(_default, _default.GetChar(index), _salt);
         }
 
         public IAlphabet GetAlphabet(char @char)

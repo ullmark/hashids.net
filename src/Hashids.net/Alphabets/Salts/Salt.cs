@@ -4,7 +4,7 @@
     {
         public static ISalt Create(char @char)
         {
-            return new CharSalt(@char);
+            return new CharSalt() { Char = @char };
         }
 
         public static ISalt Create(char[] chars)

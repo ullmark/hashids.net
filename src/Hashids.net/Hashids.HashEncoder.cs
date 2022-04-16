@@ -66,6 +66,7 @@ namespace HashidsNet
                 encoder.Prepare(number, 0);
                 encoder.Write(number);
                 encoder.WriteIdle();
+                encoder.ReturnAlphabet();
 
                 return encoder.BuildString();
             }
@@ -103,6 +104,7 @@ namespace HashidsNet
                 encoder.Prepare(number, 0);
                 encoder.Write(number);
                 encoder.WriteIdle();
+                encoder.ReturnAlphabet();
 
                 return encoder.Compare(input);
             }
@@ -123,6 +125,7 @@ namespace HashidsNet
                     Write(numbers[i]);
 
                 WriteIdle();
+                ReturnAlphabet();
             }
 
             private void Write(long number)
@@ -259,6 +262,11 @@ namespace HashidsNet
                     return 1;
 
                 return (int)Math.Log(number, _alphabet.Length) + 1;
+            }
+
+            private void ReturnAlphabet()
+            {
+                _alphabet = _alphabet.Return();
             }
 
             private string BuildString()

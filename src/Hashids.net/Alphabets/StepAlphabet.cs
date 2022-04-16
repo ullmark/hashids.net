@@ -36,6 +36,11 @@ namespace HashidsNet.Alphabets
             return _inner.Clone().NextShuffle();
         }
 
+        public IAlphabet Return()
+        {
+            return this;
+        }
+
         public virtual IAlphabet Clone()
         {
             return new StepAlphabet(_inner);

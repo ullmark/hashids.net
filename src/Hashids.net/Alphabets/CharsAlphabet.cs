@@ -45,6 +45,11 @@ namespace HashidsNet.Alphabets
             return this;
         }
 
+        public IAlphabet Return()
+        {
+            return this;
+        }
+
         public IAlphabet Clone()
         {
             return new CharsAlphabet(_pageSalt, _chars);

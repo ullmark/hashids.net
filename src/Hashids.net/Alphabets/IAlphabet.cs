@@ -6,14 +6,14 @@ namespace HashidsNet.Alphabets
     {
         char GetChar(int index);
         int GetIndex(char @char);
-        
+
         void CopyTo(Span<char> buffer, int index);
 
         IAlphabet NextPage();
         IAlphabet NextShuffle();
+        IAlphabet Return();
         IAlphabet Clone();
 
         int Length { get; }
-
     }
 }
