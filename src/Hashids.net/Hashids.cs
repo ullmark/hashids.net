@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using HashidsNet.Alphabets;
+using HashidsNet.Alphabets.Salts;
 
 namespace HashidsNet
 {
@@ -78,7 +79,7 @@ namespace HashidsNet
             if (_alphabet.Length < (MIN_ALPHABET_LENGTH - 6))
                 throw new ArgumentException($"Alphabet must contain at least {MIN_ALPHABET_LENGTH:N0} unique characters that are also not present in .", paramName: nameof(alphabet));
 
-            ConsistentShuffle(alphabet: _seps, salt: _salt);
+            Salt.Create(_salt).Shuffle(_seps);
 
             if (_seps.Length == 0 || ((float)_alphabet.Length / _seps.Length) > SEP_DIV)
             {
@@ -99,7 +100,7 @@ namespace HashidsNet
                 }
             }
 
-            ConsistentShuffle(alphabet: _alphabet, salt: _salt);
+            Salt.Create(_salt).Shuffle(_alphabet);
 
             var guardCount = (int)Math.Ceiling(_alphabet.Length / GUARD_DIV);
 
@@ -132,7 +133,7 @@ namespace HashidsNet
         /// </summary>
         /// <param name="numbers">List of integers.</param>
         /// <returns>Encoded hash string.</returns>
-        public virtual string Encode(params int[] numbers) => GenerateHashFrom(Array.ConvertAll(numbers, n => (long)n));
+        public virtual string Encode(params int[] numbers) => EncodeLong(Array.ConvertAll(numbers, n => (long)n));
 
         /// <summary>
         /// Encodes the provided numbers into a hash string.
@@ -168,14 +169,14 @@ namespace HashidsNet
         /// <param name="hash">Hash string to decode.</param>
         /// <returns>Array of integers.</returns>
         /// <exception cref="T:System.OverflowException">If the decoded number overflows integer.</exception>
-        public virtual int[] Decode(string hash) => Array.ConvertAll(GetNumbersFrom(hash), n => (int)n);
+        public virtual int[] Decode(string hash) => Array.ConvertAll(DecodeLong(hash), n => (int)n);
 
         /// <summary>
         /// Decodes the provided hash into numbers.
         /// </summary>
         /// <param name="hash">Hash string to decode.</param>
         /// <returns>Array of 64-bit integers.</returns>
-        public long[] DecodeLong(string hash) => GetNumbersFrom(hash);
+        public long[] DecodeLong(string hash) => HashDecoder.Decode(this, hash);
 
         /// <inheritdoc />
         public long DecodeSingleLong(string hash)
@@ -198,11 +199,10 @@ namespace HashidsNet
         /// <inheritdoc />
         public virtual bool TryDecodeSingle(string hash, out int id)
         {
-            var numbers = GetNumbersFrom(hash);
-
-            if (numbers.Length == 1)
+            long idLong;
+            if (TryDecodeSingleLong(hash, out idLong))
             {
-                id = (int)numbers[0];
+                id = (int)idLong;
                 return true;
             }
 
@@ -255,181 +255,6 @@ namespace HashidsNet
             var result = builder.ToString();
             StringBuilderPool.Return(builder);
             return result;
-        }
-
-        private string GenerateHashFrom(ReadOnlySpan<long> numbers)
-        {
-            if (numbers.Length == 0)
-                return string.Empty;
-
-            foreach (var num in numbers)
-                if (num < 0)
-                    return string.Empty;
-
-            long numbersHashInt = 0;
-            for (var i = 0; i < numbers.Length; i++)
-                numbersHashInt += numbers[i] % (i + 100);
-
-            var stringBuilder = StringBuilderPool.Get();
-
-            Span<char> alphabet = _alphabet.Length < 512 ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
-            _alphabet.CopyTo(alphabet);
-
-            var lottery = alphabet[(int)(numbersHashInt % _alphabet.Length)];
-            stringBuilder.Append(lottery);
-
-            Span<char> shuffleBuffer = _alphabet.Length < 512 ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
-            shuffleBuffer[0] = lottery;
-            _salt.AsSpan().Slice(0, Math.Min(_salt.Length, _alphabet.Length - 1)).CopyTo(shuffleBuffer.Slice(1));
-
-            var startIndex = 1 + _salt.Length;
-            var length = _alphabet.Length - startIndex;
-
-            // use buffer size of 19 which is the length of the biggest 64-bit integer (long.MaxValue = 9223372036854775807)
-            Span<char> hashBuffer = stackalloc char[19];
-
-            for (var i = 0; i < numbers.Length; i++)
-            {
-                var number = numbers[i];
-
-                if (length > 0)
-                    alphabet.Slice(0, length).CopyTo(shuffleBuffer.Slice(startIndex));
-
-                ConsistentShuffle(alphabet, shuffleBuffer);
-                var hashLength = BuildReversedHash(number, alphabet, hashBuffer);
-
-                for (var j = hashLength - 1; j > -1; j--)
-                    stringBuilder.Append(hashBuffer[j]);
-
-                if (i + 1 < numbers.Length)
-                {
-                    number %= hashBuffer[hashLength - 1] + i;
-                    var sepsIndex = number % _seps.Length;
-
-                    stringBuilder.Append(_seps[sepsIndex]);
-                }
-            }
-
-            if (stringBuilder.Length < _minHashLength)
-            {
-                var guardIndex = (numbersHashInt + stringBuilder[0]) % _guards.Length;
-                var guard = _guards[guardIndex];
-
-                stringBuilder.Insert(0, guard);
-
-                if (stringBuilder.Length < _minHashLength)
-                {
-                    guardIndex = (numbersHashInt + stringBuilder[2]) % _guards.Length;
-                    guard = _guards[guardIndex];
-
-                    stringBuilder.Append(guard);
-                }
-            }
-
-            var halfLength = _alphabet.Length / 2;
-
-            while (stringBuilder.Length < _minHashLength)
-            {
-                alphabet.CopyTo(shuffleBuffer);
-                ConsistentShuffle(alphabet, shuffleBuffer);
-
-#if NETSTANDARD2_0
-                stringBuilder.Insert(0, alphabet.Slice(halfLength, _alphabet.Length - halfLength).ToArray());
-                stringBuilder.Append(alphabet.Slice(0, halfLength).ToArray());
-#else
-                stringBuilder.Insert(0, alphabet[halfLength.._alphabet.Length]);
-                stringBuilder.Append(alphabet[..halfLength]);
-#endif
-
-                var excess = stringBuilder.Length - _minHashLength;
-                if (excess > 0)
-                {
-                    stringBuilder.Remove(0, excess / 2);
-                    stringBuilder.Remove(_minHashLength, stringBuilder.Length - _minHashLength);
-                }
-            }
-
-            var result = stringBuilder.ToString();
-            StringBuilderPool.Return(stringBuilder);
-            return result;
-        }
-
-        private int BuildReversedHash(long input, ReadOnlySpan<char> alphabet, Span<char> hashBuffer)
-        {
-            var length = 0;
-            do
-            {
-                int idx = (int)(input % _alphabet.Length);
-                hashBuffer[length] = alphabet[idx];
-                length += 1;
-                input /= _alphabet.Length;
-            }
-            while (input > 0);
-
-            return length;
-        }
-
-        private long Unhash(string input, ReadOnlySpan<char> alphabet)
-        {
-            long number = 0;
-
-            for (var i = 0; i < input.Length; i++)
-            {
-                var pos = alphabet.IndexOf(input[i]);
-                number = (number * _alphabet.Length) + pos;
-            }
-
-            return number;
-        }
-
-        private long[] GetNumbersFrom(string hash)
-        {
-            return HashDecoder.Decode(this, hash);
-
-            if (string.IsNullOrWhiteSpace(hash))
-                return Array.Empty<long>();
-
-            var hashArray = hash.Split(_guards, StringSplitOptions.RemoveEmptyEntries);
-            if (hashArray.Length == 0)
-                return Array.Empty<long>();
-
-            var unguardedIdx = (hashArray.Length is 3 or 2) ? 1 : 0;
-            var hashBreakdown = hashArray[unguardedIdx];
-
-            var lottery = hashBreakdown[0];
-            if (lottery == '\0') // default(char) is '\0'
-                return Array.Empty<long>();
-
-            hashArray = hashBreakdown.Substring(1).Split(_seps, StringSplitOptions.RemoveEmptyEntries);
-
-            var result = new long[hashArray.Length];
-
-            Span<char> alphabet = _alphabet.Length < 512 ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
-            _alphabet.CopyTo(alphabet);
-
-            Span<char> buffer = _alphabet.Length < 512 ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
-            buffer[0] = lottery;
-            _salt.AsSpan().Slice(0, Math.Min(_salt.Length, _alphabet.Length - 1)).CopyTo(buffer.Slice(1));
-
-            var startIndex = 1 + _salt.Length;
-            var length = _alphabet.Length - startIndex;
-
-            for (var j = 0; j < hashArray.Length; j++)
-            {
-                var subHash = hashArray[j];
-
-                if (length > 0)
-                    alphabet.Slice(0, length).CopyTo(buffer.Slice(startIndex));
-
-                ConsistentShuffle(alphabet, buffer);
-                result[j] = Unhash(subHash, alphabet);
-            }
-
-            // regenerate hash from numbers and compare to given hash to ensure the correct parameters were used
-            if (GenerateHashFrom(result).Equals(hash, StringComparison.Ordinal))
-                return result;
-
-            return Array.Empty<long>();
         }
 
         /// <summary>
