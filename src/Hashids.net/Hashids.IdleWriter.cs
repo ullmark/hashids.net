@@ -23,6 +23,9 @@ namespace HashidsNet
 
             public static void Write(ref EncodingContext context)
             {
+                if (context.Stats.DataLength == context.Stats.PayloadLength)
+                    return;
+
                 IdleWriter writer = new IdleWriter(context);
 
                 writer.Write();

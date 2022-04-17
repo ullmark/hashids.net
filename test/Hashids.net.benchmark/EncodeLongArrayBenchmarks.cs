@@ -2,7 +2,7 @@
 
 namespace Hashids.net.benchmark
 {
-    public class EncodeLongParamsBenchmarks : ABBenchmarks
+    public class EncodeLongArrayBenchmarks : ABBenchmarks
     {
         [Benchmark(Baseline = true)]
         public override void VersionA()
@@ -23,8 +23,9 @@ namespace Hashids.net.benchmark
         }
 
         [Params(
-            new[] { 12345L },
-            new[] { 12345L, 1234567890123456789L, long.MaxValue }
+            new[] { 5L }, 
+            new[] { 5L, 12345L },
+            new[] { 5L, 12345L, 1234567890123456789L, long.MaxValue }
         )]
         public long[] Value { get; set; }
     }

@@ -13,7 +13,7 @@ namespace Hashids.net.benchmark
     public abstract class ABBenchmarks
     {
         [GlobalSetup]
-        public void Setup()
+        public virtual void Setup()
         {
             VersionAInstance = new HashidsPrev();
             VersionBInstance = new HashidsNet.Hashids();

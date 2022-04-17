@@ -22,7 +22,7 @@ namespace Hashids.net.benchmark
             VersionCInstance.Encode(Value);
         }
 
-        [Params(12345, int.MaxValue)]
+        [Params(5, 12345, int.MaxValue)]
         public int Value { get; set; }
     }
 }
