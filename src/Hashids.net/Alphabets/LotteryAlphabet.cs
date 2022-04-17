@@ -29,6 +29,8 @@ namespace HashidsNet.Alphabets
                 new ConcatSalt(
                     new ConcatSalt(_lotterySalt, _salt),
                     _shuffleSalt);
+
+            Length = 0;
         }
 
         public static LotteryAlphabet Get(IAlphabet baseAlphabet, char lottery, ISalt salt)
@@ -44,6 +46,7 @@ namespace HashidsNet.Alphabets
             alphabet._lotterySalt.Char = lottery;
             alphabet._salt.Inner = salt;
             alphabet._shuffleSalt.Length = baseAlphabet.Length;
+            alphabet.Length = baseAlphabet.Length;
 
             return alphabet;
         }
@@ -55,24 +58,27 @@ namespace HashidsNet.Alphabets
 
         public int GetIndex(char @char)
         {
-            return Array.IndexOf(_chars, @char);
+            return Array.IndexOf(_chars, @char, 0, Length);
         }
 
         public void CopyTo(Span<char> buffer, int index)
         {
+            if (buffer.Length + index > Length)
+                throw new ArgumentOutOfRangeException("Sum of index and buffer length should not exceed length of alphabet.");
+
             _chars.AsSpan(index, buffer.Length).CopyTo(buffer);
         }
 
         public IAlphabet NextPage()
         {
-            _pageSalt.Shuffle(_chars);
+            _pageSalt.Shuffle(_chars, Length);
 
             return this;
         }
 
         public IAlphabet NextShuffle()
         {
-            _shuffleSalt.Shuffle(_chars);
+            _shuffleSalt.Shuffle(_chars, Length);
 
             return this;
         }
@@ -84,6 +90,6 @@ namespace HashidsNet.Alphabets
             return null;
         }
 
-        public int Length => _chars.Length;
+        public int Length { get; private set; }
     }
 }

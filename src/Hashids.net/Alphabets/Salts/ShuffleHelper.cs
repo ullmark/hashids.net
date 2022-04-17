@@ -6,22 +6,26 @@ namespace HashidsNet.Alphabets.Salts
     {
         public static void Shuffle(this ISalt salt, char[] chars)
         {
+            Shuffle(salt, chars, chars.Length);
+        }
+
+        public static void Shuffle(this ISalt salt, char[] chars, int length)
+        {
             if (salt.Length == 0)
                 return;
 
             if (chars.Length <= 1)
                 return;
 
-            Span<int> saltValue = stackalloc int[chars.Length];
+            Span<int> saltValue = stackalloc int[length];
 
             CalculateSaltValue(salt, saltValue);
 
-            int len = chars.Length;
-            Mods mods = FastMod.Create(len);
+            Mods mods = FastMod.Create(length);
 
-            for (int i = len - 1; i > 0; i--)
+            for (int i = length - 1; i > 0; i--)
             {
-                int value = saltValue[len - i - 1];
+                int value = saltValue[length - i - 1];
                 int j = mods.Mod(value, i);
 
                 char temp = chars[j];

@@ -30,9 +30,9 @@ namespace HashidsNet
                 return stats;
             }
 
-            public static HashStats Create(Hashids hashids, long number)
+            public static HashStats Create(Hashids parent, long number)
             {
-                HashStats stats = new HashStats(hashids);
+                HashStats stats = new HashStats(parent);
 
                 stats.Register(number);
                 stats.Done();

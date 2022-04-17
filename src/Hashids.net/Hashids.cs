@@ -180,44 +180,19 @@ namespace HashidsNet
         /// <inheritdoc />
         public long DecodeSingleLong(string hash)
         {
-            var numbers = GetNumbersFrom(hash);
-
-            if (numbers.Length == 0)
-                throw new NoResultException("The hash provided yielded no result.");
-
-            if (numbers.Length > 1)
-                throw new MultipleResultsException("The hash provided yielded more than one result.");
-
-            return numbers[0];
+            return HashDecoder.DecondSingle(this, hash);
         }
 
         /// <inheritdoc />
         public bool TryDecodeSingleLong(string hash, out long id)
         {
-            var numbers = GetNumbersFrom(hash);
-
-            if (numbers.Length == 1)
-            {
-                id = numbers[0];
-                return true;
-            }
-
-            id = 0L;
-            return false;
+            return HashDecoder.TryDecodeSingle(this, hash, out id);
         }
 
         /// <inheritdoc />
         public virtual int DecodeSingle(string hash)
         {
-            var numbers = GetNumbersFrom(hash);
-
-            if (numbers.Length == 0)
-                throw new NoResultException("The hash provided yielded no result.");
-
-            if (numbers.Length > 1)
-                throw new MultipleResultsException("The hash provided yielded more than one result.");
-
-            return (int)numbers[0];
+            return (int)DecodeSingleLong(hash);
         }
 
         /// <inheritdoc />
@@ -409,6 +384,8 @@ namespace HashidsNet
 
         private long[] GetNumbersFrom(string hash)
         {
+            return HashDecoder.Decode(this, hash);
+
             if (string.IsNullOrWhiteSpace(hash))
                 return Array.Empty<long>();
 
