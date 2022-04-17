@@ -475,5 +475,12 @@ namespace HashidsNet
                 (alphabet[i], alphabet[j]) = (alphabet[j], alphabet[i]);
             }
         }
+
+        private char GetSeparator(long number, int numberIndex, char salt)
+        {
+            int index = (int)(number % (salt + numberIndex) % _seps.Length);
+
+            return _seps[index];
+        }
     }
 }
