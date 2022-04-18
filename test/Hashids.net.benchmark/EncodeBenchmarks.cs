@@ -2,7 +2,7 @@
 
 namespace Hashids.net.benchmark
 {
-    public class EncodeIntParamsBenchmarks : ABBenchmarks
+    public class EncodeBenchmarks : ABBenchmarks
     {
         [Benchmark(Baseline = true)]
         public override void VersionA()
@@ -22,11 +22,7 @@ namespace Hashids.net.benchmark
             VersionCInstance.Encode(Value);
         }
 
-        [Params(
-            new[] { 5 },
-            new[] { 5, 12345 },
-            new[] { 5, 12345, int.MaxValue }
-        )]
-        public int[] Value { get; set; }
+        [Params(5, 12345, int.MaxValue)]
+        public int Value { get; set; }
     }
 }

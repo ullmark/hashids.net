@@ -15,14 +15,17 @@ namespace Hashids.net.benchmark
         [GlobalSetup]
         public virtual void Setup()
         {
-            VersionAInstance = new HashidsPrev();
-            VersionBInstance = new HashidsNet.Hashids();
-            VersionCInstance = new HashidsNet.Hashids(useCache: false);
+            VersionAInstance = new HashidsPrev(minHashLength: MinHashLength);
+            VersionBInstance = new HashidsNet.Hashids(minHashLength: MinHashLength);
+            VersionCInstance = new HashidsNet.Hashids(minHashLength: MinHashLength, useCache: false);
         }
 
         public abstract void VersionA();
         public abstract void VersionB();
         public abstract void VersionC();
+
+        [Params(0, 18)]
+        public int MinHashLength { get; set; }
 
         protected IHashids VersionAInstance { get; private set; }
         protected IHashids VersionBInstance { get; private set; }

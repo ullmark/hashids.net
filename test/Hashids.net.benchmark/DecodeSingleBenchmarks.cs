@@ -2,7 +2,7 @@
 
 namespace Hashids.net.benchmark
 {
-    public class DecodeLongArrayBenchmarks : ABBenchmarks
+    public class DecodeSingleBenchmarks : ABBenchmarks
     {
         private string _input;
 
@@ -10,32 +10,28 @@ namespace Hashids.net.benchmark
         {
             base.Setup();
 
-            _input = VersionAInstance.EncodeLong(Value);
+            _input = VersionAInstance.Encode(Value);
         }
 
         [Benchmark(Baseline = true)]
         public override void VersionA()
         {
-            VersionAInstance.DecodeLong(_input);
+            VersionAInstance.DecodeSingle(_input);
         }
 
         [Benchmark]
         public override void VersionB()
         {
-            VersionBInstance.DecodeLong(_input);
+            VersionBInstance.DecodeSingle(_input);
         }
 
         [Benchmark]
         public override void VersionC()
         {
-            VersionCInstance.DecodeLong(_input);
+            VersionCInstance.DecodeSingle(_input);
         }
 
-        [Params(
-            new[] { 5L },
-            new[] { 5L, 12345L },
-            new[] { 5L, 12345L, 1234567890123456789L, long.MaxValue }
-        )]
-        public long[] Value { get; set; }
+        [Params(5, 12345, int.MaxValue)]
+        public int[] Value { get; set; }
     }
 }

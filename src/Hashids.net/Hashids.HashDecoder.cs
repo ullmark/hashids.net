@@ -14,8 +14,7 @@ namespace HashidsNet
             private string _input;
             private char _char;
             private int _index;
-            private long? _number;
-            private char _numberChar;
+            private bool _endOfInput;
             private int _numbersRead;
 
             public HashDecoder(Hashids parent, Span<long> buffer, string input)
@@ -26,84 +25,59 @@ namespace HashidsNet
                 _input = input;
                 _char = '\0';
                 _index = 0;
-                _number = null;
-                _numberChar = '\0';
+                _endOfInput = false;
                 _numbersRead = 0;
             }
 
             public static long[] Decode(Hashids parent, string input)
             {
-                int numbersCount = GetNumbersCount(parent, input);
-
-                if (numbersCount == 0)
+                if (string.IsNullOrEmpty(input))
                     return Array.Empty<long>();
 
-                long[] buffer = new long[numbersCount];
+                int bufferSize = input.Length / 2;
+
+                Span<long> buffer = bufferSize <= 512 ? stackalloc long[bufferSize] : new long[bufferSize];
                 HashDecoder hashDecoder = new HashDecoder(parent, buffer, input);
 
-                return hashDecoder.TryDecode() ? buffer : Array.Empty<long>();
+                if (!hashDecoder.TryDecode())
+                    return Array.Empty<long>();
+
+                return buffer.Slice(0, hashDecoder._numbersRead).ToArray();
             }
 
             public static long DecondSingle(Hashids parent, string input)
             {
-                int numbersCount = GetNumbersCount(parent, input);
-
-                if (numbersCount == 0)
-                    throw new NoResultException("The hash provided yielded no result.");
-
-                if (numbersCount > 1)
-                    throw new MultipleResultsException("The hash provided yielded more than one result.");
-
                 Span<long> buffer = stackalloc long[1];
                 HashDecoder hashDecoder = new HashDecoder(parent, buffer, input);
 
-                if (hashDecoder.TryDecode())
-                    return buffer[0];
+                if (!hashDecoder.TryDecode())
+                    throw new NoResultException("The hash provided yielded no result.");
 
-                throw new NoResultException("The hash provided yielded no result.");
+                if (hashDecoder._numbersRead > 1)
+                    throw new MultipleResultsException("The hash provided yielded more than one result.");
+
+                return buffer[0];
             }
 
             public static bool TryDecodeSingle(Hashids parent, string input, out long id)
             {
-                id = 0L;
-
-                if (GetNumbersCount(parent, input) != 1)
-                    return false;
-
                 Span<long> buffer = stackalloc long[1];
                 HashDecoder hashDecoder = new HashDecoder(parent, buffer, input);
 
-                if (hashDecoder.TryDecode())
+                if (hashDecoder.TryDecode() && hashDecoder._numbersRead == 1)
                 {
                     id = buffer[0];
                     return true;
                 }
 
+                id = 0L;
                 return false;
-            }
-
-            private static int GetNumbersCount(Hashids parent, string input)
-            {
-                if (string.IsNullOrEmpty(input))
-                    return 0;
-
-                int count = 1;
-
-                for (int i = 0; i < input.Length; i++)
-                {
-                    if (parent._seps.Contains(input[i]))
-                        count++;
-                }
-
-                return count;
             }
 
             public bool TryDecode()
             {
-                if (_input.Length < _parent._minHashLength)
+                if (!ValidateHashLength())
                     return false;
-
-                ReadIdle();
 
                 if (!Read())
                     return false;
@@ -113,11 +87,31 @@ namespace HashidsNet
                 if (_alphabet == null)
                     return false;
 
-                bool valid = ReadNumbers() && ValidateIdle();
+                bool valid = TryReadNumbers() && _numbersRead > 0 && ValidateIdle();
 
                 _alphabet.Return();
 
                 return valid;
+            }
+
+            private bool ValidateHashLength()
+            {
+                if (_parent._minHashLength == 0)
+                    return true;
+
+                if (_input.Length < _parent._minHashLength)
+                    return false;
+
+                while (Read())
+                {
+                    if (IsGuard())
+                        return true;
+                }
+
+                _index = 0;
+                _endOfInput = false;
+
+                return true;
             }
 
             private bool Read()
@@ -125,6 +119,7 @@ namespace HashidsNet
                 if (_index >= _input.Length)
                 {
                     _char = default(char);
+                    _endOfInput = true;
                     return false;
                 }
 
@@ -132,81 +127,68 @@ namespace HashidsNet
                 return true;
             }
 
-            private void ReadIdle()
+            private bool TryReadNumbers()
             {
+                long? number = null;
+                char separatorSalt = '\0';
+
                 while (Read())
                 {
-                    if (IsGuard())
-                        return;
-                }
-
-                _index = 0;
-            }
-
-            private bool ReadNumbers()
-            {
-                while (Read() && !IsGuard())
-                {
-                    if (IsSeparator())
+                    if (number == null)
                     {
-                        if (!ValidateSepartor())
-                            return false;
-
-                        Push(_number);
-
-                        continue;
-                    }
-
-                    if (_number == null)
-                    {
-                        _number = 0L;
-                        _numberChar = _char;
-
                         _alphabet = _alphabet.NextPage();
+
+                        number = 0L;
+                        separatorSalt = _char;
                     }
 
                     int charIndex = _alphabet.GetIndex(_char);
 
-                    if (charIndex == -1)
+                    if (charIndex >= 0)
+                    {
+                        number = number.GetValueOrDefault() * _alphabet.Length + charIndex;
+
+                        continue;
+                    }
+
+                    if (number == null)
                         return false;
 
-                    _number *= _alphabet.Length;
-                    _number += charIndex;
+                    Push(number.GetValueOrDefault());
+
+                    if (_parent._minHashLength > 0 && IsGuard())
+                        return true;
+
+                    char separator = _parent.GetSeparator(number.GetValueOrDefault(), _numbersRead - 1, separatorSalt);
+
+                    if (separator != _char)
+                        return false;
+
+                    number = null;
                 }
 
-                Push(_number);
+                if (number != null)
+                    Push(number.GetValueOrDefault());
+
                 return true;
             }
 
-            private void Push(long? number)
+            private void Push(long number)
             {
-                if (_number != null)
-                    _buffer[_numbersRead++] = number.GetValueOrDefault();
+                if (_numbersRead < _buffer.Length)
+                    _buffer[_numbersRead] = number;
 
-                _number = null;
-                _numberChar = '\0';
+                _numbersRead++;
             }
 
             private bool IsGuard()
             {
-                return _parent._guards.Contains(_char);
-            }
-
-            private bool IsSeparator()
-            {
-                return _parent._seps.Contains(_char);
-            }
-
-            private bool ValidateSepartor()
-            {
-                char separator = _parent.GetSeparator(_number.GetValueOrDefault(), _numbersRead, _numberChar);
-
-                return separator == _char;
+                return Array.IndexOf(_parent._guards, _char) >= 0;
             }
 
             private bool ValidateIdle()
             {
-                if (_input.Length == _index)
+                if (_endOfInput)
                     return true;
 
                 Span<char> buffer = _input.Length >= 512 ? stackalloc char[_input.Length] : new char[_input.Length];
