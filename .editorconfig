@@ -24,3 +24,13 @@ dotnet_style_qualification_for_property = false
 # IDE0058: Expression value is never used
 csharp_style_unused_value_expression_statement_preference = discard_variable:none
 dotnet_diagnostic.IDE0058.severity = none
+
+dotnet_naming_rule.private_members.symbols = private_fields
+dotnet_naming_rule.private_members.style = prefix_underscore
+dotnet_naming_rule.private_members.severity = suggestion
+
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+
+dotnet_naming_style.prefix_underscore.capitalization = camel_case
+dotnet_naming_style.prefix_underscore.required_prefix = _
