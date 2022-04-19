@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using HashidsNet.Alphabets;
 
 namespace HashidsNet
 {
@@ -27,6 +28,7 @@ namespace HashidsNet
         private static readonly Lazy<Regex> HexValidator = new(() => new Regex("^[0-9a-fA-F]+$", RegexOptions.Compiled));
         private static readonly Lazy<Regex> HexSplitter = new(() => new Regex(@"[\w\W]{1,12}", RegexOptions.Compiled));
         private readonly StringBuilderPool StringBuilderPool = new();
+        private readonly AlphabetProvider _alphabetProvider;
 
         /// <summary>
         /// Instantiates a new Hashids encoder/decoder with defaults.
@@ -110,6 +112,8 @@ namespace HashidsNet
                 _guards = _alphabet.SubArray(index: 0, length: guardCount);
                 _alphabet = _alphabet.SubArray(index: guardCount);
             }
+
+            _alphabetProvider = new AlphabetProvider(_alphabet, _salt);
         }
 
         /// <summary>
@@ -466,6 +470,13 @@ namespace HashidsNet
                 // swap characters at positions i and j:
                 (alphabet[i], alphabet[j]) = (alphabet[j], alphabet[i]);
             }
+        }
+
+        private char GetSeparator(long number, int numberIndex, char salt)
+        {
+            int index = (int)(number % (salt + numberIndex) % _seps.Length);
+
+            return _seps[index];
         }
     }
 }
