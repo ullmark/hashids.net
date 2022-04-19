@@ -1,6 +1,8 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
+using HashidsNet;
+using System;
 
 namespace Hashids.net.benchmark
 {
@@ -13,14 +15,16 @@ namespace Hashids.net.benchmark
     [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByJob)]
     public class HashBenchmarks
     {
-        private readonly HashidsNet.Hashids _hashids;
         private readonly int[] _ints = { 12345, 1234567890, int.MaxValue };
         private readonly long[] _longs = { 12345, 1234567890123456789, long.MaxValue };
         private readonly string _hex = "507f1f77bcf86cd799439011";
 
-        public HashBenchmarks()
+        private IHashids _hashids;
+
+        [GlobalSetup]
+        public void Setup()
         {
-            _hashids = new HashidsNet.Hashids();
+            _hashids = CreateInstance();
         }
 
         [Benchmark]
@@ -57,5 +61,22 @@ namespace Hashids.net.benchmark
             var encoded = _hashids.Encode(new[] { 1 });
             var encodedLong = _hashids.EncodeLong(new[] { (long)1 });
         }
+
+        private IHashids CreateInstance()
+        {
+            switch (Version)
+            {
+                case HashidsVersion.Prev: return new HashidsPrev();
+                case HashidsVersion.Current: return new HashidsNet.Hashids();
+                case HashidsVersion.WithoutCache: return new HashidsNet.Hashids(useCache: false);
+                default: throw new InvalidOperationException();
+            }
+        }
+
+        [Params(
+            HashidsVersion.Prev,
+            HashidsVersion.Current,
+            HashidsVersion.WithoutCache)]
+        public HashidsVersion Version { get; set; }
     }
 }
