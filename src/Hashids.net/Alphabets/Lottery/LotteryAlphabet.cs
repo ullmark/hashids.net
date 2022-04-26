@@ -1,7 +1,7 @@
 ﻿using HashidsNet.Alphabets.Salts;
 using System;
 
-namespace HashidsNet.Alphabets
+namespace HashidsNet.Alphabets.Lottery
 {
     public partial class LotteryAlphabet : IAlphabet
     {

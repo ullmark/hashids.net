@@ -1,4 +1,5 @@
-﻿using HashidsNet.Alphabets.Salts;
+﻿using HashidsNet.Alphabets.Lottery;
+using HashidsNet.Alphabets.Salts;
 using System;
 
 namespace HashidsNet.Alphabets

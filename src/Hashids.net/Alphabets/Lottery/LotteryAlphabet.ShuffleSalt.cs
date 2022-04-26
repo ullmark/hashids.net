@@ -1,6 +1,6 @@
 ﻿using HashidsNet.Alphabets.Salts;
 
-namespace HashidsNet.Alphabets
+namespace HashidsNet.Alphabets.Lottery
 {
     public partial class LotteryAlphabet
     {
