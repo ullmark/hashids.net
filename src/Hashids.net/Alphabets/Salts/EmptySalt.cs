@@ -10,7 +10,7 @@ namespace HashidsNet.Alphabets.Salts
         {
         }
 
-        public void Calculate(Span<int> buffer, int saltLength, ref int saltSum)
+        public void Calculate(Span<int> buffer, ref int saltSum)
         {
             if (buffer.Length > 0)
                 throw new InvalidOperationException();

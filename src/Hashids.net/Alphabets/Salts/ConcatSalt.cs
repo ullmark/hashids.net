@@ -13,16 +13,35 @@ namespace HashidsNet.Alphabets.Salts
             _y = y;
         }
 
-        public void Calculate(Span<int> buffer, int saltIndex, ref int saltSum)
+        public static void Calculate(ISalt salt, Span<int> buffer, ref int saltIndex, ref int saltSum)
+        {
+            int length = Math.Min(salt.Length, buffer.Length - saltIndex);
+
+            if (length <= 0)
+                return;
+
+            buffer = buffer.Slice(saltIndex, length);
+
+            salt.Calculate(buffer, ref saltSum);
+
+            if (saltIndex > 0)
+            {
+                for (int i = 0; i < length; i++)
+                    buffer[i] += saltIndex;
+            }
+
+            saltIndex += length;
+        }
+
+        public void Calculate(Span<int> buffer, ref int saltSum)
         {
             if (buffer.Length == 0)
                 return;
 
-            int xLength = Math.Min(_x.Length, buffer.Length);
-            int yLength = buffer.Length - xLength;
+            int index = 0;
 
-            _x.Calculate(buffer.Slice(0, xLength), saltIndex, ref saltSum);
-            _y.Calculate(buffer.Slice(xLength, yLength), saltIndex + xLength, ref saltSum);
+            Calculate(_x, buffer, ref index, ref saltSum);
+            Calculate(_y, buffer, ref index, ref saltSum);
         }
 
         public int Length => _x.Length + _y.Length;

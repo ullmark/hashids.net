@@ -38,9 +38,9 @@ namespace HashidsNet.Alphabets.Salts
         {
             int saltSum = 0;
 
-            if (salt.Length > buffer.Length)
+            if (salt.Length >= buffer.Length)
             {
-                salt.Calculate(buffer, 0, ref saltSum);
+                salt.Calculate(buffer, ref saltSum);
                 return;
             }
 
@@ -51,7 +51,7 @@ namespace HashidsNet.Alphabets.Salts
                 int spanLength = Math.Min(salt.Length, buffer.Length - index);
                 Span<int> span = buffer.Slice(index, spanLength);
 
-                salt.Calculate(span, 0, ref saltSum);
+                salt.Calculate(span, ref saltSum);
 
                 index += spanLength;
             } while (index < buffer.Length);

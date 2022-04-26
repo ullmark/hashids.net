@@ -1,52 +1,33 @@
 ﻿using HashidsNet.Alphabets.Salts;
 using System;
-using System.Threading;
 
 namespace HashidsNet.Alphabets
 {
-    public class LotteryAlphabet : IAlphabet
+    public partial class LotteryAlphabet : IAlphabet
     {
         [ThreadStatic]
         private static LotteryAlphabet _cache;
 
-        private readonly char[] _chars;
-        private readonly CharSalt _lotterySalt;
-        private readonly WeekSalt _salt;
-        private readonly CharsSalt _shuffleSalt;
-        private readonly ConcatSalt _pageSalt;
+        private readonly ShuffleSalt _shuffleSalt;
+        private readonly PageSalt _pageSalt;
 
-        private LotteryAlphabet(int maxlength)
+        private char[] _chars;
+        private char _lottery;
+        private ISalt _salt;
+
+        private LotteryAlphabet()
         {
-            _chars = new char[maxlength];
+            _shuffleSalt = new ShuffleSalt(this);
+            _pageSalt = new PageSalt(this);
 
-            _lotterySalt = new CharSalt();
-            _salt = new WeekSalt();
-
-            _shuffleSalt = new CharsSalt(_chars);
-            _shuffleSalt.Length = 0;
-
-            _pageSalt =
-                new ConcatSalt(
-                    new ConcatSalt(_lotterySalt, _salt),
-                    _shuffleSalt);
-
-            Length = 0;
+            Reset();
         }
 
         public static LotteryAlphabet Get(IAlphabet baseAlphabet, char lottery, ISalt salt)
         {
-            LotteryAlphabet alphabet = _cache;
+            LotteryAlphabet alphabet = _cache ?? new LotteryAlphabet();
 
-            if (alphabet == null || alphabet.Length < baseAlphabet.Length)
-                alphabet = new LotteryAlphabet(baseAlphabet.Length);
-
-            Span<char> span = alphabet._chars.AsSpan(0, baseAlphabet.Length);
-            baseAlphabet.CopyTo(span, 0);
-
-            alphabet._lotterySalt.Char = lottery;
-            alphabet._salt.Inner = salt;
-            alphabet._shuffleSalt.Length = baseAlphabet.Length;
-            alphabet.Length = baseAlphabet.Length;
+            alphabet.Set(baseAlphabet, lottery, salt);
 
             return alphabet;
         }
@@ -88,6 +69,29 @@ namespace HashidsNet.Alphabets
             _cache = this;
 
             return null;
+        }
+
+        private void Set(IAlphabet baseAlphabet, char lottery, ISalt salt)
+        {
+            if (_chars.Length < baseAlphabet.Length)
+                _chars = new char[baseAlphabet.Length];
+
+            Span<char> span = _chars.AsSpan(0, baseAlphabet.Length);
+            baseAlphabet.CopyTo(span, 0);
+
+            _lottery = lottery;
+            _salt = salt;
+
+            Length = baseAlphabet.Length;
+        }
+
+        private void Reset()
+        {
+            _chars = Array.Empty<char>();
+            _lottery = '\0';
+            _salt = EmptySalt.Instance;
+
+            Length = 0;
         }
 
         public int Length { get; private set; }

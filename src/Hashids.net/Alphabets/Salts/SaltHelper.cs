@@ -15,7 +15,7 @@ namespace HashidsNet.Alphabets.Salts
             int[] buffer = new int[salt.Length];
             int saltSum = 0;
 
-            salt.Calculate(new Span<int>(buffer), 0, ref saltSum);
+            salt.Calculate(new Span<int>(buffer), ref saltSum);
 
             return Salt.Create(buffer, saltSum);
         }

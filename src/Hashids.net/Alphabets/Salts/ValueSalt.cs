@@ -13,10 +13,10 @@ namespace HashidsNet.Alphabets.Salts
             _sum = sum;
         }
 
-        public void Calculate(Span<int> buffer, int saltIndex, ref int saltSum)
+        public void Calculate(Span<int> buffer, ref int saltSum)
         {
             for (var i = 0; i < buffer.Length; i++)
-                buffer[i] = _value[i] + saltIndex + saltSum;
+                buffer[i] = _value[i] + saltSum;
 
             saltSum += _sum;
         }

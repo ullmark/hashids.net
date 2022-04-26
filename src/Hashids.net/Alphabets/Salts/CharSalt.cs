@@ -2,22 +2,13 @@
 
 namespace HashidsNet.Alphabets.Salts
 {
-    public class CharSalt : ISalt
+    public class CharSalt : BaseCharSalt
     {
-        public void Calculate(Span<int> buffer, int saltIndex, ref int saltSum)
+        public CharSalt(char @char)
         {
-            if (buffer.Length == 0)
-                return;
-
-            if (buffer.Length > 1)
-                throw new InvalidOperationException("The one char salt could calculate only sinle value.");
-
-            buffer[0] = saltSum + saltIndex + Char + Char;
-            saltSum += Char;
+            Char = @char;
         }
 
-        public char Char { get; set; }
-
-        public int Length => 1;
+        protected override char Char { get; }
     }
 }
