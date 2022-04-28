@@ -191,7 +191,7 @@ namespace HashidsNet
                 if (_endOfInput)
                     return true;
 
-                Span<char> buffer = _input.Length >= 512 ? stackalloc char[_input.Length] : new char[_input.Length];
+                Span<char> buffer = _input.Length <= 512 ? stackalloc char[_input.Length] : new char[_input.Length];
 
                 _input.AsSpan().CopyTo(buffer);
 
