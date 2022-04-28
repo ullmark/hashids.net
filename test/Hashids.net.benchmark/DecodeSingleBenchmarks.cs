@@ -32,6 +32,6 @@ namespace Hashids.net.benchmark
         }
 
         [Params(5, 12345, int.MaxValue)]
-        public int[] Value { get; set; }
+        public int Value { get; set; }
     }
 }
