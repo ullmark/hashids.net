@@ -16,6 +16,19 @@ namespace HashidsNet
                 DataLength = parent._minHashLength;
                 Lottery = 0;
                 Count = 0;
+                Valid = true;
+            }
+
+            public static HashStats Create(Hashids parent, ReadOnlySpan<int> numbers)
+            {
+                HashStats stats = new HashStats(parent);
+
+                for (int i = 0; i < numbers.Length; i++)
+                    stats.Register(numbers[i]);
+
+                stats.Done();
+
+                return stats;
             }
 
             public static HashStats Create(Hashids parent, ReadOnlySpan<long> numbers)
@@ -53,6 +66,7 @@ namespace HashidsNet
                 PayloadHash += number % (Count + 100);
                 PayloadLength += GetPayloadLength(number) + 1;
                 Count++;
+                Valid = Valid && number >= 0L;
             }
 
             private void Done()
@@ -71,6 +85,7 @@ namespace HashidsNet
             public int DataLength { get; private set; }
             public int Lottery { get; private set; }
             public int Count { get; private set; }
+            public bool Valid { get; private set; }
         }
     }
 }

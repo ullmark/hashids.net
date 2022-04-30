@@ -29,7 +29,28 @@ namespace HashidsNet
                 _numbersRead = 0;
             }
 
-            public static long[] Decode(Hashids parent, string input)
+            public static int[] Decode(Hashids parent, string input)
+            {
+                if (string.IsNullOrEmpty(input))
+                    return Array.Empty<int>();
+
+                int bufferSize = input.Length / 2;
+
+                Span<long> buffer = bufferSize <= 512 ? stackalloc long[bufferSize] : new long[bufferSize];
+                HashDecoder hashDecoder = new HashDecoder(parent, buffer, input);
+
+                if (!hashDecoder.TryDecode())
+                    return Array.Empty<int>();
+
+                int[] result = new int[hashDecoder._numbersRead];
+
+                for (int i = 0; i < result.Length; i++)
+                    result[i] = (int)buffer[i];
+
+                return result;
+            }
+
+            public static long[] DecodeLong(Hashids parent, string input)
             {
                 if (string.IsNullOrEmpty(input))
                     return Array.Empty<long>();

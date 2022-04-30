@@ -133,7 +133,7 @@ namespace HashidsNet
         /// </summary>
         /// <param name="numbers">List of integers.</param>
         /// <returns>Encoded hash string.</returns>
-        public virtual string Encode(params int[] numbers) => EncodeLong(Array.ConvertAll(numbers, n => (long)n));
+        public virtual string Encode(params int[] numbers) => HashEncoder.Encode(this, numbers);
 
         /// <summary>
         /// Encodes the provided numbers into a hash string.
@@ -169,14 +169,14 @@ namespace HashidsNet
         /// <param name="hash">Hash string to decode.</param>
         /// <returns>Array of integers.</returns>
         /// <exception cref="T:System.OverflowException">If the decoded number overflows integer.</exception>
-        public virtual int[] Decode(string hash) => Array.ConvertAll(DecodeLong(hash), n => (int)n);
+        public virtual int[] Decode(string hash) => HashDecoder.Decode(this, hash);
 
         /// <summary>
         /// Decodes the provided hash into numbers.
         /// </summary>
         /// <param name="hash">Hash string to decode.</param>
         /// <returns>Array of 64-bit integers.</returns>
-        public long[] DecodeLong(string hash) => HashDecoder.Decode(this, hash);
+        public long[] DecodeLong(string hash) => HashDecoder.DecodeLong(this, hash);
 
         /// <inheritdoc />
         public long DecodeSingleLong(string hash)

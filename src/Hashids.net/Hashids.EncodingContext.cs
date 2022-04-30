@@ -32,6 +32,11 @@ namespace HashidsNet
                 Alphabet = alphabet;
                 Index = 0;
             }
+
+            public void Dispose()
+            {
+                Alphabet.Return();
+            }
         }
     }
 }

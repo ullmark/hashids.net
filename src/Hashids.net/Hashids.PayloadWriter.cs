@@ -29,11 +29,13 @@ namespace HashidsNet
                 _lastNumberChar = '\0';
             }
 
-            public static void Write(ref EncodingContext context, long number)
+            public static void Write(ref EncodingContext context, ReadOnlySpan<int> numbers)
             {
                 PayloadWriter writer = new PayloadWriter(context);
 
-                writer.Write(number);
+                for (int i = 0; i < numbers.Length; i++)
+                    writer.Write((long)numbers[i]);
+
                 writer.Update(ref context);
             }
 
@@ -44,6 +46,14 @@ namespace HashidsNet
                 for (int i = 0; i < numbers.Length; i++)
                     writer.Write(numbers[i]);
 
+                writer.Update(ref context);
+            }
+
+            public static void Write(ref EncodingContext context, long number)
+            {
+                PayloadWriter writer = new PayloadWriter(context);
+
+                writer.Write(number);
                 writer.Update(ref context);
             }
 
