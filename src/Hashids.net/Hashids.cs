@@ -257,27 +257,6 @@ namespace HashidsNet
             return result;
         }
 
-        /// <summary>
-        /// NOTE: This method mutates the <paramref name="alphabet"/> argument in-place.
-        /// </summary>
-        private static void ConsistentShuffle(Span<char> alphabet, ReadOnlySpan<char> salt)
-        {
-            if (salt.Length == 0)
-                return;
-
-            // TODO: Document or rename these cryptically-named variables: i, v, p, n.
-            for (int i = alphabet.Length - 1, v = 0, n, p = 0; i > 0; i--, v++)
-            {
-                v %= salt.Length;
-                n = salt[v];
-                p += n;
-                var j = (n + v + p) % i;
-
-                // swap characters at positions i and j:
-                (alphabet[i], alphabet[j]) = (alphabet[j], alphabet[i]);
-            }
-        }
-
         private char GetSeparator(long number, int numberIndex, char salt)
         {
             int index = (int)(number % (salt + numberIndex) % _seps.Length);
