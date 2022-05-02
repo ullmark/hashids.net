@@ -39,6 +39,18 @@ namespace HashidsNet.test
         }
 
         [Fact]
+        public void SingleInt_Formats()
+        {
+            string.Format(_hashids, "{0:H}", 1).Should().Be("NV");
+            string.Format(_hashids, "{0:H}", 22).Should().Be("K4");
+            string.Format(_hashids, "{0:H}", 333).Should().Be("OqM");
+            string.Format(_hashids, "{0:H}", 9999).Should().Be("kQVg");
+            string.Format(_hashids, "{0:H}", 123000).Should().Be("58LzD");
+            string.Format(_hashids, "{0:H}", 456000000).Should().Be("5gn6mQP");
+            string.Format(_hashids, "{0:H}", 987654321).Should().Be("oyjYvry");
+        }
+
+        [Fact]
         public void SingleInt_Decodes()
         {
             _hashids.Decode("NkK9").Should().Equal(new[] { 12345 });
@@ -96,6 +108,17 @@ namespace HashidsNet.test
             _hashids.EncodeLong(666555444333222L).Should().Be("KVO9yy1oO5j");
             _hashids.EncodeLong(12345678901112L).Should().Be("4bNP1L26r");
             _hashids.EncodeLong(long.MaxValue).Should().Be("jvNx4BjM5KYjv");
+        }
+
+        [Fact]
+        public void SingleLong_Formats()
+        {
+            string.Format(_hashids, "{0:h}", 1L).Should().Be("NV");
+            string.Format(_hashids, "{0:h}", 2147483648L).Should().Be("21OjjRK");
+            string.Format(_hashids, "{0:h}", 4294967296L).Should().Be("D54yen6");
+            string.Format(_hashids, "{0:h}", 666555444333222L).Should().Be("KVO9yy1oO5j");
+            string.Format(_hashids, "{0:h}", 12345678901112L).Should().Be("4bNP1L26r");
+            string.Format(_hashids, "{0:h}", long.MaxValue).Should().Be("jvNx4BjM5KYjv");
         }
 
         [Fact]
@@ -166,6 +189,18 @@ namespace HashidsNet.test
         }
 
         [Fact]
+        public void ListOfInt_Format()
+        {
+            string.Format(_hashids, "{0:H}", new[] { 1, 2, 3 }).Should().Be("laHquq");
+            string.Format(_hashids, "{0:H}", new[] { 2, 4, 6 }).Should().Be("44uotN");
+            string.Format(_hashids, "{0:H}", new[] { 99, 25 }).Should().Be("97Jun");
+            string.Format(_hashids, "{0:H}", new[] { 1337, 42, 314 }).Should().Be("7xKhrUxm");
+            string.Format(_hashids, "{0:H}", new[] { 683, 94108, 123, 5 }).Should().Be("aBMswoO2UB3Sj");
+            string.Format(_hashids, "{0:H}", new[] { 547, 31, 241271, 311, 31397, 1129, 71129 }).Should().Be("3RoSDhelEyhxRsyWpCx5t1ZK");
+            string.Format(_hashids, "{0:H}", new[] { 21979508, 35563591, 57543099, 93106690, 150649789 }).Should().Be("p2xkL3CK33JjcrrZ8vsw4YRZueZX9k");
+        }
+
+        [Fact]
         public void ListOfInt_Decodes()
         {
             _hashids.Decode("1gRYUwKxBgiVuX").Should().Equal(new[] { 66655, 5444333, 2, 22 });
@@ -188,6 +223,12 @@ namespace HashidsNet.test
         public void ListOfLong_Encodes()
         {
             _hashids.EncodeLong(666555444333222L, 12345678901112L).Should().Be("mPVbjj7yVMzCJL215n69");
+        }
+
+        [Fact]
+        public void ListOfLong_Formats()
+        {
+            string.Format(_hashids, "{0:H}", new[] { 666555444333222L, 12345678901112L }).Should().Be("mPVbjj7yVMzCJL215n69");
         }
 
         [Fact]
@@ -215,6 +256,19 @@ namespace HashidsNet.test
             _hashids.EncodeHex("17b8d").Should().Be("MRWNE");
             _hashids.EncodeHex("1d7f21dd38").Should().Be("4o6Z7KqxE");
             _hashids.EncodeHex("20015111d").Should().Be("ooweQVNB");
+        }
+
+        [Fact]
+        public void HexString_Format()
+        {
+            string.Format(_hashids, "{0:H}", "FA").Should().Be("lzY");
+            string.Format(_hashids, "{0:H}", "26dd").Should().Be("MemE");
+            string.Format(_hashids, "{0:H}", "FF1A").Should().Be("eBMrb");
+            string.Format(_hashids, "{0:H}", "12abC").Should().Be("D9NPE");
+            string.Format(_hashids, "{0:H}", "185b0").Should().Be("9OyNW");
+            string.Format(_hashids, "{0:H}", "17b8d").Should().Be("MRWNE");
+            string.Format(_hashids, "{0:H}", "1d7f21dd38").Should().Be("4o6Z7KqxE");
+            string.Format(_hashids, "{0:H}", "20015111d").Should().Be("ooweQVNB");
         }
 
         [Fact]
