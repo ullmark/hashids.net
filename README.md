@@ -93,6 +93,25 @@ number = hashids.DecodeSingle("NkK9");
 
 ```C#
 var hashids = new Hashids("this is my pepper");
+number =hashids.DecodeSingleOrDefault("NkK9");
+```
+
+`number` is now going to be:
+
+    12345
+
+```C#
+var hashids = new Hashids("this is my pepper");
+number =hashids.DecodeSingleOrDefault("NkK8"); //Incorrect hash
+```
+
+`number` is now going to be:
+
+    null
+
+
+```C#
+var hashids = new Hashids("this is my pepper");
 
 if (hashids.TryDecodeSingle("NkK9", out int number)) { // Decoding hash successfull. }
 ```

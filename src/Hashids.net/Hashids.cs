@@ -213,6 +213,20 @@ namespace HashidsNet
         }
 
         /// <inheritdoc />
+        public virtual int? DecodeSingleOrDefault(string hash)
+        {
+            var numbers = GetNumbersFrom(hash);
+
+            if (numbers.Length == 0)
+                return null;
+
+            if (numbers.Length > 1)
+                throw new MultipleResultsException("The hash provided yielded more than one result.");
+
+            return (int)numbers[0];
+        }
+
+        /// <inheritdoc />
         public virtual bool TryDecodeSingle(string hash, out int id)
         {
             var numbers = GetNumbersFrom(hash);

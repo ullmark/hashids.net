@@ -61,6 +61,7 @@ namespace HashidsNet.test
             Assert.Throws<MultipleResultsException>(() => _hashids.DecodeSingle("aBMswoO2UB3Sj"));
         }
 
+
         [Fact]
         public void SingleInt_DecodesSingleNumberWithTry()
         {
@@ -416,6 +417,19 @@ namespace HashidsNet.test
             var mock = new Mock<Hashids>();
             mock.Setup(hashids => hashids.Encode(It.IsAny<int[]>())).Returns("It works");
             mock.Object.Encode(new[] { 1 }).Should().Be("It works");
+        }
+
+        [Fact]
+        public void SingleInt_DecodesSingleNumbe_UsingDecodeSingleOrDefault()
+        {
+            _hashids.DecodeSingleOrDefault("NkK9").Should().Be(12345);
+            _hashids.DecodeSingleOrDefault("5O8yp5P").Should().Be(666555444);
+            _hashids.DecodeSingleOrDefault("Wzo").Should().Be(1337);
+            _hashids.DecodeSingleOrDefault("DbE").Should().Be(808);
+            _hashids.DecodeSingleOrDefault("yj8").Should().Be(303);
+
+            _hashids.DecodeSingleOrDefault(string.Empty).Should().BeNull();
+            Assert.Throws<MultipleResultsException>(() => _hashids.DecodeSingle("aBMswoO2UB3Sj"));
         }
     }
 }
