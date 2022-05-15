@@ -13,6 +13,7 @@ namespace HashidsNet
         public const string DEFAULT_ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         public const string DEFAULT_SEPS = "cfhistuCFHISTU";
         public const int MIN_ALPHABET_LENGTH = 16;
+        public const int MAX_STACKALLOC_SIZE = 512;
 
         private const double SEP_DIV = 3.5;
         private const double GUARD_DIV = 12.0;
@@ -289,13 +290,13 @@ namespace HashidsNet
 
             var stringBuilder = StringBuilderPool.Get();
 
-            Span<char> alphabet = _alphabet.Length < 512 ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
+            Span<char> alphabet = _alphabet.Length < MAX_STACKALLOC_SIZE ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
             _alphabet.CopyTo(alphabet);
 
             var lottery = alphabet[(int)(numbersHashInt % _alphabet.Length)];
             stringBuilder.Append(lottery);
 
-            Span<char> shuffleBuffer = _alphabet.Length < 512 ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
+            Span<char> shuffleBuffer = _alphabet.Length < MAX_STACKALLOC_SIZE ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
             shuffleBuffer[0] = lottery;
             _salt.AsSpan().Slice(0, Math.Min(_salt.Length, _alphabet.Length - 1)).CopyTo(shuffleBuffer.Slice(1));
 
@@ -419,10 +420,10 @@ namespace HashidsNet
 
             var result = new long[hashArray.Length];
 
-            Span<char> alphabet = _alphabet.Length < 512 ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
+            Span<char> alphabet = _alphabet.Length < MAX_STACKALLOC_SIZE ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
             _alphabet.CopyTo(alphabet);
 
-            Span<char> buffer = _alphabet.Length < 512 ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
+            Span<char> buffer = _alphabet.Length < MAX_STACKALLOC_SIZE ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
             buffer[0] = lottery;
             _salt.AsSpan().Slice(0, Math.Min(_salt.Length, _alphabet.Length - 1)).CopyTo(buffer.Slice(1));
 
