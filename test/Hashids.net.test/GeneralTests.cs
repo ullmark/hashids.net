@@ -58,7 +58,7 @@ namespace HashidsNet.test
             _hashids.DecodeSingle("yj8").Should().Be(303);
 
             Assert.Throws<NoResultException>(() => _hashids.DecodeSingle(string.Empty));
-            Assert.Throws<MultipleResultsException>(() => _hashids.DecodeSingle("aBMswoO2UB3Sj"));
+            Assert.Throws<NoResultException>(() => _hashids.DecodeSingle("aBMswoO2UB3Sj"));
         }
 
         [Fact]
@@ -120,7 +120,7 @@ namespace HashidsNet.test
             _hashids.DecodeSingleLong("jvNx4BjM5KYjv").Should().Be(long.MaxValue);
 
             Assert.Throws<NoResultException>(() => _hashids.DecodeSingleLong(string.Empty));
-            Assert.Throws<MultipleResultsException>(() => _hashids.DecodeSingleLong("6gH3kPY7MJ9zjM3"));
+            Assert.Throws<NoResultException>(() => _hashids.DecodeSingleLong("6gH3kPY7MJ9zjM3"));
         }
 
         [Fact]
@@ -416,6 +416,21 @@ namespace HashidsNet.test
             var mock = new Mock<Hashids>();
             mock.Setup(hashids => hashids.Encode(It.IsAny<int[]>())).Returns("It works");
             mock.Object.Encode(new[] { 1 }).Should().Be("It works");
+        }
+
+        [Theory]
+        [InlineData(4)]
+        [InlineData(5)]
+        [InlineData(6)]
+        [InlineData(7)]
+        [InlineData(8)]
+        [InlineData(9)]
+        [InlineData(10)]
+        public void GuardCharacterSingleDecode(int minHashLength)
+        {
+            var hashids = new HashidsNet.Hashids("salt", minHashLength);
+            var hash = hashids.Encode(123);
+            hashids.DecodeSingle(hash).Should().Be(123);
         }
     }
 }

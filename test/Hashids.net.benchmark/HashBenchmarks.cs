@@ -17,6 +17,7 @@ namespace Hashids.net.benchmark
         private readonly int[] _ints = { 12345, 1234567890, int.MaxValue };
         private readonly long[] _longs = { 12345, 1234567890123456789, long.MaxValue };
         private readonly string _hex = "507f1f77bcf86cd799439011";
+        private const string fiveEncoded = "nR";
 
         public HashBenchmarks()
         {
@@ -49,6 +50,25 @@ namespace Hashids.net.benchmark
         {
             var encoded = _hashids.Encode(5);
             var encodeLong = _hashids.EncodeLong(5);
+        }
+        
+        [Benchmark]
+        public long[] DecodeNumbers()
+        {
+            return _hashids.DecodeLong(fiveEncoded);
+        }
+
+        [Benchmark]
+        public long DecodeSingleNumber()
+        {
+            return _hashids.DecodeSingleLong(fiveEncoded);
+        }
+        
+        [Benchmark]
+        public void RoundtripSingle()
+        {
+            var encoded = _hashids.EncodeLong(5L);
+            var decodeSingleLong = _hashids.DecodeSingleLong(encoded);
         }
 
         [Benchmark]
