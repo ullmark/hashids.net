@@ -110,7 +110,6 @@ try
     number = hashids.DecodeSingle("NkK9");
 }
 catch (NoResultException) { // Decoding the provided hash has not yielded any result. }
-catch (MultipleResultsException) { // The decoding process yielded more than one result when just one was expected. }
 ```
 
 `number` is now going to be:
@@ -143,7 +142,6 @@ try
     number = hashids.DecodeSingleLong("KVO9yy1oO5j");
 }
 catch (NoResultException) { // Decoding the provided hash has not yielded any result. }
-catch (MultipleResultsException) { // The decoding process yielded more than one result when just one was expected. }
 ```
 
 `number` is now going to be:

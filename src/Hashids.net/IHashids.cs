@@ -21,7 +21,6 @@ namespace HashidsNet
         /// <param name="hash">the hashed string</param>
         /// <exception cref="T:System.OverflowException">if the number in the hash overflows the integer storage</exception>
         /// <exception cref="T:HashidsNet.NoResultException">If the decoded hash does not return any value</exception>
-        /// <exception cref="T:HashidsNet.MultipleResultsException">If the decoded hash returns more than one integer</exception>
         /// <returns>the number</returns>
         int DecodeSingle(string hash);
 
@@ -46,7 +45,6 @@ namespace HashidsNet
         /// </summary>
         /// <param name="hash">the hashed string</param>
         /// <exception cref="T:HashidsNet.NoResultException">If the decoded hash does not return any value</exception>
-        /// <exception cref="T:HashidsNet.MultipleResultsException">If the decoded hash returns more than one integer</exception>
         /// <returns>the number</returns>
         long DecodeSingleLong(string hash);
 
