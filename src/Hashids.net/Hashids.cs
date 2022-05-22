@@ -521,11 +521,11 @@ namespace HashidsNet
 
             var guardedHash = hash.AsSpan();
             var (count, ranges) = Split(guardedHash, _guards);
-            
+
             var unguardedIndex = count is 3 or 2 ? 1 : 0;
             var (start, offset) = ranges[unguardedIndex];
             var hashBreakdown = guardedHash.Slice(start, offset);
-            
+
             ArrayPool<(int, int)>.Shared.Return(ranges);
 
             var lottery = hashBreakdown[0];
@@ -540,10 +540,10 @@ namespace HashidsNet
             Span<char> buffer = _alphabet.Length < 512 ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
             buffer[0] = lottery;
             _salt.AsSpan().Slice(0, Math.Min(_salt.Length, _alphabet.Length - 1)).CopyTo(buffer.Slice(1));
-            
+
             var startIndex = 1 + _salt.Length;
             var length = _alphabet.Length - startIndex;
-            
+
             if (length > 0)
                 alphabet.Slice(0, length).CopyTo(buffer.Slice(startIndex));
 
@@ -665,13 +665,13 @@ namespace HashidsNet
                     indexStart++;
                     nextSeparatorIndex = line.Slice(indexStart).IndexOfAny(separators);
                 }
-                
+
                 isLastLoop = nextSeparatorIndex == -1;
                 if (isLastLoop)
                 {
                     nextSeparatorIndex = line.Length - indexStart;
                 }
-                
+
                 var slice = line.Slice(indexStart, nextSeparatorIndex);
                 if (slice.IsEmpty)
                 {

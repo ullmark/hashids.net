@@ -283,6 +283,12 @@ var hex = hashids.DecodeHex("kRNrpKlJ");
 
 ## Changelog
 
+**v.1.6.0**
+
+-   PR [#66](https://github.com/ullmark/hashids.net/pull/66) - Fixed invalid constant bug.
+-   PR [#67](https://github.com/ullmark/hashids.net/pull/67) and PR [#73](https://github.com/ullmark/hashids.net/pull/73) - Update and cleanup tests and constants.
+-   PR [#65](https://github.com/ullmark/hashids.net/pull/65) - Improved performance and reduced allocations for single number decode.
+
 **v1.5.0**
 
 -   PR [#59](https://github.com/ullmark/hashids.net/pull/59) and PR [#61](https://github.com/ullmark/hashids.net/pull/61) - Project clean up and removal of `net461` target.

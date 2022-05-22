@@ -51,7 +51,7 @@ namespace Hashids.net.benchmark
             var encoded = _hashids.Encode(5);
             var encodeLong = _hashids.EncodeLong(5);
         }
-        
+
         [Benchmark]
         public long[] DecodeNumbers()
         {
@@ -63,7 +63,7 @@ namespace Hashids.net.benchmark
         {
             return _hashids.DecodeSingleLong(fiveEncoded);
         }
-        
+
         [Benchmark]
         public void RoundtripSingle()
         {
