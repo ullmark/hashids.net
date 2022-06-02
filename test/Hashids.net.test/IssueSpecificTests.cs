@@ -65,5 +65,26 @@ namespace HashidsNet.test
 
             decoded.Should().Be(long.MaxValue);
         }
+
+        [Fact]
+        void Issue75_1CharacterHashShouldNotThrowException()
+        {
+            var hashids = new Hashids("salt");
+            Assert.Throws<NoResultException>(() => hashids.DecodeSingle("a"));
+        }
+
+        [Fact]
+        void Issue75_TooShortHashShouldNotThrowException()
+        {
+            var hashids = new Hashids("salt");
+            Assert.Throws<NoResultException>(() => hashids.DecodeSingle("ab"));
+        }
+
+        [Fact]
+        void Issue75_TooShortHashWithLargerHashLengthShouldNotThrowException()
+        {
+            var hashids = new Hashids("salt", 40);
+            Assert.Throws<NoResultException>(() => hashids.DecodeSingle("ab"));
+        }
     }
 }
