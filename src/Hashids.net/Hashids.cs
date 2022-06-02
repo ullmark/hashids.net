@@ -14,7 +14,7 @@ namespace HashidsNet
         public const string DEFAULT_ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         public const string DEFAULT_SEPS = "cfhistuCFHISTU";
         public const int MIN_ALPHABET_LENGTH = 16;
-        public const int MAX_STACKALLOC_SIZE = 512;
+        private const int MAX_STACKALLOC_SIZE = 512;
 
         private const double SEP_DIV = 3.5;
         private const double GUARD_DIV = 12.0;
@@ -24,6 +24,7 @@ namespace HashidsNet
         private readonly char[] _guards;
         private readonly char[] _salt;
         private readonly int _minHashLength;
+        private readonly int _minBufferSize;
 
         // Creates the Regex in the first usage, speed up first use of non-hex methods
         private static readonly Lazy<Regex> HexValidator = new(() => new Regex("^[0-9a-fA-F]+$", RegexOptions.Compiled));
@@ -61,6 +62,9 @@ namespace HashidsNet
             _minHashLength = minHashLength;
             _alphabet = alphabet.ToCharArray().Distinct().ToArray();
             _seps = seps.ToCharArray();
+            
+            // use min buffer size of 20 which is 1 digit longer than the biggest 64-bit integer (long.MaxValue = 9223372036854775807)
+            _minBufferSize = Math.Max(20, minHashLength);
 
             if (_alphabet.Length < MIN_ALPHABET_LENGTH)
                 throw new ArgumentException($"Alphabet must contain at least {MIN_ALPHABET_LENGTH:N0} unique characters.", paramName: nameof(alphabet));
@@ -142,8 +146,8 @@ namespace HashidsNet
         /// <returns>the hashed string</returns>
         public string EncodeLong(long number)
         {
-            var numberLength = _minHashLength > 20 ? _minHashLength : 20;
-            var result = numberLength < 512 ? stackalloc char[numberLength] : new char[numberLength];
+            var numberLength = _minBufferSize;
+            var result = numberLength < MAX_STACKALLOC_SIZE ? stackalloc char[numberLength] : new char[numberLength];
             var length = GenerateHashFrom(number, ref result);
             return length == -1 ? string.Empty : result.Slice(0, length).ToString();
         }
@@ -155,8 +159,8 @@ namespace HashidsNet
         /// <returns>Encoded hash string.</returns>
         public string EncodeLong(params long[] numbers)
         {
-            var numbersLength = _minHashLength > 20 ? _minHashLength * numbers.Length : numbers.Length * 20;
-            var result = numbersLength < 512 ? stackalloc char[numbersLength] : new char[numbersLength];
+            var numbersLength = _minBufferSize * numbers.Length;
+            var result = numbersLength < MAX_STACKALLOC_SIZE ? stackalloc char[numbersLength] : new char[numbersLength];
             var length = GenerateHashFrom(numbers, ref result);
             return length == -1 ? string.Empty : result.Slice(0, length).ToString();
         }
@@ -290,21 +294,20 @@ namespace HashidsNet
 
             var numberHashInt = number % 100;
 
-            var alphabet = _alphabet.Length < 512 ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
+            var alphabet = _alphabet.Length < MAX_STACKALLOC_SIZE ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
             _alphabet.CopyTo(alphabet);
 
             var lottery = alphabet[(int)(numberHashInt % _alphabet.Length)];
             result[0] = lottery;
 
-            var shuffleBuffer = _alphabet.Length < 512 ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
+            var shuffleBuffer = _alphabet.Length < MAX_STACKALLOC_SIZE ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
             shuffleBuffer[0] = lottery;
             _salt.AsSpan().Slice(0, Math.Min(_salt.Length, _alphabet.Length - 1)).CopyTo(shuffleBuffer.Slice(1));
 
             var startIndex = 1 + _salt.Length;
             var length = _alphabet.Length - startIndex;
 
-            // use buffer size of 19 which is the length of the biggest 64-bit integer (long.MaxValue = 9223372036854775807)
-            Span<char> hashBuffer = stackalloc char[19];
+            Span<char> hashBuffer = stackalloc char[_minBufferSize];
 
             if (length > 0)
                 alphabet.Slice(0, length).CopyTo(shuffleBuffer.Slice(startIndex));
@@ -409,8 +412,7 @@ namespace HashidsNet
             var startIndex = 1 + _salt.Length;
             var length = _alphabet.Length - startIndex;
 
-            // use buffer size of 19 which is the length of the biggest 64-bit integer (long.MaxValue = 9223372036854775807)
-            Span<char> hashBuffer = stackalloc char[19];
+            Span<char> hashBuffer = stackalloc char[_minBufferSize];
 
             for (var i = 0; i < numbers.Length; i++)
             {
@@ -495,8 +497,7 @@ namespace HashidsNet
                 hashBuffer[length] = alphabet[idx];
                 length += 1;
                 input /= _alphabet.Length;
-            }
-            while (input > 0);
+            } while (input > 0);
 
             return length;
         }
@@ -534,10 +535,10 @@ namespace HashidsNet
 
             var hashBuffer = hashBreakdown.Slice(1);
 
-            Span<char> alphabet = _alphabet.Length < 512 ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
+            Span<char> alphabet = _alphabet.Length < MAX_STACKALLOC_SIZE ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
             _alphabet.CopyTo(alphabet);
 
-            Span<char> buffer = _alphabet.Length < 512 ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
+            Span<char> buffer = _alphabet.Length < MAX_STACKALLOC_SIZE ? stackalloc char[_alphabet.Length] : new char[_alphabet.Length];
             buffer[0] = lottery;
             _salt.AsSpan().Slice(0, Math.Min(_salt.Length, _alphabet.Length - 1)).CopyTo(buffer.Slice(1));
 
@@ -550,10 +551,12 @@ namespace HashidsNet
             ConsistentShuffle(alphabet, buffer);
             var result = Unhash(hashBuffer, alphabet);
 
-            Span<char> resultBuffer = stackalloc char[guardedHash.Length];
+            // regenerate hash from numbers and compare to given hash to ensure the correct parameters were used
+            // ensure buffer is big enough based on what was generated
+            var bufferSize = Math.Max(_minBufferSize, guardedHash.Length);
+            Span<char> resultBuffer = stackalloc char[bufferSize];
             var hashLength = GenerateHashFrom(result, ref resultBuffer);
             ReadOnlySpan<char> rehash = resultBuffer.Slice(0, hashLength);
-            // regenerate hash from numbers and compare to given hash to ensure the correct parameters were used
             if (guardedHash.Equals(rehash, StringComparison.Ordinal))
                 return result;
 
@@ -564,10 +567,11 @@ namespace HashidsNet
         {
             var result = NumbersFrom(hash);
 
-            Span<char> hashBuffer = hash.Length < 512 ? stackalloc char[hash.Length] : new char[hash.Length];
+            Span<char> hashBuffer = hash.Length < MAX_STACKALLOC_SIZE ? stackalloc char[hash.Length] : new char[hash.Length];
             var hashLength = GenerateHashFrom(result, ref hashBuffer);
             if (hashLength == -1)
                 return Array.Empty<long>();
+
             ReadOnlySpan<char> rehash = hashBuffer.Slice(0, hashLength);
             // regenerate hash from numbers and compare to given hash to ensure the correct parameters were used
             if (hash.AsSpan().Equals(rehash, StringComparison.Ordinal))
