@@ -283,6 +283,10 @@ var hex = hashids.DecodeHex("kRNrpKlJ");
 
 ## Changelog
 
+**v.1.6.1**
+
+-   PR [#76](https://github.com/ullmark/hashids.net/pull/76) - Fix min buffer sizes.
+
 **v.1.6.0**
 
 -   PR [#66](https://github.com/ullmark/hashids.net/pull/66) - Fixed invalid constant bug.
