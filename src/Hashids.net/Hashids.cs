@@ -15,6 +15,7 @@ namespace HashidsNet
         public const string DEFAULT_SEPS = "cfhistuCFHISTU";
         public const int MIN_ALPHABET_LENGTH = 16;
         public const int MAX_STACKALLOC_SIZE = 512;
+        private const int MIN_BUFFER_SIZE = 20;
 
         private const double SEP_DIV = 3.5;
         private const double GUARD_DIV = 12.0;
@@ -142,7 +143,7 @@ namespace HashidsNet
         /// <returns>the hashed string</returns>
         public string EncodeLong(long number)
         {
-            var numberLength = _minHashLength > 20 ? _minHashLength : 20;
+            var numberLength = Math.Max(MIN_BUFFER_SIZE, _minHashLength);
             var result = numberLength < 512 ? stackalloc char[numberLength] : new char[numberLength];
             var length = GenerateHashFrom(number, ref result);
             return length == -1 ? string.Empty : result.Slice(0, length).ToString();
@@ -155,7 +156,7 @@ namespace HashidsNet
         /// <returns>Encoded hash string.</returns>
         public string EncodeLong(params long[] numbers)
         {
-            var numbersLength = _minHashLength > 20 ? _minHashLength * numbers.Length : numbers.Length * 20;
+            var numbersLength = Math.Max(MIN_BUFFER_SIZE, _minHashLength) * numbers.Length;
             var result = numbersLength < 512 ? stackalloc char[numbersLength] : new char[numbersLength];
             var length = GenerateHashFrom(numbers, ref result);
             return length == -1 ? string.Empty : result.Slice(0, length).ToString();
