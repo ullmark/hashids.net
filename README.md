@@ -384,4 +384,4 @@ var hex = hashids.DecodeHex("kRNrpKlJ");
 
 -   Initial version of the port.
 
-[nuget]: http://nuget.org/
+[nuget]: https://www.nuget.org/packages/Hashids.net
