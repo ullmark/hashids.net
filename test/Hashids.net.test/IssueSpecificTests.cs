@@ -86,5 +86,14 @@ namespace HashidsNet.test
             var hashids = new Hashids("salt", 40);
             Assert.Throws<NoResultException>(() => hashids.DecodeSingle("ab"));
         }
+
+        [Fact]
+        void Issue85_hash_shorter_than_min_length_should_not_throw_exception()
+        {
+            Hashids hashids = new Hashids(salt: "Dqa2s3RJBYPHUzg&R5qkF3Z4HLaWp#A^kMc^DqKVmqag2tasQjhz-PSM23=4", minHashLength: 8);
+            int[] numbers = hashids.Decode("5111111"); // Length = 7
+
+            Assert.Empty(numbers);
+        }
     }
 }

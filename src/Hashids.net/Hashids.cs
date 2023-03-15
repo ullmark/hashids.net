@@ -567,7 +567,8 @@ namespace HashidsNet
         {
             var result = NumbersFrom(hash);
 
-            Span<char> hashBuffer = hash.Length < MAX_STACKALLOC_SIZE ? stackalloc char[hash.Length] : new char[hash.Length];
+            int bufferSizeToAllocate = Math.Max(hash.Length, _minHashLength);
+            Span<char> hashBuffer = bufferSizeToAllocate < MAX_STACKALLOC_SIZE ? stackalloc char[bufferSizeToAllocate] : new char[bufferSizeToAllocate];
             var hashLength = GenerateHashFrom(result, ref hashBuffer);
             if (hashLength == -1)
                 return Array.Empty<long>();
