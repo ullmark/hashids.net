@@ -283,6 +283,11 @@ var hex = hashids.DecodeHex("kRNrpKlJ");
 
 ## Changelog
 
+**v.1.7.0**
+
+-   PR [#86](https://github.com/ullmark/hashids.net/pull/86) - Fix for decoding hash smaller than min length setting.
+-   Project build targets now set to `netstandard2.0`, `net6.0`, `net7.0`.
+
 **v.1.6.1**
 
 -   PR [#76](https://github.com/ullmark/hashids.net/pull/76) - Fix min buffer sizes.

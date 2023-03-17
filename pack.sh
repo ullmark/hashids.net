@@ -1,4 +1,3 @@
-
 dotnet build
 dotnet test
 dotnet clean
