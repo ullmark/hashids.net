@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<!-- net48 target is used as a stand-in for testing netstandard2.0 -->
-		<TargetFrameworks>net48;net5.0;net6.0</TargetFrameworks>
+		<TargetFrameworks>net48;net6.0;net7.0</TargetFrameworks>
 		<IsPackable>false</IsPackable>
 		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
