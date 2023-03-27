@@ -2,20 +2,27 @@
 
 A small .NET package to generate YouTube-like IDs from numbers.
 
-It converts numbers like `347` into strings like `yr8`, or array of numbers like `[27, 986]` into `3kTMd`. You can also decode those ids back. This is useful in bundling several parameters into one, hiding actual IDs, or simply using them as short string IDs.
+It converts numbers like `347` into strings like `yr8`, or array of numbers like `[27, 986]` into `3kTMd`. You can also decode those IDs back. This is useful in bundling several parameters into one, hiding actual IDs, or simply using them as short string IDs.
 
 [http://www.hashids.org/net/](http://www.hashids.org/net/)
 
 ## Features
 
--   Creates short unique ids from integers. _(only positive numbers & zero)_
+-   Creates short unique IDs from integers. _(only positive numbers & zero)_
 -   Generates non-sequential IDs for incremental input to stay unguessable.
--   Supports single number or array of numbers. _(supports `int` and `long`)_
--   Allows custom alphabet as well as salt — so ids are unique only to you. _(salt must be smaller than alphabet)_
--   Allows specifying minimum hash length.
+-   Supports a single number or array of numbers. _(supports `int` and `long`)_
+-   Supports custom alphabet and salt — so IDs are unique to your application. _(salt must be smaller than alphabet)_
+-   Supports minimum hash length.
 -   Tries to avoid basic English curse words.
 
-_NOTE: This is **NOT** a true cryptographic hash, since it is reversible_
+### Notes
+
+-   This is **NOT** a true cryptographic hash, since it is reversible.
+-   Only zero and positive integers are supported. Negative numbers will not be encoded.
+-   Only a minimum hash length can be specified. There is no way to fit arbitrary numbers within a maximum hash length.
+-   The alphabet must contain at least 16 unique characters and is case-sensitive.
+-   Separators are characters used to encode multiple numbers in a hash and must also be in the alphabet.
+-   The salt must be smaller than the available alphabet and is limited to the length of the `alphabet - separators - 1`.
 
 ## Installation
 
