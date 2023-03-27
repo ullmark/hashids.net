@@ -1,43 +1,34 @@
 name: Build
 
 on:
-  push:
-  pull_request:
-    branches: [ main ]
-    paths:
-    - '**.cs'
-    - '**.csproj'
-
-env:
-  DOTNET_VERSION: '6.0.x' # The .NET SDK version to use
+    push:
+    pull_request:
+        branches: [main]
+        paths:
+            - '**.cs'
+            - '**.csproj'
 
 jobs:
-  build-and-test:
+    build-and-test:
+        name: build-and-test-${{matrix.os}}
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                dotnet-version: ['7.0.x']
+                os: [windows-latest]
 
-    name: build-and-test-${{matrix.os}}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [windows-latest]
+        steps:
+            - uses: actions/checkout@v3
+            - name: Setup .NET SDK
+              uses: actions/setup-dotnet@v3
+              with:
+                  dotnet-version: ${{ matrix.dotnet-version }}
 
-    steps:
-    - uses: actions/checkout@v3
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
+            - name: Install dependencies
+              run: dotnet restore
 
-    - name: Setup .NET 5
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: 5.0.x
+            - name: Build
+              run: dotnet build --configuration Release --no-restore
 
-    - name: Install dependencies
-      run: dotnet restore
-      
-    - name: Build
-      run: dotnet build --configuration Release --no-restore
-    
-    - name: Test
-      run: dotnet test --no-restore --verbosity normal
-      
+            - name: Test
+              run: dotnet test --no-restore --verbosity normal
