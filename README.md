@@ -6,6 +6,12 @@ It converts numbers like `347` into strings like `yr8`, or array of numbers like
 
 [http://www.hashids.org/net/](http://www.hashids.org/net/)
 
+## NOTE: You might want to use sqids-dotnet instead.
+The original author of the Hashids algoritm has rebranded and created a new algoritm called "sqids", [you can read more about why here.](https://github.com/hashids). A .NET version of sqids has already been created and [can be found here](https://sqids.org/dotnet). 
+
+This library have more or less been considered feature complete since its creation 2012 and will remain available and accept pull requests for 
+bug fixes etc. but no new features will be added.
+
 ## Features
 
 -   Creates short unique IDs from integers. _(only positive numbers & zero)_
