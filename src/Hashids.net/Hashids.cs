@@ -565,6 +565,9 @@ namespace HashidsNet
 
         private long[] GetNumbersFrom(string hash)
         {
+            if (string.IsNullOrWhiteSpace(hash))
+                return Array.Empty<long>();
+
             var result = NumbersFrom(hash);
 
             int bufferSizeToAllocate = Math.Max(hash.Length, _minHashLength);
@@ -583,9 +586,6 @@ namespace HashidsNet
 
         private long[] NumbersFrom(string hash)
         {
-            if (string.IsNullOrWhiteSpace(hash))
-                return Array.Empty<long>();
-
             var guardedHash = hash.AsSpan();
             var (count, ranges) = Split(guardedHash, _guards);
 

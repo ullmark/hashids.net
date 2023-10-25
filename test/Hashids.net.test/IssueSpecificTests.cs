@@ -95,5 +95,16 @@ namespace HashidsNet.test
 
             Assert.Empty(numbers);
         }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        void Issue93_decoding_null_or_empty_string_should_return_empty_array(string input)
+        {
+            var hashids = new Hashids("salt");
+            int[] numbers = hashids.Decode(input);
+
+            Assert.Empty(numbers);
+        }
     }
 }
